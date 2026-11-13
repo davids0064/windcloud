@@ -173,6 +173,9 @@
 - **Verificar codificaciones con una imagen de control:** decodificar el PNG y mirarlo. En GFS f024 se ven los
   alisios del Caribe (21 km/h del ESE), calma amazónica y el chorro de Tehuantepec: orientación y detalle correctos.
 - `.gitignore` ignora `*.grib2`: los fixtures necesitan `!pipeline/tests/fixtures/*.grib2`.
+- **Pruebas lentas, no rotas:** con Chrome + servidor abiertos (o un build en paralelo), la 1.ª prueba de cada archivo
+  pasaba de 5 s (entorno jsdom ~46 % del tiempo). `testTimeout: 15_000` en `vite.config.ts`. Correr la suite completa
+  antes de cada commit (el de T-34 se hizo con 5 fallos por tiempo, corregido justo después).
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 

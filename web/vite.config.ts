@@ -8,6 +8,9 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],
+    // jsdom + carga diferida (mapa, gráfica) hacen lenta la 1.ª prueba de cada archivo cuando corren en
+    // paralelo con el servidor y el navegador abiertos: 5 s (por defecto) fallaba a veces sin error real.
+    testTimeout: 15_000,
     // Diseño §11: core/ (consenso, acuerdo, unidades) con cobertura ≥ 90 %.
     coverage: {
       include: ['src/core/**'],
