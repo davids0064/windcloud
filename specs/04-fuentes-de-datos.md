@@ -9,7 +9,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | **Open-Meteo Forecast API** | ECMWF IFS, AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway, KMA y más; `best_match` | No | ~10 000 llamadas/día, **solo no comercial**; datos CC BY 4.0 | Panel de punto multi-modelo | Lista de modelos y nombres |
 | **Open-Meteo Ensemble API** | ECMWF ENS (51), GFS ENS (31), ICON-EPS | No | Igual | Probabilidad de lluvia | Miembros disponibles |
 | **Open-Meteo Previous Runs API** | Pronósticos pasados por lead time | No | Igual | Verificación sin archivar runs | Variables `_previous_dayN` |
-| **Open-Meteo Geocoding** | Buscar lugares | No | Igual | Buscador | — |
+| **Open-Meteo Geocoding** | Buscar lugares (ciudades, regiones, países; datos GeoNames) | No | Igual | Buscador ✅ en uso | — |
 | **Open-Meteo Air Quality** | PM2.5, PM10, O₃ (CAMS) | No | Igual | Panel de punto | — |
 | **MET Norway Locationforecast** | Modelo noruego / ECMWF | No (exige `User-Agent` identificable genérico) | Gratis, CC BY 4.0 | Respaldo si Open-Meteo falla | Política de uso |
 | **Self-host Open-Meteo** | Todo lo anterior | No | AGPLv3 | **Plan B si el proyecto se vuelve comercial** | Requisitos de disco |

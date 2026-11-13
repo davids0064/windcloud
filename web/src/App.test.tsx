@@ -17,14 +17,16 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: 'WindCloud' })).toBeInTheDocument()
     expect(await screen.findByText('mapa simulado')).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: 'Buscar ciudad o país' })).toBeInTheDocument()
   })
 
   it('clic en el mapa muestra las coordenadas del punto en formato es-CO (RF-1)', async () => {
     render(<App />)
     await act(async () => fireEvent.click(await screen.findByText('mapa simulado')))
-    expect(screen.getByText(/Punto: 4,711°, -74,072°/)).toBeInTheDocument()
+    expect(screen.getByText('Punto seleccionado')).toBeInTheDocument()
+    expect(screen.getByText('4,711°, -74,072°')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: 'Quitar punto' }))
-    expect(screen.queryByText(/Punto:/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Punto seleccionado')).not.toBeInTheDocument()
   })
 })

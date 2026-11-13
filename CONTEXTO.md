@@ -13,9 +13,9 @@
 | Última actualización | 2026-11-13 |
 | Fase | Fase 1 · MVP — **1/9 tareas** (T-10 ✅). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-10 (MapView: MapLibre 6 + deck.gl, 3 mapas base, clic → punto) |
-| Siguiente tarea | **T-11** límites departamentales (geoBoundaries ADM1 ≤ 300 KB) |
-| Código existente | `web/src/map/` (MapView, basemaps, BasemapSwitcher, deckCompat, locale) · `App.tsx` (shell mínimo + chip de punto) · 11 pruebas web · `pipeline/` 4 pruebas · CI |
+| Última tarea cerrada | T-10 (MapView). Además: mapa más claro + nombres en español + buscador (parte de T-13) |
+| Siguiente tarea | **T-11** límites departamentales (geoBoundaries ADM1 ≤ 300 KB); luego completar T-13 |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, BasemapSwitcher, deckCompat, locale) · `web/src/api/` (http, geocoding) · `web/src/search/PlaceSearch` · `App.tsx` (cabecera + buscador + chip de punto) · 31 pruebas web · `pipeline/` 4 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
@@ -52,6 +52,9 @@
 | 2026-11-13 | Satélite = EOX Sentinel-2 cloudless (CC BY-NC-SA); Esri descartado | Esri exige cuenta ArcGIS; EOX sin clave | 04 Cartografía |
 | 2026-11-13 | Mapas base por visibilidad de capas sobre un solo estilo, sin `setStyle` | No perder capas de datos/deck.gl al cambiar base | 02 §4.0 |
 | 2026-11-13 | Mapa cargado con `React.lazy` | Bundle inicial 70 KB gz; mapa 410 KB gz aparte (RNF-2) | — |
+| 2026-11-13 | Paleta propia más clara sobre `dark` (gris pizarra) con contraste AA probado | Usuario: "se ve muy oscuro" | 02 §4.0 |
+| 2026-11-13 | Nombres de lugares en español (`name:es`) | Interfaz es-CO (P6); el estilo forzaba inglés | 02 §4.0 |
+| 2026-11-13 | Buscador adelantado de T-13 con Open-Meteo Geocoding; países solo centran, ciudades marcan punto | Pedido del usuario | 02 §4.0.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -79,6 +82,9 @@
   con terreno 3D y al dibujar capas. Adaptador en `web/src/map/deckCompat.ts`; quitarlo cuando deck.gl soporte v6.
 - MapLibre trae textos en inglés ("Zoom in", "Map"): se traducen con la opción `locale` (`map/locale.ts`).
 - jsdom no tiene WebGL: probar la lógica de mapa con mapas falsos y mockear `MapView` en pruebas de `App`.
+- El estilo `dark` de OpenFreeMap usa `name_en` (nombres en inglés) → se reemplaza `text-field` en `place_*`/`water_name`.
+- Open-Meteo Geocoding sí devuelve países (`feature_code` `PCLI`) y responde nombres/contexto en español con `language=es`.
+- oxlint (react) avisa `set-state-in-effect`: derivar estado al renderizar en vez de `setState` síncrono en efectos.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -95,6 +101,16 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · Mapa más claro + buscador de ciudad/país
+- **Tareas:** T-13 🟡 (solo buscador). Pedido directo del usuario.
+- **Hecho:** `map/palette.ts` (paleta gris pizarra + nombres `name:es`), `api/http.ts` (`fetchJson` 8 s + 1 reintento),
+  `api/geocoding.ts`, `search/PlaceSearch.tsx` (combobox ARIA con bandera, contexto, tipo y fuente). `MapView` acepta
+  `flyTo`; `App` pone el buscador en la cabecera y el chip muestra el nombre del lugar.
+- **Verificado:** typecheck ✓, lint ✓, 31/31 pruebas ✓ (incluye contraste AA de nombres), build ✓ (inicial 72 KB gz).
+  En Chrome: "Medellín" → lista con 6+ resultados, Enter vuela a Medellín (Antioquia) y marca punto; "España" →
+  vista de país sin marcador; nombres en español (ESPAÑA, LISBOA, ARGEL); consola sin errores.
+- **Pendiente / siguiente paso:** T-11 límites departamentales; completar T-13 (menú lateral, ubicación, reloj).
 
 ### 2026-11-13 · T-10 MapView (Fase 1)
 - **Tareas:** T-10 ✅

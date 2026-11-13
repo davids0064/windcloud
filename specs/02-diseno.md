@@ -81,6 +81,16 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Satélite:** raster EOX Sentinel-2 cloudless 2020 justo sobre el fondo; se ocultan los rellenos (`fill`), se
   conservan líneas y nombres.
 - **Relieve 3D:** `raster-dem` Terrarium (AWS) → `setTerrain` ×1,5 + sombreado bajo las líneas, cámara a 55°.
+- **Paleta propia** (`map/palette.ts`): el `dark` original es casi negro; se aclara a gris pizarra azulado
+  (tierra `#2b3541`, agua `#172433`, fronteras `#9aa6b3`, nombres ≥ 4,5:1 de contraste, probado en Vitest).
+- **Nombres en español:** capas `place_*` y `water_name` usan `coalesce(name:es, name:latin, name)`; las vías
+  conservan su nombre local.
+
+### 4.0.1 Buscador (RF-13) — `web/src/search/PlaceSearch.tsx`, `web/src/api/geocoding.ts`
+- Open-Meteo Geocoding (`language=es`, `count=8`), debounce 300 ms, mínimo 2 letras, caché en memoria,
+  `fetchJson` con 8 s de tiempo límite + 1 reintento (§10). Solo se envía el texto buscado (RNF-8).
+- Combobox ARIA (flechas, Enter, Escape), bandera, contexto "departamento, país", tipo y fuente visible (P2).
+- Tipo por código GeoNames: `PCL*` país (zoom 5, sin marcador), `ADM*` región (7), `PPL*` ciudad (10, marca el punto).
 
 ### 4.1 Viento (RF-2)
 - **Fuente:** GFS 0.25° (NOMADS, filtro `filter_gfs_0p25.pl` para bajar solo `UGRD`/`VGRD` a 10 m, 850, 500 hPa)

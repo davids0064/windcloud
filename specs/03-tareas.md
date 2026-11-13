@@ -15,6 +15,7 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [ ] **T-11** Límites departamentales (geoBoundaries ADM1 simplificado, ≤ 300 KB). → RF-1
 - [ ] **T-12** Capa de nubes NASA GIBS (GOES-East visible e IR); leer IDs reales de GetCapabilities; animación 3 h. → RF-3
 - [ ] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6
+      🟡 Buscador de ciudad/país hecho (`web/src/search/PlaceSearch.tsx`); faltan menú lateral, pestañas, ubicación y reloj.
 - [ ] **T-20** `api/openMeteo.ts`: petición multi-modelo (lista §5.1 del diseño), parseo por modelo, caché 30 min. → RF-6, RNF-5
 - [ ] **T-21** `core/consensus.ts` + `core/agreement.ts` con pruebas (u/v, mediana ponderada, nulos, pesos iguales). → RF-7, RF-8
 - [ ] **T-22** PointPanel: gráfica 7 días (una línea por modelo + consenso + banda), tarjetas con badge de acuerdo. → RF-6, RF-8

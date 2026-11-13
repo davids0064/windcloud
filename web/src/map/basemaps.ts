@@ -112,8 +112,8 @@ export function installBasemapSources(map: MapLibreMap): void {
         layout: { visibility: 'none' },
         paint: {
           'hillshade-shadow-color': '#000000',
-          'hillshade-highlight-color': '#5b6878',
-          'hillshade-accent-color': '#1c2128',
+          'hillshade-highlight-color': '#7d8a99',
+          'hillshade-accent-color': '#2b3541',
           'hillshade-exaggeration': 0.6,
         },
       },
