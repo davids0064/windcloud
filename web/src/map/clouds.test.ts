@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from 'vitest'
 import { CLOUD_LAYERS } from '../api/gibs'
-import { clearClouds, cloudId, setCloudFrames, showCloudFrame } from './clouds'
+import {
+  clearClouds,
+  cloudId,
+  ensureAllCloudFrames,
+  ensureCloudFrame,
+  showCloudFrame,
+} from './clouds'
 
 function fakeMap() {
   const layers: { id: string; type: string; paint?: Record<string, unknown> }[] = [
@@ -35,36 +41,54 @@ function fakeMap() {
 
 const frames = [new Date('2026-11-13T12:20:00Z'), new Date('2026-11-13T12:40:00Z')]
 
+const ten = Array.from({ length: 10 }, (_, i) => new Date(Date.UTC(2026, 10, 13, 10, i * 20)))
+
 describe('capa de nubes', () => {
-  it('crea una fuente por cuadro debajo de los departamentos, con atribución y zoom máximo', () => {
+  it('al abrir crea solo el cuadro visible, debajo de los departamentos', () => {
     const f = fakeMap()
-    setCloudFrames(f.map as never, CLOUD_LAYERS.infrarrojo, frames, 'wc-departamentos-relleno', '')
-    expect(f.ids()).toEqual([
-      'background',
-      cloudId(0),
-      cloudId(1),
+    ensureCloudFrame(
+      f.map as never,
+      CLOUD_LAYERS.infrarrojo,
+      frames,
+      1,
       'wc-departamentos-relleno',
-      'place_city',
-    ])
+      '',
+    )
+    ensureCloudFrame(
+      f.map as never,
+      CLOUD_LAYERS.infrarrojo,
+      frames,
+      1,
+      'wc-departamentos-relleno',
+      '',
+    )
+    expect(f.ids()).toEqual(['background', cloudId(1), 'wc-departamentos-relleno', 'place_city'])
     const src = f.sources.get(cloudId(1))!
     expect(src).toMatchObject({ type: 'raster', maxzoom: 6 })
     expect(String((src.tiles as string[])[0])).toContain('2026-11-13T12:40:00Z')
     expect(src.attribution).toMatch(/NASA GIBS/)
   })
 
+  it('al reproducir crea todos, empezando por el visible para que cargue primero', () => {
+    const f = fakeMap()
+    ensureAllCloudFrames(f.map as never, CLOUD_LAYERS.visible, ten, 9)
+    const order = f.map.addSource.mock.calls.map((c) => c[0])
+    expect(order).toHaveLength(10)
+    expect(order[0]).toBe(cloudId(9))
+    expect(new Set(order).size).toBe(10)
+  })
+
   it('animar solo cambia la opacidad del cuadro visible', () => {
     const f = fakeMap()
-    setCloudFrames(f.map as never, CLOUD_LAYERS.visible, frames)
+    ensureAllCloudFrames(f.map as never, CLOUD_LAYERS.visible, frames, 1)
     showCloudFrame(f.map as never, frames.length, 1, 0.9)
     expect(f.layers.find((l) => l.id === cloudId(0))!.paint!['raster-opacity']).toBe(0)
     expect(f.layers.find((l) => l.id === cloudId(1))!.paint!['raster-opacity']).toBe(0.9)
   })
 
-  it('reemplazar o apagar quita las capas y fuentes anteriores', () => {
+  it('apagar o cambiar de cuadros quita todas las capas y fuentes', () => {
     const f = fakeMap()
-    setCloudFrames(f.map as never, CLOUD_LAYERS.visible, frames)
-    setCloudFrames(f.map as never, CLOUD_LAYERS.visible, frames.slice(0, 1))
-    expect(f.ids().filter((id) => id.startsWith('wc-nubes-'))).toEqual([cloudId(0)])
+    ensureAllCloudFrames(f.map as never, CLOUD_LAYERS.visible, frames, 1)
     clearClouds(f.map as never)
     expect(f.ids().some((id) => id.startsWith('wc-nubes-'))).toBe(false)
     expect(f.sources.size).toBe(0)

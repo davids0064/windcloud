@@ -64,6 +64,8 @@
 | 2026-11-13 | Nubes: DescribeDomains + comprobación de la hora más reciente con tesela z2 | GetCapabilities pesa 5,8 MB; GIBS declara horas aún no publicadas (404) | 02 §4.2 |
 | 2026-11-13 | Nubes con fondo transparente por brillo vía protocolo `wcnubes://` (solo presentación) | Las teselas GIBS son opacas y tapaban el mapa | 02 §4.2 |
 | 2026-11-13 | Animación 3 h en 10 cuadros de 20 min (no 19 de 10 min); capa IR encendida por defecto | Mitad de peticiones; IR sirve día y noche | 02 §4.2 |
+| 2026-11-13 | Cuadros de nubes bajo demanda (visible al abrir, resto al reproducir) y nubes IR en blanco | Usuario: "en 3D no veo las nubes con infrarrojo". Medido: 15 s → 0,5 s | 02 §4.2 |
+| 2026-11-13 | `window.__wcMap` expuesto solo en desarrollo (`import.meta.env.DEV`) | Depurar el mapa desde la consola / Chrome | — |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -113,6 +115,10 @@
 - El manejador `map.on('error')` recibe también errores de teselas (con `sourceId`): no confundirlos con fallo del
   estilo base (antes mostraba "No se pudo cargar el mapa base" por un 404 de nubes).
 - GIBS respondió un 503 puntual en DescribeDomains; el reintento de `fetchText` lo resolvió.
+- **Relieve 3D pide muchas más teselas** (cámara inclinada + horizonte). Con 10 fuentes de nubes precargadas, la
+  visible (añadida al final) quedaba en cola ~15 s. Regla: crear primero lo que se ve; precargar solo al animar.
+- Nubes IR en gris semitransparente desaparecen sobre la imagen satelital: aclararlas a blanco.
+- Para depurar en Chrome: `window.__wcMap` (solo dev) → `getStyle().layers`, `isSourceLoaded(id)`, `getPaintProperty`.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -130,6 +136,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · Nubes en Relieve 3D (corrección de T-12)
+- **Reporte del usuario:** en 3D no se ven las nubes con infrarrojo.
+- **Diagnóstico (Chrome, `__wcMap`):** capas correctas (cuadro 9 a opacidad 0,9) pero fuentes 5–9 sin cargar tras
+  5 s: los 10 cuadros se precargaban y el visible iba último en la cola; en 3D hay muchas más teselas → ~15 s.
+  Además las nubes IR grises casi no contrastaban sobre el satélite.
+- **Hecho:** `clouds.ts` con `ensureCloudFrame`/`ensureAllCloudFrames` (bajo demanda, visible primero); `MapView`
+  recibe `preloadAll` (= reproduciendo); `cloudAlpha` aclara el gris IR a blanco sin tocar colores de tormenta.
+- **Verificado:** 65/65 pruebas ✓, typecheck, lint ✓. En Chrome, Relieve 3D → Apagado → Infrarrojo: nubes en
+  0,5 s (antes ~15 s), blancas y visibles sobre el satélite; reproducir crea y carga los 10 cuadros y los muestra
+  todos en 9 s; consola sin errores.
 
 ### 2026-11-13 · T-12 Nubes observadas (NASA GIBS)
 - **Tareas:** T-12 ✅

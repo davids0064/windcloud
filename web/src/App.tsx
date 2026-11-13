@@ -57,7 +57,12 @@ export default function App() {
           flyTo={flyTo}
           clouds={
             cloudKind && cloud.status === 'ready'
-              ? { layer: CLOUD_LAYERS[cloudKind], frames: cloud.frames, index: cloud.index }
+              ? {
+                  layer: CLOUD_LAYERS[cloudKind],
+                  frames: cloud.frames,
+                  index: cloud.index,
+                  preloadAll: cloud.playing,
+                }
               : null
           }
         />

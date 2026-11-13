@@ -18,21 +18,32 @@ export const COLOR_SATURATION = 40
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
+/** ¿Píxel IR coloreado (tope muy frío)? */
+const isColored = (r: number, g: number, b: number) =>
+  Math.max(r, g, b) - Math.min(r, g, b) > COLOR_SATURATION
+
 /** Opacidad 0–255 de un píxel de nube. */
 export function cloudAlpha(kind: CloudKind, r: number, g: number, b: number): number {
-  if (kind === 'infrarrojo' && Math.max(r, g, b) - Math.min(r, g, b) > COLOR_SATURATION) return 255
+  if (kind === 'infrarrojo' && isColored(r, g, b)) return 255
   const lum = 0.299 * r + 0.587 * g + 0.114 * b
   const { lo, hi } = ALPHA_RAMP[kind]
   const t = clamp01((lum - lo) / (hi - lo))
   return Math.round(t * t * (3 - 2 * t) * 255) // suavizado (smoothstep)
 }
 
-/** Aplica la opacidad en sitio sobre un RGBA (ImageData.data). Aclara un poco el gris del visible. */
+/**
+ * Aplica la opacidad en sitio sobre un RGBA (ImageData.data) y aclara el gris de las nubes hacia blanco, para
+ * que contrasten tanto en el mapa oscuro como sobre la imagen satelital. Los colores IR (tormentas) no se tocan.
+ */
 export function applyCloudAlpha(kind: CloudKind, rgba: Uint8ClampedArray): void {
   for (let i = 0; i < rgba.length; i += 4) {
-    const a = cloudAlpha(kind, rgba[i], rgba[i + 1], rgba[i + 2])
-    if (kind === 'visible') {
-      const v = Math.min(255, rgba[i] * 1.15 + 20)
+    const r = rgba[i]
+    const g = rgba[i + 1]
+    const b = rgba[i + 2]
+    const a = cloudAlpha(kind, r, g, b)
+    if (kind === 'visible' || !isColored(r, g, b)) {
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b
+      const v = Math.min(255, kind === 'visible' ? lum * 1.15 + 20 : lum * 0.6 + 110)
       rgba[i] = rgba[i + 1] = rgba[i + 2] = v
     }
     rgba[i + 3] = Math.round((a * rgba[i + 3]) / 255)

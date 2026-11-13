@@ -19,7 +19,13 @@ import {
 } from './basemaps'
 import { BasemapSwitcher } from './BasemapSwitcher'
 import { registerCloudProtocol } from './cloudAlpha'
-import { CLOUD_PREFIX, clearClouds, setCloudFrames, showCloudFrame } from './clouds'
+import {
+  CLOUD_PREFIX,
+  clearClouds,
+  ensureAllCloudFrames,
+  ensureCloudFrame,
+  showCloudFrame,
+} from './clouds'
 import { installDeckTransformShim } from './deckCompat'
 import {
   departmentAt,
@@ -59,7 +65,7 @@ interface MapViewProps {
   /** Destino al que mover la cámara (p. ej. resultado del buscador). */
   flyTo?: FlyTarget | null
   /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
-  clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number } | null
+  clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number; preloadAll?: boolean } | null
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
@@ -90,6 +96,7 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }:
     })
     mapRef.current = map
     installDeckTransformShim(map) // deck.gl 9.4 + MapLibre 6, ver deckCompat.ts
+    if (import.meta.env.DEV) (window as unknown as { __wcMap?: MapLibreMap }).__wcMap = map // depuración
 
     map.addControl(new NavigationControl({ visualizePitch: true }), 'top-right')
     map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-left')
@@ -151,27 +158,30 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }:
     if (ready && mapRef.current) applyBasemap(mapRef.current, basemap)
   }, [ready, basemap])
 
-  // Nubes: recrear fuentes solo cuando cambian la capa o los cuadros; animar solo cambia la opacidad.
+  // Nubes: al cambiar capa o cuadros se borra todo; luego se crean bajo demanda solo los cuadros necesarios
+  // (el visible, o todos al reproducir). Animar solo cambia la opacidad.
   const cloudLayer = clouds?.layer
   const cloudFrames = clouds?.frames
   const cloudKey = cloudLayer
     ? `${cloudLayer.kind}|${cloudFrames?.map((d) => d.getTime()).join(',')}`
     : ''
   const cloudIndex = clouds?.index ?? 0
+  const cloudPreloadAll = clouds?.preloadAll ?? false
   useEffect(() => {
     const map = mapRef.current
-    if (!ready || !map) return
-    if (!cloudLayer || !cloudFrames?.length) {
-      clearClouds(map)
-      return
-    }
-    setCloudFrames(map, cloudLayer, cloudFrames, DEPARTMENTS_FILL)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- cloudKey resume capa y cuadros
+    if (ready && map) clearClouds(map)
   }, [ready, cloudKey])
   useEffect(() => {
     const map = mapRef.current
-    if (ready && map && cloudFrames?.length) showCloudFrame(map, cloudFrames.length, cloudIndex)
-  }, [ready, cloudKey, cloudIndex, cloudFrames?.length])
+    if (!ready || !map || !cloudLayer || !cloudFrames?.length) return
+    if (cloudPreloadAll) {
+      ensureAllCloudFrames(map, cloudLayer, cloudFrames, cloudIndex, DEPARTMENTS_FILL)
+    } else {
+      ensureCloudFrame(map, cloudLayer, cloudFrames, cloudIndex, DEPARTMENTS_FILL)
+    }
+    showCloudFrame(map, cloudFrames.length, cloudIndex)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cloudKey resume capa y cuadros
+  }, [ready, cloudKey, cloudIndex, cloudPreloadAll])
 
   useEffect(() => {
     const map = mapRef.current

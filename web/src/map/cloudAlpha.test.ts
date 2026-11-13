@@ -37,6 +37,14 @@ describe('cloudAlpha (presentación de nubes)', () => {
     expect(px[11]).toBe(0)
   })
 
+  it('en infrarrojo aclara el gris de las nubes a blanco y deja intactos los colores de tormenta', () => {
+    const px = new Uint8ClampedArray([180, 180, 180, 255, 255, 0, 0, 255])
+    applyCloudAlpha('infrarrojo', px)
+    expect(px[0]).toBeGreaterThan(210) // gris → casi blanco: contrasta sobre el satélite
+    expect(px[0]).toBe(px[1])
+    expect([px[4], px[5], px[6], px[7]]).toEqual([255, 0, 0, 255]) // rojo intacto y opaco
+  })
+
   it('registra el protocolo una sola vez', () => {
     registerCloudProtocol()
     registerCloudProtocol()

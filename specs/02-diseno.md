@@ -118,11 +118,12 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Horas disponibles:** DescribeDomains `…/1.0.0/{capa}/default/{TMS}/all/{inicio}--{fin}.xml` (~400 B; el
   GetCapabilities pesa 5,8 MB). GIBS **declara horas antes de publicar sus teselas** (404): se comprueba la más
   reciente con una tesela z2 (2/1/1, cubre Colombia) y se descartan las no publicadas.
-- **Animación:** 10 cuadros (3 h cada 20 min), una fuente raster por cuadro precargada con opacidad 0; animar = cambiar
-  opacidad (700 ms/cuadro). Refresco cada 10 min. ~240 teselas por carga.
+- **Animación:** 10 cuadros (3 h cada 20 min), una fuente raster por cuadro **creada bajo demanda**: al abrir solo el
+  cuadro visible (~24 teselas); al reproducir, el resto (el visible primero). Animar = cambiar opacidad (700 ms/cuadro).
+  Refresco cada 10 min. Precargar los 10 de entrada retrasaba ~15 s la imagen en Relieve 3D (más teselas por la inclinación).
 - **Presentación:** las teselas llegan opacas; el protocolo `wcnubes://` (MapLibre `addProtocol`) convierte brillo en
-  opacidad (visible 55→165, IR 105→200, *smoothstep*); en IR los píxeles de color (topes fríos/tormentas) quedan
-  opacos. Solo cambia la visualización, no el dato. Va encima del mapa base y debajo de departamentos y nombres.
+  opacidad (visible 55→165, IR 105→200, *smoothstep*) y aclara el gris de las nubes hacia blanco (contraste sobre
+  el satélite); en IR los píxeles de color (topes fríos/tormentas) quedan opacos e intactos. Solo cambia la visualización, no el dato. Va encima del mapa base y debajo de departamentos y nombres.
 - **Panel:** chip "Observado", Apagado/Visible/Infrarrojo, reproducir y línea de tiempo, hora UTC + local + "hace X
   min", aviso "imagen atrasada" si > 2 h, "sin datos" si GIBS falla (nunca una imagen vieja), fuente visible.
 - Nubosidad **pronosticada**: textura escalar de `TCDC` (GFS) rotulada "pronóstico".
