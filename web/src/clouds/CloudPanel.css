@@ -25,16 +25,6 @@
   font-size: 0.95rem;
 }
 
-.chip {
-  padding: 1px 8px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
-  font-size: 0.72rem;
-}
-.chip--observed {
-  color: var(--observed);
-}
-
 .cloud-panel__segmented {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

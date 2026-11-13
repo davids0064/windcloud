@@ -2,9 +2,12 @@ import { lazy, Suspense, useMemo, useState } from 'react'
 import { ENSEMBLES } from '../api/ensemble'
 import { OPEN_METEO_SOURCE } from '../api/openMeteo'
 import { LOW_AGREEMENT_WARNING } from '../core/agreement'
+import { formatRunRange, formatRunUtc, isRunStale, runRange } from '../core/runs'
 import { MODELS } from '../core/models'
 import { LABELS, UNITS, type VariableId } from '../core/variables'
 import type { LatLon } from '../map/MapView'
+import { DataChip } from '../ui/DataChip'
+import { SourceLine } from '../ui/SourceLine'
 import { AgreementBadge } from './AgreementBadge'
 import { modelColor } from './colors'
 import { cardinal, cardNow, currentIndex, formatValue, rainNext24h, type CardData } from './summary'
@@ -33,14 +36,6 @@ const CHART_VARIABLES: VariableId[] = [
 const coordFmt = new Intl.NumberFormat('es-CO', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
-})
-const runFmt = new Intl.DateTimeFormat('es-CO', {
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-  timeZone: 'UTC',
 })
 
 /** Panel de punto multi-modelo (RF-6, RF-7, RF-8). Datos rotulados como "Pronóstico" (P3). */
@@ -80,11 +75,24 @@ export default function PointPanel({ point, onClose }: Props) {
   )
   const today = rain?.[0]
 
+  // Fuente + hora de los datos del panel (P2): rango de runs de los modelos usados.
+  const runList = data ? data.forecast.models.map((m) => data.runs[m.model.apiId] ?? null) : []
+  const modelRuns = {
+    label: formatRunRange(runList),
+    newest: runRange(runList)?.newest.toISOString(),
+  }
+  const fetchedLabel = data
+    ? data.forecast.fetchedAt.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit' })
+    : ''
+  const staleModels = data
+    ? data.forecast.models.filter((m) => isRunStale(data.runs[m.model.apiId] ?? null, now))
+    : []
+
   return (
     <aside className="point-panel" aria-labelledby="point-panel-title">
       <header className="point-panel__header">
         <div>
-          <span className="chip chip--forecast">Pronóstico</span>
+          <DataChip kind="pronostico" />
           <h2 id="point-panel-title" className="point-panel__title">
             {point.label ?? 'Punto seleccionado'}
           </h2>
@@ -124,6 +132,11 @@ export default function PointPanel({ point, onClose }: Props) {
           <p className="point-panel__when">
             Ahora ({view.hour} hora local) · consenso de {data.consensus.count[view.i]} modelos
           </p>
+          <SourceLine
+            source="Open-Meteo Forecast API"
+            time={{ label: modelRuns.label, dateTime: modelRuns.newest }}
+            extra={`consultado ${fetchedLabel}`}
+          />
           <div className="point-panel__cards">
             {view.cards.map((c) => (
               <article
@@ -199,6 +212,11 @@ export default function PointPanel({ point, onClose }: Props) {
             </article>
           </div>
 
+          <p className="point-panel__estimated">
+            <DataChip kind="estimado" /> El <strong>acuerdo</strong> es un indicador propio de
+            WindCloud (dispersión entre modelos); no es un pronóstico oficial.
+          </p>
+
           <section className="point-panel__chart">
             <div className="point-panel__chart-head">
               <h3>Próximos 7 días</h3>
@@ -228,6 +246,10 @@ export default function PointPanel({ point, onClose }: Props) {
               Línea blanca: consenso · banda: rango entre modelos · línea punteada: ahora. Toca un
               modelo en la leyenda para ocultarlo.
             </p>
+            <SourceLine
+              source="Open-Meteo Forecast API"
+              time={{ label: modelRuns.label, dateTime: modelRuns.newest }}
+            />
           </section>
 
           {rain && ensemble.data && (
@@ -258,13 +280,26 @@ export default function PointPanel({ point, onClose }: Props) {
                     />
                     <span className="point-panel__model-name">{m.model.label}</span>
                     <span className="point-panel__model-org">{m.model.org}</span>
-                    <span className="point-panel__model-run">
-                      {run ? `run ${runFmt.format(run)} UTC` : 'run desconocido'}
+                    <span
+                      className={
+                        isRunStale(run, now)
+                          ? 'point-panel__model-run point-panel__model-run--stale'
+                          : 'point-panel__model-run'
+                      }
+                    >
+                      {run ? `run ${formatRunUtc(run)}` : 'run desconocido'}
+                      {isRunStale(run, now) && ' ⚠ atrasado'}
                     </span>
                   </li>
                 )
               })}
             </ul>
+            {staleModels.length > 0 && (
+              <p className="point-panel__note point-panel__note--warn">
+                ⚠ {staleModels.map((m) => m.model.label).join(', ')}: su último run tiene más de un
+                día. Se incluye en el consenso, pero puede estar desactualizado.
+              </p>
+            )}
             {data.forecast.excluded.length > 0 && (
               <p className="point-panel__note">
                 No incluidos aquí:{' '}

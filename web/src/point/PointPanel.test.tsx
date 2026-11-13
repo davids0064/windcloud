@@ -93,7 +93,8 @@ describe('PointPanel', () => {
     render(<PointPanel point={point} onClose={() => {}} />)
     expect(screen.getByRole('status')).toHaveTextContent('Consultando 8 modelos')
     expect(await screen.findByText(/consenso de 8 modelos/)).toBeInTheDocument()
-    expect(screen.getByText('Pronóstico')).toBeInTheDocument()
+    const header = screen.getByRole('heading', { name: 'Bogotá, Colombia' }).closest('header')!
+    expect(within(header).getByText('Pronóstico')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Bogotá, Colombia' })).toBeInTheDocument()
     expect(screen.getByText('15,4')).toBeInTheDocument() // media de 15,0…15,7
     expect(screen.getByText(/del SE/)).toBeInTheDocument()
@@ -116,10 +117,13 @@ describe('PointPanel', () => {
   it('lista cada modelo con la hora de su run y explica los pesos (P2, RF-7)', async () => {
     render(<PointPanel point={point} onClose={() => {}} />)
     await screen.findByText(/consenso de 8 modelos/)
-    expect(screen.getAllByText('run 13/11, 06:00 UTC')).toHaveLength(8)
+    const list = screen
+      .getByRole('heading', { name: 'Modelos y hora de su run' })
+      .closest('section')!
+    expect(within(list).getAllByText('run 13/11, 06:00 UTC')).toHaveLength(8)
     expect(screen.getByText('¿Por qué este número?')).toBeInTheDocument()
     expect(screen.getByText(/todos los modelos pesan igual/)).toBeInTheDocument()
-    expect(screen.getByText(/Fuente: Open-Meteo/)).toBeInTheDocument()
+    expect(screen.getAllByText(/Fuente: Open-Meteo/).length).toBeGreaterThanOrEqual(3) // tarjetas, gráfica, ensambles
   })
 
   it('cambia la variable de la gráfica', async () => {
@@ -140,7 +144,11 @@ describe('PointPanel', () => {
     )
     fireEvent.click(screen.getByRole('button', { name: 'Reintentar' }))
     expect(await screen.findByText(/consenso de 8 modelos/)).toBeInTheDocument()
-    expect(screen.getAllByText('run desconocido')).toHaveLength(8) // sin meta.json no se inventa
+    const list = screen
+      .getByRole('heading', { name: 'Modelos y hora de su run' })
+      .closest('section')!
+    expect(within(list).getAllByText('run desconocido')).toHaveLength(8) // sin meta.json no se inventa
+    expect(screen.getAllByText('runs desconocidos').length).toBeGreaterThan(0)
   })
 
   it('funciona con StrictMode (doble montaje) y la caché compartida', async () => {
@@ -180,6 +188,51 @@ describe('PointPanel', () => {
     expect(await screen.findByText(/consenso de 8 modelos/)).toBeInTheDocument()
     expect(await screen.findByText(/Sin datos de probabilidad de lluvia/)).toBeInTheDocument()
     expect(screen.getByText('Sin datos de ensambles.')).toBeInTheDocument()
+  })
+
+  it('rotula cada dato y muestra fuente + hora junto a él (T-24: P2, P3, RNF-9)', async () => {
+    render(<PointPanel point={point} onClose={() => {}} />)
+    await screen.findByText(/consenso de 8 modelos/)
+    // Fuente + runs junto a las tarjetas, con <time> legible por máquinas
+    const sources = screen.getAllByText(/Fuente: Open-Meteo Forecast API/)
+    expect(sources.length).toBeGreaterThanOrEqual(2) // tarjetas y gráfica
+    const time = sources[0].querySelector('time')!
+    expect(time).toHaveTextContent('run 13/11, 06:00 UTC')
+    expect(time).toHaveAttribute('dateTime', '2026-11-13T06:00:00.000Z')
+    // El acuerdo es un indicador propio: rotulado "Estimado"
+    const estimated = screen.getByText('Estimado')
+    expect(estimated).toHaveAttribute('title', expect.stringMatching(/Indicador propio/))
+    // Probabilidad por ensamble: rotulada pronóstico y con su fuente
+    const rain = (await screen.findByRole('heading', { name: /Probabilidad de lluvia/ })).closest(
+      'section',
+    )!
+    expect(within(rain).getByText('Pronóstico')).toBeInTheDocument()
+    expect(within(rain).getByText(/Fuente: Open-Meteo Ensemble API/)).toBeInTheDocument()
+  })
+
+  it('marca un modelo con run de más de un día como atrasado (P4)', async () => {
+    const old = Math.floor(Date.now() / 1000) - 50 * 3600 // hace 50 h
+    fetchMock.mockImplementation(
+      realisticFetch((url) =>
+        url.includes('/static/meta.json')
+          ? {
+              ok: true,
+              json: async () => ({
+                last_run_initialisation_time: url.includes('cmc_gem')
+                  ? old
+                  : Math.floor(Date.now() / 1000) - 6 * 3600,
+              }),
+            }
+          : url.includes('ensemble-api')
+            ? { ok: true, json: async () => ensembleBody(30, 31) }
+            : { ok: true, json: async () => rawForecast() },
+      ),
+    )
+    render(<PointPanel point={point} onClose={() => {}} />)
+    await screen.findByText(/consenso de 8 modelos/)
+    expect(await screen.findByText(/⚠ atrasado/)).toBeInTheDocument()
+    expect(screen.getAllByText(/⚠ atrasado/)).toHaveLength(1)
+    expect(screen.getByText(/GEM: su último run tiene más de un día/)).toBeInTheDocument()
   })
 
   it('cerrar llama a onClose', () => {

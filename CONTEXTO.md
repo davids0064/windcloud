@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **7/9 tareas** (T-10, T-11, T-12, T-20…T-23 ✅; T-13 🟡 buscador; falta T-24). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **8/9 tareas** (T-10, T-11, T-12, T-20…T-24 ✅; **solo falta completar T-13**). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-23 (probabilidad de lluvia por ensamble ECMWF 51 / GFS 31, barras por día) |
-| Siguiente tarea | **T-24** chips Observado/Pronóstico/Estimado y fuente + hora en todo dato; luego completar **T-13** |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/probability.ts` · 117 pruebas web (core 98,2 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-24 (chips Observado/Pronóstico/Estimado + fuente y hora en todo dato; runs atrasados) |
+| Siguiente tarea | **T-13** completar shell (menú lateral colapsable, pestañas, "Usar mi ubicación", reloj UTC/local) → cierra fase 1 |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · 127 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -76,6 +76,8 @@
 | 2026-11-13 | El punto clicado se muestra en el panel lateral (reemplaza el chip de coordenadas) | RF-6 | 02 §9.1 |
 | 2026-11-13 | Ensambles **sin mezclar**: una barra por ensamble y día + acuerdo entre ellos | Calibraciones distintas; en Bogotá ECMWF ~59 % vs GEFS 100 %: la discrepancia es información | 02 §5.4 |
 | 2026-11-13 | "Hoy" de la probabilidad = desde la hora en curso | Si no, contaría lluvia ya caída (88 % día completo vs 51 % resto del día) | 02 §5.4 |
+| 2026-11-13 | El acuerdo entre modelos se rotula "Estimado" (indicador propio), no "Pronóstico" | P3: separar índices propios de pronósticos | 02 §9 |
+| 2026-11-13 | Run con > 30 h = "atrasado": se avisa pero sigue en el consenso | P4 sin descartar datos válidos; caso real `cmc_gem_gdps` congelado | 02 §9 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -159,6 +161,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-24 Naturaleza del dato y fuente + hora en todo dato
+- **Tareas:** T-24 ✅
+- **Auditoría previa:** nubes completas; faltaban fuente/run junto a tarjetas y gráfica, chip y fuente en
+  probabilidad de lluvia, rótulo del acuerdo (indicador propio) y aviso de runs atrasados; CSS de chips duplicado.
+- **Hecho:** `ui/DataChip.tsx`, `ui/SourceLine.tsx` (con `<time dateTime>`), `core/runs.ts` (`isRunStale` 30 h,
+  `runRange`, `formatRunRange`); aplicados en CloudPanel, PointPanel (tarjetas, gráfica, lista de modelos) y
+  RainProbability; estilos de chip unificados en `index.css`.
+- **Verificado:** 127/127 pruebas ✓ (incl. modelo con run de 50 h → "⚠ atrasado"), cobertura core 98,4 %, typecheck,
+  lint, build ✓. Auditoría en Chrome con JS: nubes, tarjetas, gráfica y probabilidad tienen chip + fuente + `<time>`.
+- **Pendiente / siguiente paso:** T-13 (cierra fase 1); revisar móvil 360 px (T-61); Metodología (T-60).
 
 ### 2026-11-13 · T-23 Probabilidad de lluvia por ensamble
 - **Tareas:** T-23 ✅

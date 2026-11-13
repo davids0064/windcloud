@@ -246,7 +246,15 @@ usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias
   deslizable en móvil.
 - Barra superior: buscador de lugar (Open-Meteo Geocoding API), "Usar mi ubicación", selector de modelo, reloj UTC/local.
 - Línea de tiempo inferior para capas de pronóstico (0–72 h).
-- Cada capa: chip "Observado" (verde) / "Pronóstico" (azul) / "Estimado" (ámbar) — P3.
+- Cada capa: chip "Observado" (verde) / "Pronóstico" (azul) / "Estimado" (ámbar) — P3. Componente único
+  `web/src/ui/DataChip.tsx` (texto + `title` explicativo; estilos en `index.css`).
+- **Fuente + hora** (P2, RNF-9): `web/src/ui/SourceLine.tsx` → "Fuente: X · <time>…</time>" junto a cada bloque de datos:
+  nubes (hora de la imagen), tarjetas y gráfica del punto (rango de runs + hora de consulta), probabilidad de
+  lluvia (runs de ensambles). El **acuerdo** es indicador propio → chip "Estimado" con la aclaración "no es un
+  pronóstico oficial".
+- **Runs atrasados** (P4): un run que empezó hace > 30 h se marca "⚠ atrasado" y se avisa debajo de la lista de
+  modelos (sigue en el consenso, pero se declara). `web/src/core/runs.ts`.
+- Cartografía (mapas base, departamentos) y buscador no son datos meteorológicos: solo atribución, sin chip.
 - Indicador "Conectado / Datos de hace X min" como en la referencia.
 
 ## 10. Manejo de errores

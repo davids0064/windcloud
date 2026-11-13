@@ -26,7 +26,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       uPlot (carga diferida); clic en Bogotá → 8 modelos, consenso y acuerdo en 449 ms (criterio de fase 1: < 3 s).
 - [x] **T-23** Probabilidad de lluvia por ensamble (ECMWF 51 / GFS 31 miembros). → RF-6
       Barras por día y ensamble (sin mezclarlos), "hoy" desde la hora en curso, acuerdo entre ensambles, run de cada uno.
-- [ ] **T-24** Chips Observado/Pronóstico/Estimado y "fuente + hora" en todo dato. → P2, P3, RNF-9
+- [x] **T-24** Chips Observado/Pronóstico/Estimado y "fuente + hora" en todo dato. → P2, P3, RNF-9
+      `ui/DataChip` + `ui/SourceLine` (con `<time>`); acuerdo rotulado "Estimado"; runs > 30 h marcados "atrasado". Auditado en Chrome.
   *Hecho fase 1:* clic en Bogotá muestra ≥ 5 modelos, consenso y acuerdo en < 3 s.
 
 ## Fase 2 · Viento animado y capas de pronóstico

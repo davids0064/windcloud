@@ -19,7 +19,9 @@ describe('CloudPanel', () => {
     render(<CloudPanel {...base} />)
     expect(screen.getByText('Observado')).toBeInTheDocument()
     expect(screen.getByText('12:40 UTC')).toBeInTheDocument()
-    expect(screen.getByText(/Fuente: NASA GIBS · GOES-East/)).toBeInTheDocument()
+    const source = screen.getByText(/Fuente: NASA GIBS · GOES-East/)
+    expect(source.querySelector('time')).toHaveAttribute('dateTime', '2026-11-13T12:40:00.000Z')
+    expect(source).toHaveTextContent('imagen 12:40 UTC')
   })
 
   it('permite cambiar el tipo, reproducir y mover la línea de tiempo', () => {

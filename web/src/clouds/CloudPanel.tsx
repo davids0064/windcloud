@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { CLOUD_LAYERS, GIBS_SOURCE, type CloudKind } from '../api/gibs'
 import { formatAge, formatLocal, formatUtc, isStale } from './time'
 import type { CloudStatus } from './useCloudAnimation'
+import { DataChip } from '../ui/DataChip'
+import { SourceLine } from '../ui/SourceLine'
 import './CloudPanel.css'
 
 interface Props {
@@ -39,7 +41,7 @@ export function CloudPanel(props: Props) {
         <h2 id="cloud-panel-title" className="cloud-panel__title">
           Nubes
         </h2>
-        <span className="chip chip--observed">Observado</span>
+        <DataChip kind="observado" />
       </header>
 
       <div
@@ -100,7 +102,10 @@ export function CloudPanel(props: Props) {
             </p>
           )}
           {kind && <p className="cloud-panel__desc">{CLOUD_LAYERS[kind].description}</p>}
-          <p className="cloud-panel__source">Fuente: {GIBS_SOURCE}</p>
+          <SourceLine
+            source={GIBS_SOURCE}
+            time={{ label: `imagen ${formatUtc(frame)}`, dateTime: frame.toISOString() }}
+          />
         </>
       )}
     </section>

@@ -56,3 +56,30 @@ a {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Naturaleza del dato (P3) — DataChip */
+.chip {
+  display: inline-block;
+  padding: 1px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.chip--observado {
+  color: var(--observed);
+}
+.chip--pronostico {
+  color: var(--forecast);
+}
+.chip--estimado {
+  color: var(--estimated);
+}
+
+/* Fuente + hora (P2) — SourceLine */
+.source-line {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}

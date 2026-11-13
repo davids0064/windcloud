@@ -1,5 +1,8 @@
 import type { EnsembleInfo } from '../api/ensemble'
 import { RAIN_DAY_MM } from '../core/probability'
+import { formatRunRange, formatRunUtc, runRange } from '../core/runs'
+import { DataChip } from '../ui/DataChip'
+import { SourceLine } from '../ui/SourceLine'
 import { AgreementBadge } from './AgreementBadge'
 import { formatPct, type RainDay } from './rain'
 
@@ -10,15 +13,6 @@ interface Props {
   ensembles: EnsembleInfo[]
 }
 
-const runFmt = new Intl.DateTimeFormat('es-CO', {
-  day: '2-digit',
-  month: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-  timeZone: 'UTC',
-})
-
 /** Barras de probabilidad de lluvia por día y por ensamble (RF-6, diseño §5.4). */
 export function RainProbability({ days, timezone, runs, ensembles }: Props) {
   const dayFmt = new Intl.DateTimeFormat('es-CO', {
@@ -28,7 +22,10 @@ export function RainProbability({ days, timezone, runs, ensembles }: Props) {
   })
   return (
     <section className="rain-prob" aria-labelledby="rain-prob-title">
-      <h3 id="rain-prob-title">Probabilidad de lluvia (&gt; {RAIN_DAY_MM} mm en el día)</h3>
+      <div className="rain-prob__head">
+        <h3 id="rain-prob-title">Probabilidad de lluvia (&gt; {RAIN_DAY_MM} mm en el día)</h3>
+        <DataChip kind="pronostico" />
+      </div>
       <ul className="rain-prob__days">
         {days.map((d, k) => (
           <li key={d.day} className="rain-prob__day">
@@ -70,7 +67,7 @@ export function RainProbability({ days, timezone, runs, ensembles }: Props) {
             <li key={e.apiId}>
               <span className={`rain-prob__swatch rain-prob__bar--${i}`} aria-hidden="true" />
               {e.label}: {e.members} miembros ·{' '}
-              {run ? `run ${runFmt.format(run)} UTC` : 'run desconocido'}
+              {run ? `run ${formatRunUtc(run)}` : 'run desconocido'}
             </li>
           )
         })}
@@ -86,6 +83,13 @@ export function RainProbability({ days, timezone, runs, ensembles }: Props) {
         porcentaje es la fracción de miembros que prevén más de {RAIN_DAY_MM} mm ese día (hora local
         de {timezone}).
       </p>
+      <SourceLine
+        source="Open-Meteo Ensemble API"
+        time={{
+          label: formatRunRange(ensembles.map((e) => runs[e.apiId] ?? null)),
+          dateTime: runRange(ensembles.map((e) => runs[e.apiId] ?? null))?.newest.toISOString(),
+        }}
+      />
     </section>
   )
 }
