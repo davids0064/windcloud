@@ -6,7 +6,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 ## Pronóstico por punto
 | Fuente | Qué da | Clave | Límite / licencia | Uso en WindCloud | Verificar |
 |---|---|---|---|---|---|
-| **Open-Meteo Forecast API** | ECMWF IFS, AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway, KMA y más; `best_match` | No | ~10 000 llamadas/día, **solo no comercial**; datos CC BY 4.0 | Panel de punto multi-modelo | Lista de modelos y nombres |
+| **Open-Meteo Forecast API** | ECMWF IFS, AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway, KMA y más; `best_match`. *MET Norway solo es independiente en Escandinavia: en Colombia repite a ECMWF y WindCloud no lo usa (diseño §5.1)* | No | ~10 000 llamadas/día, **solo no comercial**; datos CC BY 4.0 | Panel de punto multi-modelo | Lista de modelos y nombres |
 | **Open-Meteo Ensemble API** | ECMWF ENS (51), GFS ENS (31), ICON-EPS | No | Igual | Probabilidad de lluvia | Miembros disponibles |
 | **Open-Meteo Previous Runs API** | Pronósticos pasados por lead time | No | Igual | Verificación sin archivar runs | Variables `_previous_dayN` |
 | **Open-Meteo Geocoding** | Buscar lugares (ciudades, regiones, países; datos GeoNames) | No | Igual | Buscador ✅ en uso | — |

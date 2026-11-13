@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **5/9 tareas** (T-10, T-11, T-12, T-20, T-21 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **6/9 tareas** (T-10, T-11, T-12, T-20, T-21, T-22 ✅; T-13 🟡 buscador; faltan T-23, T-24). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-20 + T-21 (Open-Meteo 8 modelos + motor de consenso y acuerdo; aún sin interfaz) |
-| Siguiente tarea | **T-22** PointPanel (gráfica 7 días por modelo + consenso + banda, tarjetas con acuerdo) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/search/PlaceSearch` · `web/public/geo/` · 93 pruebas web (core 97,7 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-22 (panel de punto: tarjetas con acuerdo, gráfica 7 días uPlot, modelos con run) |
+| Siguiente tarea | **T-23** probabilidad de lluvia por ensamble (ECMWF 51 / GFS 31 miembros) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · 105 pruebas web (core 97,7 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -70,6 +70,10 @@
 | 2026-11-13 | Hora del run por `meta.json` de cada modelo (componente global) | La Forecast API no la trae; P2 la exige | 02 §5.1 |
 | 2026-11-13 | Caché propia en `api/openMeteo.ts` (30 min); TanStack Query se evaluará en T-22 | Funciona y se prueba sin React | 02 §2 |
 | 2026-11-13 | Velocidad de consenso = media de velocidades; dirección = media u/v | El vector medio subestima la velocidad cuando discrepan | 02 §5.2 |
+| 2026-11-13 | Gráficas con uPlot (carga diferida) | Ligero (~50 KB), maneja 8 × 168 puntos sin esfuerzo | 02 §9.1 |
+| 2026-11-13 | Sin TanStack Query: hook propio sobre la caché de `api/openMeteo.ts` | Suficiente; una dependencia menos | 02 §2, §9.1 |
+| 2026-11-13 | Tarjeta de lluvia = acumulado próximas 24 h (las demás, hora en curso) | La lluvia horaria suele ser 0 y dice poco | 02 §9.1 |
+| 2026-11-13 | El punto clicado se muestra en el panel lateral (reemplaza el chip de coordenadas) | RF-6 | 02 §9.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -128,6 +132,11 @@
   AIFS y JMA sin ráfagas; ARPEGE ~104 h. Coste por consulta 5,4 de 600/min (`X-RateLimit-*`).
 - Probar módulos reales en el navegador: con el dev server, `await import('/src/api/openMeteo.ts')` en
   `javascript_tool` ejecuta el código TS de verdad contra la API (útil para verificación de punta a punta).
+- **Caché de promesas + AbortSignal = bug:** con StrictMode (doble montaje) la 1.ª petición se abortaba y la caché
+  entregaba esa promesa abortada ("signal is aborted without reason"). Las funciones cacheadas no aceptan `signal`.
+- **Mocks de `fetch` deben respetar `signal`** (tardar y rechazar con AbortError); si no, la prueba de regresión
+  pasaba igual con el bug. Comprobar que la prueba falla con el bug reintroducido antes de darla por buena.
+- uPlot arma la leyenda como `<table><tbody><tr>`: la rejilla CSS va en el `tbody`, no en la tabla.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -145,6 +154,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-22 Panel de punto multi-modelo
+- **Tareas:** T-22 ✅ (+ nota MET Norway en `04-fuentes-de-datos.md`, que faltaba)
+- **Hecho:** `point/summary.ts` (hora en curso, banda, tarjetas, lluvia 24 h, cardinales), `usePointForecast.ts`,
+  `ModelChart.tsx` (uPlot), `AgreementBadge.tsx`, `colors.ts` (Okabe-Ito), `PointPanel.tsx` + CSS. `App` abre el
+  panel al hacer clic o buscar una ciudad; se eliminó el chip de coordenadas.
+- **Bug encontrado en Chrome:** el panel quedaba en "sin datos" por la caché + AbortSignal con StrictMode.
+  Corregido y cubierto con prueba que **falla con el bug y pasa con la corrección** (mock de fetch realista).
+- **Verificado:** 105/105 pruebas ✓, cobertura core 97,7 %, typecheck, lint, build ✓. En Chrome: clic en Bogotá →
+  449 ms hasta tarjetas, 8 modelos; 14,8 °C (alto), viento 9 km/h del SE (medio), ráfagas 13–46 km/h (**bajo + aviso**),
+  nubosidad 80 % (medio), lluvia 24 h 0,1 mm (alto); gráfica con leyenda de valores al pasar el cursor; runs listados.
+- **Pendiente / siguiente paso:** T-23 ensambles; T-24 chips y fuente+hora en todo dato; T-13 resto; revisar móvil 360 px (T-61).
 
 ### 2026-11-13 · T-20 + T-21 Open-Meteo multi-modelo y motor de consenso
 - **Tareas:** T-20 ✅ · T-21 ✅

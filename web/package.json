@@ -22,7 +22,8 @@
     "@math.gl/web-mercator": "^4.1.0",
     "maplibre-gl": "^6.18.0",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "uplot": "^1.6.32"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^7.0.1",

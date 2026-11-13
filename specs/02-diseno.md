@@ -219,6 +219,21 @@ usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias
   (plan gratuito) que revisa puntos suscritos. Se deja como fase 3 y se valida el límite de CPU del plan gratis.
 
 ## 9. Interfaz
+
+### 9.1 Panel de punto (RF-6/7/8, T-22) — `web/src/point/`
+- Panel lateral derecho (440 px; hoja inferior de 62 vh en móvil); los controles del mapa a la derecha se corren.
+  Chip "Pronóstico", nombre del lugar, coordenadas y altura de la rejilla del modelo.
+- Tarjetas "ahora" (hora en curso en la zona del punto): temperatura, viento (+ flecha y punto cardinal en
+  español), ráfagas, nubosidad; lluvia como acumulado de las **próximas 24 h** (acuerdo = resumen pesimista).
+  Cada una: consenso, rango entre modelos y n.º de modelos, insignia de acuerdo con texto + icono (no solo color);
+  si es Bajo, aviso "Los modelos no coinciden: pronóstico incierto".
+- Gráfica 7 días con **uPlot** (carga diferida): línea por modelo (paleta Okabe-Ito, apta para daltonismo), consenso
+  en blanco, banda mín–máx, línea punteada "ahora", eje en la zona horaria del punto, leyenda con valores al pasar
+  el cursor; pestañas por variable.
+- Lista de modelos con la hora de su run (UTC) o "run desconocido"; modelos excluidos con su motivo;
+  "¿Por qué este número?" con los pesos y cómo se agrega cada variable; fuente y hora de consulta.
+- Datos: hook propio `usePointForecast` sobre la caché de `api/openMeteo.ts` (sin TanStack Query: no hizo falta).
+  La consulta cacheada **no recibe AbortSignal** (ver §10).
 - Layout tipo fuego.huella.world: mapa a pantalla completa, **menú lateral colapsable** con pestañas, panel inferior
   deslizable en móvil.
 - Barra superior: buscador de lugar (Open-Meteo Geocoding API), "Usar mi ubicación", selector de modelo, reloj UTC/local.
@@ -227,6 +242,8 @@ usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias
 - Indicador "Conectado / Datos de hace X min" como en la referencia.
 
 ## 10. Manejo de errores
+- Promesas compartidas en caché nunca se atan al AbortSignal de un componente: si se cancelara, la caché
+  entregaría a otros una petición abortada (bug real con StrictMode). El componente ignora resultados tardíos.
 - Cada fuente envuelta en `fetchWithTimeout(8 s)` + 1 reintento; si falla → estado "sin datos" en la capa (P4).
 - Si un modelo devuelve `null`, se excluye y se lista como "sin cobertura aquí".
 - Los jobs de Actions fallan sin borrar la última versión publicada; `meta.json` incluye `generated_at` y la UI

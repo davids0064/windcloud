@@ -138,11 +138,20 @@ function cached<T>(
   return value
 }
 
-/** Pronóstico de todos los modelos para un punto (caché 30 min por punto redondeado). */
+/** Opciones de las consultas cacheadas: sin `signal` a propósito. */
+type CachedFetchOptions = Omit<FetchOptions, 'signal'> & { now?: number }
+
+/**
+ * Pronóstico de todos los modelos para un punto (caché 30 min por punto redondeado).
+ *
+ * No acepta `AbortSignal`: la promesa se comparte en caché entre componentes, y si la cancelara quien la pidió
+ * primero, la caché entregaría a los demás una petición abortada (pasaba con StrictMode, que monta dos veces).
+ * Quien ya no necesite el resultado simplemente lo ignora.
+ */
 export function fetchMultiModel(
   lat: number,
   lon: number,
-  options: FetchOptions & { now?: number } = {},
+  options: CachedFetchOptions = {},
 ): Promise<MultiModelForecast> {
   const now = options.now ?? Date.now()
   const key = `${roundCoord(lat)},${roundCoord(lon)}`
@@ -160,7 +169,7 @@ export function fetchMultiModel(
 }
 
 /** Hora de inicio del último run de un modelo (P2), o null si no se pudo saber. */
-export function fetchModelRun(model: ModelInfo, options: FetchOptions & { now?: number } = {}) {
+export function fetchModelRun(model: ModelInfo, options: CachedFetchOptions = {}) {
   const now = options.now ?? Date.now()
   return cached(
     runCache,

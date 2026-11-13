@@ -20,6 +20,27 @@ vi.mock('./map/MapView', () => ({
   ),
 }))
 
+// El panel de punto se prueba aparte (PointPanel.test.tsx); aquí solo importa qué punto recibe.
+vi.mock('./point/PointPanel', () => ({
+  default: ({
+    point,
+    onClose,
+  }: {
+    point: { lat: number; lon: number; label?: string }
+    onClose: () => void
+  }) => (
+    <aside>
+      <h2>{point.label ?? 'Punto seleccionado'}</h2>
+      <p>
+        {point.lat}, {point.lon}
+      </p>
+      <button type="button" onClick={onClose} aria-label="Cerrar panel">
+        ×
+      </button>
+    </aside>
+  ),
+}))
+
 describe('App', () => {
   // El panel de nubes consulta GIBS al iniciar: sin red en pruebas.
   beforeEach(() => {
@@ -34,19 +55,19 @@ describe('App', () => {
     expect(screen.getByRole('combobox', { name: 'Buscar ciudad o país' })).toBeInTheDocument()
   })
 
-  it('clic en el mapa muestra las coordenadas del punto en formato es-CO (RF-1)', async () => {
+  it('clic en el mapa abre el panel de punto para esas coordenadas (RF-1 → RF-6)', async () => {
     render(<App />)
     await act(async () => fireEvent.click(await screen.findByText('mapa simulado')))
-    expect(screen.getByText('Punto seleccionado')).toBeInTheDocument()
-    expect(screen.getByText('4,711°, -74,072°')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Punto seleccionado' })).toBeInTheDocument()
+    expect(screen.getByText('4.711, -74.0721')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Quitar punto' }))
-    expect(screen.queryByText('Punto seleccionado')).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar panel' }))
+    expect(screen.queryByRole('heading', { name: 'Punto seleccionado' })).not.toBeInTheDocument()
   })
 
   it('si el clic cae en un departamento, el chip lo nombra (T-11)', async () => {
     render(<App />)
     await act(async () => fireEvent.click(await screen.findByText('clic en Antioquia')))
-    expect(screen.getByText('Punto en Antioquia')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Punto en Antioquia' })).toBeInTheDocument()
   })
 })

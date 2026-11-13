@@ -1,0 +1,289 @@
+.point-panel {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  bottom: 10px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  width: min(440px, calc(100% - 20px));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.point-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.point-panel__title {
+  margin: 6px 0 2px;
+  font-size: 1.05rem;
+  line-height: 1.25;
+}
+
+.point-panel__coords {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.point-panel__close {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.chip--forecast {
+  color: var(--forecast);
+}
+
+.point-panel__body {
+  display: grid;
+  gap: 14px;
+  padding: 12px 14px 16px;
+  overflow-y: auto;
+}
+
+.point-panel__msg {
+  margin: 0;
+  padding: 14px;
+  color: var(--text-muted);
+}
+
+.point-panel__msg--warn {
+  color: var(--estimated);
+}
+
+.point-panel__msg button {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.point-panel__when {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.point-panel__cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.card {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.card--bajo {
+  border-color: color-mix(in srgb, var(--estimated) 60%, var(--border));
+}
+
+.card__label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.card__period {
+  font-weight: normal;
+}
+
+.card__value {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.card__unit {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: normal;
+}
+
+.card__dir {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
+.card__arrow {
+  display: inline-block;
+}
+
+.card__range {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.card__warn {
+  margin: 0;
+  color: var(--estimated);
+  font-size: 0.72rem;
+}
+
+.agreement {
+  justify-self: start;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+.agreement span {
+  letter-spacing: -1px;
+}
+.agreement--alto {
+  color: #0b0d10;
+  background: var(--observed);
+}
+.agreement--medio {
+  color: #0b0d10;
+  background: #e0c95b;
+}
+.agreement--bajo {
+  color: #0b0d10;
+  background: var(--estimated);
+}
+.agreement--na {
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.point-panel__chart-head {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.point-panel h3 {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tabs button {
+  padding: 4px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.tabs button[aria-selected='true'] {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.point-panel__note,
+.point-panel__source {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.point-panel__models ul {
+  display: grid;
+  gap: 4px;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.78rem;
+}
+
+.point-panel__models li {
+  display: grid;
+  grid-template-columns: 10px auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.point-panel__model-org {
+  overflow: hidden;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.point-panel__model-run {
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.point-panel__why {
+  font-size: 0.8rem;
+}
+
+.point-panel__why summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.point-panel__why p {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+}
+
+/* Con el panel abierto, los controles del mapa a la derecha se corren para no quedar debajo. */
+@media (min-width: 641px) {
+  .app--panel-open .maplibregl-ctrl-top-right,
+  .app--panel-open .basemap-switcher {
+    right: 460px;
+  }
+}
+
+/* Móvil: hoja inferior. */
+@media (max-width: 640px) {
+  .point-panel {
+    top: auto;
+    left: 10px;
+    height: 62vh;
+    width: auto;
+  }
+}

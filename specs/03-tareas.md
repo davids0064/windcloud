@@ -22,7 +22,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       8 modelos independientes validados contra la API real; hora del run por `meta.json`; Bogotá en ~0,5 s.
 - [x] **T-21** `core/consensus.ts` + `core/agreement.ts` con pruebas (u/v, mediana ponderada, nulos, pesos iguales). → RF-7, RF-8
       Cobertura de `core/` 97,7 % (umbral 90 % en `npm run test:coverage`).
-- [ ] **T-22** PointPanel: gráfica 7 días (una línea por modelo + consenso + banda), tarjetas con badge de acuerdo. → RF-6, RF-8
+- [x] **T-22** PointPanel: gráfica 7 días (una línea por modelo + consenso + banda), tarjetas con badge de acuerdo. → RF-6, RF-8
+      uPlot (carga diferida); clic en Bogotá → 8 modelos, consenso y acuerdo en 449 ms (criterio de fase 1: < 3 s).
 - [ ] **T-23** Probabilidad de lluvia por ensamble (ECMWF 51 / GFS 31 miembros). → RF-6
 - [ ] **T-24** Chips Observado/Pronóstico/Estimado y "fuente + hora" en todo dato. → P2, P3, RNF-9
   *Hecho fase 1:* clic en Bogotá muestra ≥ 5 modelos, consenso y acuerdo en < 3 s.

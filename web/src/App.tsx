@@ -9,11 +9,8 @@ import './App.css'
 
 // El mapa (MapLibre + deck.gl) se carga aparte para no inflar el bundle inicial (RNF-2).
 const MapView = lazy(() => import('./map/MapView'))
-
-const coordFormat = new Intl.NumberFormat('es-CO', {
-  minimumFractionDigits: 3,
-  maximumFractionDigits: 3,
-})
+// El panel de punto (con su gráfica) también se carga aparte.
+const PointPanel = lazy(() => import('./point/PointPanel'))
 
 interface SelectedPoint extends LatLon {
   /** Nombre si viene del buscador; vacío si fue un clic en el mapa. */
@@ -49,7 +46,7 @@ export default function App() {
   }, [])
 
   return (
-    <div className="app">
+    <div className={point ? 'app app--panel-open' : 'app'}>
       <Suspense fallback={<p className="app__loading">Cargando mapa…</p>}>
         <MapView
           onSelectPoint={onMapClick}
@@ -91,18 +88,9 @@ export default function App() {
       />
 
       {point && (
-        <aside className="point-chip" aria-live="polite">
-          <span className="point-chip__label">
-            {point.label ?? 'Punto seleccionado'}
-            <span className="point-chip__coords">
-              {coordFormat.format(point.lat)}°, {coordFormat.format(point.lon)}°
-            </span>
-          </span>
-          <span className="point-chip__note">El panel multi-modelo llega en la tarea T-22</span>
-          <button type="button" onClick={() => setPoint(null)} aria-label="Quitar punto">
-            ×
-          </button>
-        </aside>
+        <Suspense fallback={null}>
+          <PointPanel point={point} onClose={() => setPoint(null)} />
+        </Suspense>
       )}
     </div>
   )

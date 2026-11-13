@@ -45,51 +45,6 @@
   font-size: 0.8rem;
 }
 
-.point-chip {
-  position: absolute;
-  top: 112px;
-  left: 10px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  column-gap: 12px;
-  width: min(360px, calc(100% - 70px));
-  padding: 8px 8px 8px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  font-size: 0.85rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.point-chip__label {
-  display: grid;
-}
-
-.point-chip__coords {
-  color: var(--text-muted);
-  font-size: 0.78rem;
-}
-
-.point-chip__note {
-  grid-column: 1;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
-
-.point-chip button {
-  grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 6px;
-  background: var(--surface-2);
-  color: var(--text);
-  font-size: 1.1rem;
-  cursor: pointer;
-}
-
 @media (max-width: 480px) {
   .app__tagline {
     display: none;

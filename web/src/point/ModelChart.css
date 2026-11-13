@@ -1,0 +1,68 @@
+.model-chart {
+  width: 100%;
+  color: var(--text);
+  font-size: 0.75rem;
+}
+
+.model-chart .u-legend {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  text-align: left;
+  font-size: 0.72rem;
+}
+
+/* uPlot arma la leyenda como <table><tbody><tr class="u-series">: la rejilla va en el tbody. */
+.model-chart .u-legend tbody {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 12px;
+}
+
+.model-chart .u-legend tr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 1px 0;
+}
+
+.model-chart .u-legend th,
+.model-chart .u-legend td {
+  padding: 0;
+}
+
+.model-chart .u-legend .u-marker {
+  width: 9px;
+  height: 9px;
+  margin-right: 4px;
+}
+
+.model-chart .u-legend .u-series th {
+  font-weight: normal;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.model-chart .u-legend .u-series:first-child {
+  grid-column: 1 / -1;
+  justify-content: flex-start;
+  gap: 8px;
+  color: var(--text);
+}
+
+/* Las series de la banda (máx./mín.) se muestran en la leyenda como rango, sin muestra de color. */
+.model-chart .u-legend .u-series:nth-child(2) .u-marker,
+.model-chart .u-legend .u-series:nth-child(3) .u-marker {
+  background: var(--band, rgba(79, 195, 247, 0.35)) !important;
+  border-color: transparent !important;
+}
+
+.model-chart .u-legend .u-value {
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+.model-chart .u-legend .u-off {
+  opacity: 0.35;
+}
