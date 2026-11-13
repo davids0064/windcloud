@@ -55,6 +55,7 @@
 | 2026-11-13 | Paleta propia más clara sobre `dark` (gris pizarra) con contraste AA probado | Usuario: "se ve muy oscuro" | 02 §4.0 |
 | 2026-11-13 | Nombres de lugares en español (`name:es`) | Interfaz es-CO (P6); el estilo forzaba inglés | 02 §4.0 |
 | 2026-11-13 | Buscador adelantado de T-13 con Open-Meteo Geocoding; países solo centran, ciudades marcan punto | Pedido del usuario | 02 §4.0.1 |
+| 2026-11-13 | Sombreado del relieve con tonos de la paleta (`HILLSHADE_PAINT`), no negro | Usuario: "en relieve se ve oscuro, mantén los colores" | 02 §4.0 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -85,6 +86,8 @@
 - El estilo `dark` de OpenFreeMap usa `name_en` (nombres en inglés) → se reemplaza `text-field` en `place_*`/`water_name`.
 - Open-Meteo Geocoding sí devuelve países (`feature_code` `PCLI`) y responde nombres/contexto en español con `language=es`.
 - oxlint (react) avisa `set-state-in-effect`: derivar estado al renderizar en vez de `setState` síncrono en efectos.
+- Sombreado (`hillshade`) con `shadow-color` negro oscurece todo el mapa; con sombra y luz demasiado suaves el relieve
+  desaparece. Equilibrio: sombra ~1,3:1 y luz ~1,9:1 frente a la tierra (probado en `palette.test.ts`).
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -101,6 +104,14 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · Relieve 3D con los colores del modo oscuro
+- **Tareas:** ajuste de T-10 pedido por el usuario.
+- **Hecho:** `HILLSHADE_PAINT` en `map/palette.ts` (sombra `#1c242e`, luz `#52606f`, acento = tierra, ×0,6), usado por
+  `basemaps.ts`. Primer intento demasiado suave (relieve casi invisible) → reequilibrado.
+- **Verificado:** 32/32 pruebas ✓ (nueva prueba de contraste del sombreado), typecheck, lint y build ✓. En Chrome:
+  relieve mantiene el gris pizarra y las tres cordilleras se distinguen.
+- **Pendiente / siguiente paso:** T-11 límites departamentales; completar T-13.
 
 ### 2026-11-13 · Mapa más claro + buscador de ciudad/país
 - **Tareas:** T-13 🟡 (solo buscador). Pedido directo del usuario.

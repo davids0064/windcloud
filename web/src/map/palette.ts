@@ -16,6 +16,18 @@ const LABEL = '#c3ccd6'
 const LABEL_STRONG = '#e8ecf1'
 const HALO = 'rgba(16,22,30,0.85)'
 
+/**
+ * Sombreado del modo Relieve 3D con los mismos tonos de la paleta: sombras algo más oscuras que la tierra y
+ * luces algo más claras, en proporción parecida, para que el tono medio del mapa no cambie y las montañas se
+ * noten. Antes usaba negro puro y oscurecía todo el mapa.
+ */
+export const HILLSHADE_PAINT = {
+  'hillshade-shadow-color': '#1c242e',
+  'hillshade-highlight-color': '#52606f',
+  'hillshade-accent-color': LAND,
+  'hillshade-exaggeration': 0.6,
+} as const
+
 export const DARK_PAINT_OVERRIDES: Record<string, Record<string, unknown>> = {
   background: { 'background-color': LAND },
   water: { 'fill-color': WATER },

@@ -6,6 +6,7 @@
  * no se pierden al cambiar de base.
  */
 import type { Map as MapLibreMap } from 'maplibre-gl'
+import { HILLSHADE_PAINT } from './palette'
 
 export type BasemapId = 'oscuro' | 'satelite' | 'relieve'
 
@@ -110,12 +111,7 @@ export function installBasemapSources(map: MapLibreMap): void {
         type: 'hillshade',
         source: DEM_HILLSHADE_SOURCE,
         layout: { visibility: 'none' },
-        paint: {
-          'hillshade-shadow-color': '#000000',
-          'hillshade-highlight-color': '#7d8a99',
-          'hillshade-accent-color': '#2b3541',
-          'hillshade-exaggeration': 0.6,
-        },
+        paint: { ...HILLSHADE_PAINT },
       },
       // Encima de los rellenos (agua, bosque) para que el relieve se note, debajo de líneas y nombres.
       map.getStyle().layers.find((l) => l.type === 'line')?.id,

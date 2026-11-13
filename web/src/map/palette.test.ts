@@ -3,6 +3,7 @@ import {
   applyDarkPalette,
   applySpanishLabels,
   DARK_PAINT_OVERRIDES,
+  HILLSHADE_PAINT,
   SPANISH_NAME_EXPRESSION,
 } from './palette'
 
@@ -69,5 +70,18 @@ describe('nombres en español', () => {
       'place_country_major',
       'water_name',
     ])
+  })
+})
+
+describe('sombreado del relieve', () => {
+  const land = DARK_PAINT_OVERRIDES.background['background-color'] as string
+
+  it('mantiene los colores del mapa: sombras y luces cercanas al tono de la tierra', () => {
+    // Negro puro daría ~1,7:1 hacia abajo; se exige una sombra suave y luces que la compensen.
+    expect(contrast(HILLSHADE_PAINT['hillshade-shadow-color'], land)).toBeLessThan(1.4)
+    expect(contrast(HILLSHADE_PAINT['hillshade-highlight-color'], land)).toBeLessThan(2.2)
+    expect(luminance(HILLSHADE_PAINT['hillshade-shadow-color'])).toBeLessThan(luminance(land))
+    expect(luminance(HILLSHADE_PAINT['hillshade-highlight-color'])).toBeGreaterThan(luminance(land))
+    expect(HILLSHADE_PAINT['hillshade-accent-color']).toBe(land)
   })
 })
