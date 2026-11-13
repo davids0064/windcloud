@@ -64,10 +64,15 @@ export class WindLayer implements CustomLayerInterface {
     this.field = field
   }
 
+  /**
+   * Cambia el campo de viento. Si solo cambia la hora (mismo nivel) se conserva la estela para que la
+   * reproducción no parpadee; al cambiar de nivel se borra (el flujo es otro).
+   */
   setField(field: WindField) {
+    const sameLevel = this.field?.level === field.level
     this.field = field
     if (this.gl) this.uploadWind()
-    this.clearTrails = true
+    if (!sameLevel) this.clearTrails = true
     this.map?.triggerRepaint()
   }
 

@@ -39,7 +39,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [ ] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5
 - [x] **T-34** `WindLayer` WebGL de partículas (técnica webgl-wind), color por velocidad, ajuste por dispositivo. → RF-2, RNF-3
       `web/src/wind/`: 60 fps con 40 000 partículas (WebGL2, retina); 8 000 en móvil y reducción automática si < 30 fps.
-- [ ] **T-35** Línea de tiempo 0–72 h y selector de modelo/nivel. → RF-2
+- [x] **T-35** Línea de tiempo 0–72 h y selector de modelo/nivel. → RF-2
+      Altura 10 m / ~1,5 km / ~5,5 km, 25 pasos precargados, reproducir (48 fps), marca «ahora». Modelo: solo GFS hasta T-31.
 - [ ] **T-36** Capas escalares: ráfagas, nubosidad pronosticada, lluvia, temperatura, isobaras. → RF-4, RF-5
 - [ ] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
   *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad.

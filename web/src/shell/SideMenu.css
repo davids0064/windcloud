@@ -299,3 +299,80 @@
 .wind-panel__warn {
   color: var(--estimated) !important;
 }
+
+/* Control segmentado genérico (altura del viento) */
+.segmented {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.segmented button {
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.segmented button[aria-checked='true'] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.wind-panel__model {
+  font-size: 0.78rem;
+}
+
+.wind-panel__timeline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wind-panel__play {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.wind-panel__track {
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.wind-panel__track input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+/* Marca de "ahora" sobre la línea de tiempo */
+.wind-panel__now {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--estimated);
+  pointer-events: none;
+}
+
+.wind-panel__when {
+  font-variant-numeric: tabular-nums;
+}

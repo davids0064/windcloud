@@ -11,10 +11,10 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 3/8** (T-30, T-32, T-34 ✅; 60 fps ✅). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 4/8** (T-30, T-32, T-34, T-35 ✅; fps ✅; datos < 9 h ✅ con run fresco). Faltan T-31, T-33, T-36, T-37. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-34 (partículas de viento WebGL2: 60 fps con 40 000, visibles sobre tierra) |
-| Siguiente tarea | **T-35** línea de tiempo 0–72 h y selector de nivel (10 m / 850 / 500 hPa) |
+| Última tarea cerrada | T-35 (línea de tiempo 0–72 h, altura 10 m / ~1,5 km / ~5,5 km, reproducción) |
+| Siguiente tarea | **T-36** capas escalares (ráfagas, nubosidad y lluvia pronosticadas) — o T-33 (publicar rejillas cada 6 h) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
@@ -88,6 +88,7 @@
 | 2026-11-13 | Campos GFS **instantáneos** (no promedios de intervalo) | Promedios reinician cada 6 h (ventanas 3/6 h mezcladas); el instantáneo existe en todos los pasos | 02 §4.1 |
 | 2026-11-13 | PNG con filas remuestreadas a Web Mercator | Una imagen lat/lon pegada por esquinas se desplaza hasta ~42 km (medido) | 02 §4.1 |
 | 2026-11-13 | Escalares con rango fijo y lluvia en raíz cuadrada; ráfaga = máx(GUST, viento 10 m) | Colores comparables entre pasos; lloviznas visibles; GFS da GUST < viento | 02 §4.1 |
+| 2026-11-13 | Línea de tiempo por pasos con precarga del nivel (no interpolación temporal entre pasos) | Simple, inmediato al mover; 48 fps reproduciendo | 02 §4.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -193,6 +194,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-35 Línea de tiempo y altura del viento
+- **Tareas:** T-35 ✅
+- **Hecho:** `wind/useWindField.ts` reescrito (meta una vez, caché de imágenes por nivel/paso, precarga del nivel,
+  reproducción cada 0,9 s), `wind/timeline.ts` (etiquetas puras), `wind/WindPanel.tsx` (modelo, altura, deslizador con
+  marca «ahora», leyenda por nivel); `WindLayer.setField` conserva la estela si solo cambia la hora. Run 12Z bajado y
+  codificado (5 h de antigüedad: cumple < 9 h).
+- **Verificado:** 161 pruebas web ✓ (texto de horas, hook con red simulada: paso inicial más cercano a ahora, 25
+  precargas, cambio de nivel; panel), pipeline 27 ✓, JS inicial 80,7 KB. Chrome: 500 hPa muestra el flujo de gran
+  escala, leyenda ≥ 144 km/h; reproducción recorre pasos 3→9 en 6 s a 48 fps; 25 PNG de 500 hPa precargados.
+- **Pendiente:** T-36 capas escalares; T-33 publicación automática; T-31 ECMWF; T-37 radar.
 
 ### 2026-11-13 · T-34 Partículas de viento animadas
 - **Tareas:** T-34 ✅

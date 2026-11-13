@@ -138,6 +138,12 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Datos:** `/data/{modelo}/latest.json` → `meta.json` → PNG del paso más cercano a ahora (decodificado con
   `premultiplyAlpha: 'none'`, `colorSpaceConversion: 'none'`). En desarrollo los sirve
   `web/vite-plugin-local-data.ts` desde `pipeline/out/web/data`. Sin datos → «Sin datos de viento».
+- **Línea de tiempo y nivel (T-35, `useWindField` + `WindPanel`):** selector de altura (10 m · 850 hPa ~1,5 km ·
+  500 hPa ~5,5 km; la leyenda usa el máximo de color del nivel), deslizador de los 25 pasos (0–72 h) con hora válida
+  local, «dentro de / hace X h», adelanto «+N h del run» y marca de «ahora»; ▶ avanza un paso cada 0,9 s en bucle.
+  Las imágenes se guardan en caché por nivel y paso y se precargan los 25 pasos del nivel elegido (~1,2 MB). Cambiar
+  solo la hora conserva la estela (sin parpadeo); cambiar de nivel la borra. Selector de modelo: solo GFS (se indica
+  que ECMWF llega con T-31). Medido: 48 fps reproduciendo, 60 fps quieto.
 - **Limitación conocida:** en Relieve 3D las partículas van a nivel del mar (no siguen el terreno).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
 

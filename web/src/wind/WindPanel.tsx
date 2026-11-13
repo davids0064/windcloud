@@ -3,20 +3,15 @@ import { formatRunUtc } from '../core/runs'
 import { DataChip } from '../ui/DataChip'
 import { SourceLine } from '../ui/SourceLine'
 import { rampGradient, SPEED_MAX_MS } from './colorRamp'
-import { runAgeHours, STALE_GRID_HOURS } from './meta'
+import { runAgeHours, STALE_GRID_HOURS, type WindLevel } from './meta'
+import { LEVEL_LABELS, leadLabel, nowPosition, relativeLabel, validLabel } from './timeline'
 import type { useWindField } from './useWindField'
 
 type WindState = ReturnType<typeof useWindField>
 
-const fmtValid = (iso: string) =>
-  new Date(iso).toLocaleString('es-CO', {
-    weekday: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
+const LEVELS: WindLevel[] = ['10m', '850', '500']
 
-/** Sección "Viento" de la pestaña Mapa (RF-2): encender/apagar, leyenda, fuente y hora (P2, P4). */
+/** Sección "Viento" de la pestaña Mapa (RF-2): modelo, altura, hora (0–72 h), leyenda, fuente y run (P2, P4). */
 export function WindPanel({
   on,
   onToggle,
@@ -26,12 +21,14 @@ export function WindPanel({
   onToggle: (on: boolean) => void
   state: WindState
 }) {
-  const maxKmh = Math.round(SPEED_MAX_MS['10m'] * 3.6)
   const [now] = useState(() => new Date())
+  const level = state.status === 'ready' ? state.level : '10m'
+  const maxKmh = Math.round(SPEED_MAX_MS[level] * 3.6)
+
   return (
     <section className="tab-section wind-panel" aria-labelledby="wind-panel-title">
       <div className="wind-panel__head">
-        <h2 id="wind-panel-title">Viento a 10 m</h2>
+        <h2 id="wind-panel-title">Viento</h2>
         <DataChip kind="pronostico" />
       </div>
       <label className="wind-panel__toggle">
@@ -46,9 +43,69 @@ export function WindPanel({
       )}
       {on && state.status === 'ready' && (
         <>
+          <p className="wind-panel__model">
+            Modelo: <strong>{state.loaded.meta.modelLabel}</strong> · ECMWF llegará en una próxima
+            versión
+          </p>
+
+          <div className="segmented" role="radiogroup" aria-label="Altura del viento">
+            {LEVELS.map((l) => (
+              <button
+                key={l}
+                type="button"
+                role="radio"
+                aria-checked={state.level === l}
+                title={LEVEL_LABELS[l].long}
+                onClick={() => state.setLevel(l)}
+              >
+                {LEVEL_LABELS[l].short}
+              </button>
+            ))}
+          </div>
+
+          <div className="wind-panel__timeline">
+            <button
+              type="button"
+              className="wind-panel__play"
+              onClick={state.togglePlay}
+              aria-label={state.playing ? 'Pausar' : 'Reproducir las próximas 72 horas'}
+            >
+              {state.playing ? '❚❚' : '▶'}
+            </button>
+            <div className="wind-panel__track">
+              <input
+                type="range"
+                min={0}
+                max={state.loaded.meta.steps.length - 1}
+                step={1}
+                value={state.stepIndex}
+                onChange={(e) => state.setStepIndex(Number(e.target.value))}
+                aria-label="Hora del pronóstico de viento"
+                aria-valuetext={`${validLabel(state.loaded.meta.validTimes[state.stepIndex])}, ${leadLabel(
+                  state.loaded.meta.steps[state.stepIndex],
+                )}`}
+              />
+              {(() => {
+                const pos = nowPosition(state.loaded.meta, now)
+                return pos === null ? null : (
+                  <span
+                    className="wind-panel__now"
+                    style={{ left: `${pos * 100}%` }}
+                    title="Ahora"
+                  />
+                )
+              })()}
+            </div>
+          </div>
+          <p className="wind-panel__when">
+            <strong>{validLabel(state.loaded.meta.validTimes[state.stepIndex])}</strong> ·{' '}
+            {relativeLabel(state.loaded.meta.validTimes[state.stepIndex], now)} ·{' '}
+            {leadLabel(state.loaded.meta.steps[state.stepIndex])} del run
+          </p>
+
           <div
             className="wind-panel__legend"
-            aria-label={`Escala de velocidad de 0 a ${maxKmh} km/h o más`}
+            aria-label={`${LEVEL_LABELS[level].long}: escala de 0 a ${maxKmh} km/h o más`}
           >
             <span className="wind-panel__bar" style={{ background: rampGradient() }} />
             <span className="wind-panel__ticks">
@@ -57,10 +114,7 @@ export function WindPanel({
               <span>≥ {maxKmh} km/h</span>
             </span>
           </div>
-          <p>
-            Válido {fmtValid(state.loaded.meta.validTimes[state.stepIndex])} (hora local). Altura y
-            hora elegibles en la siguiente versión.
-          </p>
+
           {runAgeHours(state.loaded.meta, now) > STALE_GRID_HOURS && (
             <p className="wind-panel__warn">
               ⚠ El run tiene más de {STALE_GRID_HOURS} h: puede estar desactualizado.
