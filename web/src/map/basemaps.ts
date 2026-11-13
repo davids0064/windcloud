@@ -38,7 +38,7 @@ const TERRARIUM_ATTRIBUTION =
   '<a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">Terrain Tiles</a> (Mapzen, AWS Open Data)'
 
 export const TERRAIN_EXAGGERATION = 1.5
-export const RELIEF_PITCH = 55
+export const RELIEF_PITCH = 45
 
 /**
  * Capas del estilo oscuro que tapan la imagen satelital (rellenos de agua, bosque, edificios…).
@@ -91,7 +91,7 @@ export function installBasemapSources(map: MapLibreMap): void {
     })
   }
 
-  // Ambas capas van justo encima del fondo, debajo de ríos, vías, fronteras y nombres.
+  // Ambas capas van justo encima del fondo, debajo del agua, ríos, vías, fronteras y nombres.
   const firstStyleLayer = map.getStyle().layers.find((l) => l.type !== 'background')?.id
   if (!map.getLayer(SATELLITE_LAYER)) {
     map.addLayer(
@@ -113,8 +113,9 @@ export function installBasemapSources(map: MapLibreMap): void {
         layout: { visibility: 'none' },
         paint: { ...HILLSHADE_PAINT },
       },
-      // Encima de los rellenos (agua, bosque) para que el relieve se note, debajo de líneas y nombres.
-      map.getStyle().layers.find((l) => l.type === 'line')?.id,
+      // Debajo del agua: los datos Terrarium incluyen el fondo marino y su sombreado oscurecía el océano.
+      // Así el relieve solo se ve en tierra firme.
+      map.getStyle().layers.find((l) => l.type !== 'background' && l.id !== SATELLITE_LAYER)?.id,
     )
   }
 }

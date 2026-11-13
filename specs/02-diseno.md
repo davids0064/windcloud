@@ -80,11 +80,11 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Oscuro:** estilo `dark` tal cual (incluye fronteras de países y límites de estado de OSM).
 - **Satélite:** raster EOX Sentinel-2 cloudless 2020 justo sobre el fondo; se ocultan los rellenos (`fill`), se
   conservan líneas y nombres.
-- **Relieve 3D:** `raster-dem` Terrarium (AWS) → `setTerrain` ×1,5 + sombreado bajo las líneas, cámara a 55°.
-  El sombreado usa los tonos de la paleta (`HILLSHADE_PAINT`: sombra `#1c242e`, luz `#52606f`), no negro, para que
-  el relieve conserve los colores del modo oscuro.
+- **Relieve 3D:** `raster-dem` Terrarium (AWS) → `setTerrain` ×1,5 + sombreado **bajo el agua** (el DEM incluye fondo
+  marino y oscurecía el océano), cámara a 45°. El sombreado usa tonos de la paleta (`HILLSHADE_PAINT`), no negro,
+  para que el relieve conserve los colores del modo oscuro.
 - **Paleta propia** (`map/palette.ts`): el `dark` original es casi negro; se aclara a gris pizarra azulado
-  (tierra `#2b3541`, agua `#172433`, fronteras `#9aa6b3`, nombres ≥ 4,5:1 de contraste, probado en Vitest).
+  (tierra `#36424f`, agua `#1f3044`, fronteras `#aab5c1`, nombres ≥ 4,5:1 de contraste, probado en Vitest).
 - **Nombres en español:** capas `place_*` y `water_name` usan `coalesce(name:es, name:latin, name)`; las vías
   conservan su nombre local.
 

@@ -67,7 +67,7 @@ describe('basemaps', () => {
     expect(basemapLayerVisibility('relieve')[HILLSHADE_LAYER]).toBe('visible')
   })
 
-  it('instala satélite sobre el fondo y sombreado bajo las líneas, una sola vez', () => {
+  it('instala satélite y sombreado sobre el fondo y bajo el agua, una sola vez', () => {
     const f = fakeMap()
     installBasemapSources(f.asMap)
     installBasemapSources(f.asMap)
@@ -76,9 +76,9 @@ describe('basemaps', () => {
     expect(f.order()).toEqual([
       'background',
       SATELLITE_LAYER,
+      HILLSHADE_LAYER,
       'water',
       'landcover_wood',
-      HILLSHADE_LAYER,
       'waterway',
       'boundary_country_z5-',
       'place_city',

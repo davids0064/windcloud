@@ -56,6 +56,7 @@
 | 2026-11-13 | Nombres de lugares en español (`name:es`) | Interfaz es-CO (P6); el estilo forzaba inglés | 02 §4.0 |
 | 2026-11-13 | Buscador adelantado de T-13 con Open-Meteo Geocoding; países solo centran, ciudades marcan punto | Pedido del usuario | 02 §4.0.1 |
 | 2026-11-13 | Sombreado del relieve con tonos de la paleta (`HILLSHADE_PAINT`), no negro | Usuario: "en relieve se ve oscuro, mantén los colores" | 02 §4.0 |
+| 2026-11-13 | Paleta 2.ª iteración más clara (tierra `#36424f`); sombreado bajo el agua; cámara del relieve a 45° | Usuario: "aún se ve oscuro". Medido: brillo medio 53→65 (oscuro) y 51→63 (relieve) | 02 §4.0 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -88,6 +89,10 @@
 - oxlint (react) avisa `set-state-in-effect`: derivar estado al renderizar en vez de `setState` síncrono en efectos.
 - Sombreado (`hillshade`) con `shadow-color` negro oscurece todo el mapa; con sombra y luz demasiado suaves el relieve
   desaparece. Equilibrio: sombra ~1,3:1 y luz ~1,9:1 frente a la tierra (probado en `palette.test.ts`).
+- Terrarium incluye **batimetría**: si el sombreado va sobre el agua, el océano queda rayado y más oscuro → ponerlo debajo de `water`.
+- Para "se ve oscuro", medir en vez de adivinar: capturas con `save_to_disk` + luminancia media con Pillow
+  (`uv run python -I` desde `pipeline/`), separando agua y tierra. En el relieve la cámara inclinada muestra más mar
+  (30 % vs 12 % del área), y eso, no el color, era lo que lo hacía ver más oscuro.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -104,6 +109,14 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · Relieve aún oscuro → medición y corrección
+- **Tareas:** ajuste de T-10 pedido por el usuario.
+- **Medido (brillo medio 0–255, Chrome):** antes oscuro 53,4 / relieve 50,9 (mitad superior 47,7). Causas: sombreado
+  sobre la batimetría del Caribe y mayor proporción de mar con la cámara inclinada; colores agua/tierra idénticos.
+- **Hecho:** paleta un paso más clara; sombreado debajo de `water`; `RELIEF_PITCH` 55° → 45°.
+- **Resultado:** oscuro 65,4 · relieve 62,6. 32/32 pruebas ✓, typecheck, lint, build ✓.
+- **Pendiente / siguiente paso:** T-11 límites departamentales; completar T-13.
 
 ### 2026-11-13 · Relieve 3D con los colores del modo oscuro
 - **Tareas:** ajuste de T-10 pedido por el usuario.

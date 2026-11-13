@@ -2,19 +2,19 @@
  * Paleta propia sobre el estilo `dark` de OpenFreeMap.
  *
  * El estilo original es casi negro (tierra rgb(12,12,12), agua rgb(27,27,29), nombres rgb(101,101,101)) y se
- * leía mal. Aquí se aclara a un gris pizarra azulado: el agua se distingue de la tierra, las fronteras y los
+ * leía mal. Aquí se aclara a un gris pizarra azulado (segunda iteración, más clara, a pedido del usuario): el agua se distingue de la tierra, las fronteras y los
  * nombres tienen contraste suficiente, y el mapa sigue siendo oscuro para que resalten las capas de datos.
  */
 import type { Map as MapLibreMap } from 'maplibre-gl'
 
-const LAND = '#2b3541'
-const WATER = '#172433'
-const GREEN = '#2e3d3a'
-const ROAD = '#3e4a58'
+const LAND = '#36424f'
+const WATER = '#1f3044'
+const GREEN = '#384a45'
+const ROAD = '#4b5866'
 const ROAD_CASING = 'rgba(120,135,150,0.55)'
-const LABEL = '#c3ccd6'
+const LABEL = '#d0d8e0'
 const LABEL_STRONG = '#e8ecf1'
-const HALO = 'rgba(16,22,30,0.85)'
+const HALO = 'rgba(22,30,40,0.85)'
 
 /**
  * Sombreado del modo Relieve 3D con los mismos tonos de la paleta: sombras algo más oscuras que la tierra y
@@ -22,8 +22,8 @@ const HALO = 'rgba(16,22,30,0.85)'
  * noten. Antes usaba negro puro y oscurecía todo el mapa.
  */
 export const HILLSHADE_PAINT = {
-  'hillshade-shadow-color': '#1c242e',
-  'hillshade-highlight-color': '#52606f',
+  'hillshade-shadow-color': '#28323d',
+  'hillshade-highlight-color': '#5f6d7d',
   'hillshade-accent-color': LAND,
   'hillshade-exaggeration': 0.6,
 } as const
@@ -32,13 +32,13 @@ export const DARK_PAINT_OVERRIDES: Record<string, Record<string, unknown>> = {
   background: { 'background-color': LAND },
   water: { 'fill-color': WATER },
   waterway: { 'line-color': WATER },
-  landcover_ice_shelf: { 'fill-color': '#3a4552' },
-  landcover_glacier: { 'fill-color': '#3a4552' },
-  landuse_residential: { 'fill-color': '#323d4a', 'fill-opacity': 0.6 },
+  landcover_ice_shelf: { 'fill-color': '#4a5666' },
+  landcover_glacier: { 'fill-color': '#4a5666' },
+  landuse_residential: { 'fill-color': '#3c4856', 'fill-opacity': 0.6 },
   landcover_wood: { 'fill-color': GREEN },
   landuse_park: { 'fill-color': GREEN },
-  building: { 'fill-color': '#36414e', 'fill-outline-color': '#414d5b' },
-  'aeroway-area': { 'fill-color': '#323d4a' },
+  building: { 'fill-color': '#414d5b', 'fill-outline-color': '#4c5968' },
+  'aeroway-area': { 'fill-color': '#3c4856' },
   'aeroway-runway': { 'line-color': '#4a5666' },
   'aeroway-taxiway': { 'line-color': '#3e4a58' },
   road_area_pier: { 'fill-color': LAND },
@@ -46,17 +46,17 @@ export const DARK_PAINT_OVERRIDES: Record<string, Record<string, unknown>> = {
   highway_path: { 'line-color': ROAD },
   highway_minor: { 'line-color': ROAD },
   highway_major_casing: { 'line-color': ROAD_CASING },
-  highway_major_inner: { 'line-color': '#46525f' },
-  highway_major_subtle: { 'line-color': '#46525f' },
+  highway_major_inner: { 'line-color': '#55626f' },
+  highway_major_subtle: { 'line-color': '#55626f' },
   highway_motorway_casing: { 'line-color': ROAD_CASING },
-  highway_motorway_inner: { 'line-color': '#55626f' },
+  highway_motorway_inner: { 'line-color': '#65727f' },
   highway_motorway_subtle: { 'line-color': '#4a5666' },
   railway: { 'line-color': '#4a5666' },
   railway_minor: { 'line-color': '#4a5666' },
   railway_transit: { 'line-color': '#4a5666' },
-  boundary_state: { 'line-color': '#6b7785' },
-  'boundary_country_z0-4': { 'line-color': '#9aa6b3' },
-  'boundary_country_z5-': { 'line-color': '#9aa6b3' },
+  boundary_state: { 'line-color': '#7a8694' },
+  'boundary_country_z0-4': { 'line-color': '#aab5c1' },
+  'boundary_country_z5-': { 'line-color': '#aab5c1' },
   water_name: { 'text-color': '#8fb3d1', 'text-halo-color': WATER },
   highway_name_other: { 'text-color': '#8d99a6', 'text-halo-color': HALO },
   highway_name_motorway: { 'text-color': '#a3aebb', 'text-halo-color': HALO },
