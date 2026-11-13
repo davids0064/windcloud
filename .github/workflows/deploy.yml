@@ -1,0 +1,57 @@
+name: Deploy web
+
+# Publica web/ en Cloudflare Pages (plan gratuito) en cada push a main. → RNF-1, T-04
+# Requiere los secretos del repositorio:
+#   CLOUDFLARE_API_TOKEN   token con permiso "Cloudflare Pages: Edit"
+#   CLOUDFLARE_ACCOUNT_ID  ID de la cuenta de Cloudflare
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - web/**
+      - .github/workflows/deploy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-pages
+  cancel-in-progress: false
+
+env:
+  PAGES_PROJECT: windcloud
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+
+      # Crea el proyecto de Pages la primera vez; si ya existe, el error se ignora.
+      - name: Asegurar proyecto en Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create ${{ env.PAGES_PROJECT }} --production-branch=main
+
+      - name: Publicar en Cloudflare Pages
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy web/dist --project-name=${{ env.PAGES_PROJECT }} --branch=main

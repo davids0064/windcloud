@@ -1,0 +1,24 @@
+# Node
+node_modules/
+dist/
+coverage/
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Datos generados por los pipelines (se publican, no se versionan en main)
+pipeline/out/
+*.grib2
+
+# Sistema / editores
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.env
+.env.*

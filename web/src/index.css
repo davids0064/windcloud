@@ -1,0 +1,49 @@
+/* Tema WindCloud — oscuro por defecto (P6, RNF-4). Todos los colores salen de estas variables. */
+:root {
+  --bg: #0b0d10;
+  --surface: #14181d;
+  --surface-2: #1c2128;
+  --border: #2a313a;
+  --text: #e8ecf1;
+  --text-muted: #9aa5b1; /* contraste AA sobre --bg y --surface */
+  --accent: #4fc3f7;
+
+  /* Naturaleza del dato (P3): observado · pronosticado · estimado */
+  --observed: #66bb6a;
+  --forecast: #4fc3f7;
+  --estimated: #ffb74d;
+
+  --radius: 10px;
+  --gutter: 16px;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  color-scheme: dark;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+a {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

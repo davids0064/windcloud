@@ -1,0 +1,34 @@
+[project]
+name = "windcloud-pipeline"
+version = "0.1.0"
+description = "Trabajos programados de WindCloud: texturas de viento, verificación de modelos y riesgo."
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "cfgrib>=0.9.14",
+    "eccodes>=2.41",
+    "eccodeslib>=2.50.0.34",
+    "numpy>=2.1",
+    "pillow>=11",
+    "xarray>=2025.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
