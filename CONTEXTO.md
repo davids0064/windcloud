@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **2/9 tareas** (T-10 ✅, T-11 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **3/9 tareas** (T-10, T-11, T-12 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-11 (límites departamentales: 268 KB, hover con nombre, clic → "Punto en <departamento>") |
-| Siguiente tarea | **T-12** nubes NASA GIBS (GOES-East visible/IR, animación 3 h) — leer IDs de GetCapabilities |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/api/` (http, geocoding) · `web/src/search/PlaceSearch` · `web/public/geo/` · 37 pruebas web · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-12 (nubes observadas GOES-East visible/IR animadas 3 h, fondo transparente) |
+| Siguiente tarea | **T-13** completar shell (menú lateral, "Usar mi ubicación", reloj UTC/local) o **T-20** Open-Meteo multi-modelo |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/search/PlaceSearch` · `web/public/geo/` · 63 pruebas web · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -61,6 +61,9 @@
 | 2026-11-13 | **Relieve 3D = imagen satelital sobre terreno 3D**, sin sombreado artificial (se elimina la capa `hillshade`) | Usuario: "mejor los colores de satélite, mantenlos en relieve 3D" | 02 §4.0 |
 | 2026-11-13 | Departamentos generados por script reproducible (`geo.py`, shapely `coverage_simplify`) en vez de conversión manual | Reproducible, probado, con presupuesto de tamaño | 02 §4.0.2 |
 | 2026-11-13 | geoBoundaries COL ADM1 es **ODbL** (viene de OSM), no CC BY; corregido en 04 y README | Licencia real según la API | 04 |
+| 2026-11-13 | Nubes: DescribeDomains + comprobación de la hora más reciente con tesela z2 | GetCapabilities pesa 5,8 MB; GIBS declara horas aún no publicadas (404) | 02 §4.2 |
+| 2026-11-13 | Nubes con fondo transparente por brillo vía protocolo `wcnubes://` (solo presentación) | Las teselas GIBS son opacas y tapaban el mapa | 02 §4.2 |
+| 2026-11-13 | Animación 3 h en 10 cuadros de 20 min (no 19 de 10 min); capa IR encendida por defecto | Mitad de peticiones; IR sirve día y noche | 02 §4.2 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -103,6 +106,14 @@
 - `shapely.coverage_simplify` simplifica fronteras compartidas igual en ambos lados (sin huecos/solapes), a
   diferencia de simplificar polígono por polígono.
 - No usar `cat > archivo` sin heredoc en comandos: espera teclado y bloquea la terminal.
+- **GIBS DescribeDomains adelanta horas** cuyas teselas aún dan 404 (p. ej. declara 13:10 a las 13:38 sin imagen).
+  Comprobar la última con una tesela antes de animar. Visible e IR publican a ritmos distintos (13:00 vs 13:10).
+- Las teselas GOES de GIBS son **opacas** (visible gris LA, IR RGBA). Transparencia hecha en cliente con
+  `addProtocol` + `OffscreenCanvas` → `ImageBitmap`.
+- El manejador `map.on('error')` recibe también errores de teselas (con `sourceId`): no confundirlos con fallo del
+  estilo base (antes mostraba "No se pudo cargar el mapa base" por un 404 de nubes).
+- GIBS respondió un 503 puntual en DescribeDomains; el reintento de `fetchText` lo resolvió.
+- `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -119,6 +130,19 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-12 Nubes observadas (NASA GIBS)
+- **Tareas:** T-12 ✅
+- **Hecho:** `api/gibs.ts` (IDs reales, DescribeDomains, `pickFrames`, `dropUnpublished`), `api/http.ts` (+`fetchText`,
+  cuerpo dentro del tiempo límite), `map/cloudAlpha.ts` (protocolo `wcnubes://`, brillo→opacidad),
+  `map/clouds.ts` (fuentes por cuadro, opacidad), `clouds/` (CloudPanel, useCloudAnimation, time). `MapView` acepta
+  `clouds`; el manejo de errores ya no confunde teselas con el estilo base.
+- **Verificado:** 63/63 pruebas ✓, typecheck, lint ✓. En Chrome: IR 13:10 UTC "hace 30 min" con núcleos convectivos
+  en el Pacífico frente al Chocó; animación 10:50→13:10 en bucle; visible 13:00 UTC (8:00 a. m.) con nubes blancas;
+  cuadro de las 5:20 a. m. oscuro (noche, correcto); todas las teselas 200; consola sin errores.
+- **Encontrado y corregido:** 404 por horas declaradas sin publicar; falsa alarma de "mapa base".
+- **Pendiente / siguiente paso:** T-13 (shell) o T-20 (Open-Meteo multi-modelo). Metodología (T-60) debe explicar la
+  transparencia por brillo.
 
 ### 2026-11-13 · T-11 Límites departamentales
 - **Tareas:** T-11 ✅

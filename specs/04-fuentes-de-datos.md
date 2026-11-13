@@ -24,7 +24,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 ## Observación (lo que realmente pasó)
 | Fuente | Qué da | Clave | Licencia | Uso | Verificar |
 |---|---|---|---|---|---|
-| **NASA GIBS (WMTS)** | Imágenes GOES-East/West, Himawari, Meteosat; ~10 min | No | Abierta (atribuir NASA) | Capa de nubes observadas | IDs de capa en GetCapabilities |
+| **NASA GIBS (WMTS)** | Imágenes GOES-East/West, Himawari, Meteosat; ~10 min | No | Abierta (atribuir NASA) | Capa de nubes observadas ✅ en uso (GOES-East banda 2 y 13) | ✅ IDs verificados 2026-11-13; latencia real 30–50 min; DescribeDomains adelanta horas aún no publicadas; a veces 503 puntual (el reintento lo resuelve) |
 | **aviationweather.gov Data API** | METAR de aeropuertos en JSON | No | Dominio público (NOAA) | Verificación de modelos | Límite de peticiones |
 | **IDEAM / datos.gov.co (Socrata)** | Estaciones hidrometeorológicas de Colombia | No (token opcional) | Datos abiertos Colombia | Verificación local extra | Latencia y frecuencia de los datasets |
 | **RainViewer** | Tiles de radar mundial | No | Gratis con atribución | Capa de radar | **Términos 2025+ redujeron la API gratuita** |

@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import type { ClickedPoint } from './map/MapView'
 
@@ -21,6 +21,12 @@ vi.mock('./map/MapView', () => ({
 }))
 
 describe('App', () => {
+  // El panel de nubes consulta GIBS al iniciar: sin red en pruebas.
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, text: async () => '<Domains/>' }))
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
   it('muestra el nombre del proyecto', async () => {
     render(<App />)
     expect(screen.getByRole('heading', { name: 'WindCloud' })).toBeInTheDocument()

@@ -1,5 +1,8 @@
 import { lazy, Suspense, useCallback, useState } from 'react'
+import { CLOUD_LAYERS, type CloudKind } from './api/gibs'
 import { zoomForKind, type Place } from './api/geocoding'
+import { CloudPanel } from './clouds/CloudPanel'
+import { useCloudAnimation } from './clouds/useCloudAnimation'
 import type { ClickedPoint, FlyTarget, LatLon } from './map/MapView'
 import { PlaceSearch } from './search/PlaceSearch'
 import './App.css'
@@ -28,6 +31,8 @@ export default function App() {
     })
   }, [])
   const [flyTo, setFlyTo] = useState<FlyTarget | null>(null)
+  const [cloudKind, setCloudKind] = useState<CloudKind | null>('infrarrojo')
+  const cloud = useCloudAnimation(cloudKind)
 
   const onSelectPlace = useCallback((place: Place) => {
     setFlyTo({ lat: place.lat, lon: place.lon, zoom: zoomForKind(place.kind), key: Date.now() })
@@ -46,7 +51,16 @@ export default function App() {
   return (
     <div className="app">
       <Suspense fallback={<p className="app__loading">Cargando mapa…</p>}>
-        <MapView onSelectPoint={onMapClick} selectedPoint={point} flyTo={flyTo} />
+        <MapView
+          onSelectPoint={onMapClick}
+          selectedPoint={point}
+          flyTo={flyTo}
+          clouds={
+            cloudKind && cloud.status === 'ready'
+              ? { layer: CLOUD_LAYERS[cloudKind], frames: cloud.frames, index: cloud.index }
+              : null
+          }
+        />
       </Suspense>
 
       <header className="app__header">
@@ -56,6 +70,20 @@ export default function App() {
         </div>
         <PlaceSearch onSelect={onSelectPlace} />
       </header>
+
+      <CloudPanel
+        kind={cloudKind}
+        onKindChange={(k) => {
+          cloud.stop()
+          setCloudKind(k)
+        }}
+        status={cloud.status}
+        frames={cloud.frames}
+        index={cloud.index}
+        onIndexChange={cloud.setIndex}
+        playing={cloud.playing}
+        onTogglePlay={cloud.togglePlay}
+      />
 
       {point && (
         <aside className="point-chip" aria-live="polite">

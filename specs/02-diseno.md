@@ -111,10 +111,20 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
   viridis-like apta para daltonismo). Móvil: 8 000 partículas; escritorio: 40 000 (RNF-3).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
 
-### 4.2 Nubes observadas (RF-3)
-- **NASA GIBS WMTS** (sin clave): capas GOES-East/West ABI (visible e infrarrojo banda 13) y Himawari.
-  Los identificadores exactos se toman del `GetCapabilities` de GIBS en la tarea T-12 (no codificarlos a ciegas).
-- Animación: pedir los últimos N `TIME=` disponibles (resolución temporal 10 min).
+### 4.2 Nubes observadas (RF-3) — `web/src/api/gibs.ts`, `web/src/map/clouds.ts`, `web/src/map/cloudAlpha.ts`
+- **NASA GIBS WMTS EPSG:3857** (sin clave, CORS `*`). IDs leídos del `GetCapabilities` real (2026-11-13):
+  `GOES-East_ABI_Band2_Red_Visible_1km` (Level7, zoom máx. 7) y `GOES-East_ABI_Band13_Clean_Infrared` (Level6, zoom máx. 6).
+  Himawari/Meteosat para fuera de América: pendiente (Colombia primero).
+- **Horas disponibles:** DescribeDomains `…/1.0.0/{capa}/default/{TMS}/all/{inicio}--{fin}.xml` (~400 B; el
+  GetCapabilities pesa 5,8 MB). GIBS **declara horas antes de publicar sus teselas** (404): se comprueba la más
+  reciente con una tesela z2 (2/1/1, cubre Colombia) y se descartan las no publicadas.
+- **Animación:** 10 cuadros (3 h cada 20 min), una fuente raster por cuadro precargada con opacidad 0; animar = cambiar
+  opacidad (700 ms/cuadro). Refresco cada 10 min. ~240 teselas por carga.
+- **Presentación:** las teselas llegan opacas; el protocolo `wcnubes://` (MapLibre `addProtocol`) convierte brillo en
+  opacidad (visible 55→165, IR 105→200, *smoothstep*); en IR los píxeles de color (topes fríos/tormentas) quedan
+  opacos. Solo cambia la visualización, no el dato. Va encima del mapa base y debajo de departamentos y nombres.
+- **Panel:** chip "Observado", Apagado/Visible/Infrarrojo, reproducir y línea de tiempo, hora UTC + local + "hace X
+  min", aviso "imagen atrasada" si > 2 h, "sin datos" si GIBS falla (nunca una imagen vieja), fuente visible.
 - Nubosidad **pronosticada**: textura escalar de `TCDC` (GFS) rotulada "pronóstico".
 
 ### 4.3 Lluvia (RF-4)

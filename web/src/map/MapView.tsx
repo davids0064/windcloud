@@ -9,6 +9,7 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useRef, useState } from 'react'
+import type { CloudLayerInfo } from '../api/gibs'
 import {
   applyBasemap,
   DARK_STYLE_URL,
@@ -17,8 +18,15 @@ import {
   type BasemapId,
 } from './basemaps'
 import { BasemapSwitcher } from './BasemapSwitcher'
+import { registerCloudProtocol } from './cloudAlpha'
+import { CLOUD_PREFIX, clearClouds, setCloudFrames, showCloudFrame } from './clouds'
 import { installDeckTransformShim } from './deckCompat'
-import { departmentAt, DEPARTMENTS_SOURCE, installDepartments } from './departments'
+import {
+  departmentAt,
+  DEPARTMENTS_FILL,
+  DEPARTMENTS_SOURCE,
+  installDepartments,
+} from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
 import { applyDarkPalette, applySpanishLabels } from './palette'
 import './MapView.css'
@@ -26,6 +34,7 @@ import './MapView.css'
 // MapLibre 6 busca su worker junto a su propio archivo (import.meta.url); el pre-empaquetado de Vite
 // lo mueve y el worker no carga. Se le da la URL explícita, válida en desarrollo y en build.
 setWorkerUrl(maplibreWorkerUrl)
+registerCloudProtocol() // teselas de nubes con fondo transparente (cloudAlpha.ts)
 
 export interface LatLon {
   lat: number
@@ -49,10 +58,12 @@ interface MapViewProps {
   selectedPoint?: LatLon | null
   /** Destino al que mover la cámara (p. ej. resultado del buscador). */
   flyTo?: FlyTarget | null
+  /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
+  clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number } | null
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
-export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapViewProps) {
+export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerRef = useRef<Marker | null>(null)
@@ -117,10 +128,16 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapView
       setHovered(null)
       setHover(null)
     })
+    let styleLoaded = false
+    map.once('style.load', () => (styleLoaded = true))
     map.on('error', (e) => {
-      // Un fallo del estilo base deja el mapa vacío: se avisa en vez de mostrar un lienzo negro (P4).
-      if (!map.isStyleLoaded() && !map.loaded()) setFailed(true)
-      console.warn('[WindCloud] Error del mapa:', e.error?.message)
+      // Solo un fallo del ESTILO base deja el mapa vacío: se avisa en vez de mostrar un lienzo negro (P4).
+      // Los errores de teselas (traen sourceId) no tumban el mapa: cada capa maneja su "sin datos".
+      const sourceId = (e as { sourceId?: string }).sourceId
+      if (!styleLoaded && !sourceId) setFailed(true)
+      if (!sourceId?.startsWith(CLOUD_PREFIX)) {
+        console.warn('[WindCloud] Error del mapa:', e.error?.message)
+      }
     })
 
     return () => {
@@ -133,6 +150,28 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapView
   useEffect(() => {
     if (ready && mapRef.current) applyBasemap(mapRef.current, basemap)
   }, [ready, basemap])
+
+  // Nubes: recrear fuentes solo cuando cambian la capa o los cuadros; animar solo cambia la opacidad.
+  const cloudLayer = clouds?.layer
+  const cloudFrames = clouds?.frames
+  const cloudKey = cloudLayer
+    ? `${cloudLayer.kind}|${cloudFrames?.map((d) => d.getTime()).join(',')}`
+    : ''
+  const cloudIndex = clouds?.index ?? 0
+  useEffect(() => {
+    const map = mapRef.current
+    if (!ready || !map) return
+    if (!cloudLayer || !cloudFrames?.length) {
+      clearClouds(map)
+      return
+    }
+    setCloudFrames(map, cloudLayer, cloudFrames, DEPARTMENTS_FILL)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cloudKey resume capa y cuadros
+  }, [ready, cloudKey])
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map && cloudFrames?.length) showCloudFrame(map, cloudFrames.length, cloudIndex)
+  }, [ready, cloudKey, cloudIndex, cloudFrames?.length])
 
   useEffect(() => {
     const map = mapRef.current

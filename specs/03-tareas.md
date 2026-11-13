@@ -14,7 +14,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-10** MapView con MapLibre + overlay deck.gl, centrado en Colombia, bases oscuro/satélite/relieve. → RF-1
 - [x] **T-11** Límites departamentales (geoBoundaries ADM1 simplificado, ≤ 300 KB). → RF-1
       268 KB (102 KB gzip), generado por `pipeline/…/geo.py`; resaltado y nombre al pasar el cursor.
-- [ ] **T-12** Capa de nubes NASA GIBS (GOES-East visible e IR); leer IDs reales de GetCapabilities; animación 3 h. → RF-3
+- [x] **T-12** Capa de nubes NASA GIBS (GOES-East visible e IR); leer IDs reales de GetCapabilities; animación 3 h. → RF-3
+      10 cuadros cada 20 min, fondo transparente por brillo, hora UTC/local y antigüedad visibles. Nubosidad *pronosticada* queda para T-36.
 - [ ] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6
       🟡 Buscador de ciudad/país hecho (`web/src/search/PlaceSearch.tsx`); faltan menú lateral, pestañas, ubicación y reloj.
 - [ ] **T-20** `api/openMeteo.ts`: petición multi-modelo (lista §5.1 del diseño), parseo por modelo, caché 30 min. → RF-6, RNF-5
