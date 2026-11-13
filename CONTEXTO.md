@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (4/10: T-40 a T-43). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (5/10: T-40 a T-44). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-43 (verificación diaria: `daily.py` + `verify.yml` → rama `data`; probado en local, sin subir) |
-| Siguiente tarea | **T-44** página Precisión (lee `/data/precision.json`, ya servido en local). Subir el código cuando se decida: activa `grids.yml` y `verify.yml` |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
+| Última tarea cerrada | T-44 (pestaña Precisión: ranking, mapa de estaciones por mejor modelo, detalle por estación) |
+| Siguiente tarea | **T-45** pesos del consenso desde `precision.json` + «¿Por qué este número?». Subir el código cuando se decida: activa `grids.yml` y `verify.yml` |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 194 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (un día → `out/verify/pares/`, ~1 min) |
@@ -237,6 +237,9 @@
 - **Verificar lluvia por hora contra un aeropuerto no discrimina modelos:** un desfase de 1 h o de unos km es a la vez
   fallo y falsa alarma. En bloques de 6 h el CSI se duplica y el ranking tiene sentido.
 
+- `Intl.DateTimeFormat('es-CO', {day: '2-digit'})` da «6/11» (sin cero) en Node: las fechas de datos se arman a mano
+  desde el ISO para que pruebas y navegador coincidan.
+
 ## 6. Bitácora de iteraciones (más reciente arriba)
 
 <!--
@@ -249,6 +252,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-44 Pestaña Precisión
+- **Tareas:** T-44 ✅
+- **Hecho:** `web/src/precision/` (tipos y carga con caché, ranking recalculado en el cliente para día 1 y 2, mejor
+  modelo por estación, formato es-CO), `PrecisionTab` diferida (ventana/variable/lead, tabla regional, aviso
+  preliminar, fuente+red+ventana+hora, leyenda, lista de 43 estaciones, detalle por estación), `map/stations.ts`
+  (círculos por mejor modelo, hueco si no hay muestra, clic y rótulo); `App` conecta pestaña ↔ mapa.
+- **Verificado:** 194 pruebas web ✓ (14 nuevas), lint, formato, build; bundle inicial 85,4 KB (pestaña: chunk de
+  2,8 KB); cobertura core 98,35 %. Chrome con 7 días reales: ranking ICON 1,3 · UKMO 1,4 · AIFS 1,5 °C; clic en el
+  mapa abre SKVV (ICON/UKMO 1,1 °C); lluvia igual a la del pipeline (UKMO CSI 0,30); 10 estaciones sin muestra de
+  lluvia en 7 días; consola limpia.
+- **Pendiente / siguiente paso:** T-45 (pesos del consenso + «¿Por qué este número?»).
 
 ### 2026-11-13 · T-43 Verificación diaria (en local)
 - **Tareas:** T-43 ✅ (código y workflow; 1.ª corrida en GitHub pendiente por decisión de seguir en local)

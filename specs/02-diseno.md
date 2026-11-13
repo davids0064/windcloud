@@ -326,6 +326,22 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
    Las redes locales pueden sumar ~100 estaciones más: agrupar por celda de 0,1° (≈ 11 km), porque los modelos no
    distinguen estaciones más cercanas entre sí, y así se mantiene ≤ ~1 500 llamadas/día.
 
+### 6.0 Página Precisión (T-44)
+- `web/src/precision/data.ts` (tipos, carga con caché sin AbortSignal, `rankModels`, `bestByStation`, formato),
+  `usePrecision`/`useStationDetail`, `PrecisionTab` (chunk diferido) y `map/stations.ts` (capa `circle` nativa).
+- Controles: ventana (7/30 días), variable (temperatura/viento/lluvia), pronóstico emitido (1 o 2 días antes).
+  El ranking se **recalcula en el cliente** desde las métricas con el mismo criterio del pipeline (MAE ↑, CSI ↓,
+  ≥ `min_pares_ranking`), así sirve para el día 2; los modelos sin muestra van al final, sin puesto y en gris.
+- Tabla regional: temperatura/viento → error (MAE), sesgo, n; lluvia → CSI, aciertos (POD), falsas alarmas (FAR),
+  sesgo de frecuencia, n (bloques). Textos de ayuda explican cada métrica en lenguaje llano.
+- Aviso «Preliminar» si la ventana tiene < 14 días con datos (criterio de cierre de la fase 3).
+- Fuente + red + ventana (dd/mm–dd/mm UTC, días con datos) + hora de cálculo (P2, RF-9 «qué red respalda»).
+- Mapa (solo con la pestaña abierta): un círculo por aeropuerto con el color del mejor modelo (día 1, variable y
+  ventana elegidas; mismos colores Okabe-Ito que la gráfica del panel de punto), hueco gris si no hay muestra,
+  leyenda con los modelos presentes. Clic en el mapa o en la lista → detalle de la estación (`precision/<ICAO>.json`);
+  desde la lista además centra el mapa. El clic sobre una estación no abre el panel de pronóstico.
+- Sin `precision.json` → «Sin datos de verificación» y recordatorio de que el consenso usa pesos iguales (P4).
+
 ### 6.1 Enlace a la red oficial de la ciudad (RF-14)
 `web/src/data/cityNetworks.json`: `{ciudad, bbox, red, operador, url, estado_verificado}`. Si el punto del
 usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias de <ciudad>: ver en vivo →".

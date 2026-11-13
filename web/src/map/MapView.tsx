@@ -38,6 +38,7 @@ import {
   installDepartments,
 } from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
+import { setStations, stationAt, type MapStation } from './stations'
 import { applyDarkPalette, applySpanishLabels } from './palette'
 import './MapView.css'
 
@@ -83,6 +84,10 @@ interface MapViewProps {
   isobarsUrl?: string | null
   /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
   clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number; preloadAll?: boolean } | null
+  /** Estaciones de verificación coloreadas por mejor modelo (T-44); null = ocultas. */
+  stations?: MapStation[] | null
+  selectedStation?: string | null
+  onSelectStation?: (icao: string) => void
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
@@ -95,18 +100,23 @@ export default function MapView({
   wind = null,
   scalar = null,
   isobarsUrl = null,
+  stations = null,
+  selectedStation = null,
+  onSelectStation,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerRef = useRef<Marker | null>(null)
   const onSelectRef = useRef(onSelectPoint)
+  const onStationRef = useRef(onSelectStation)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [hover, setHover] = useState<{ x: number; y: number; nombre: string } | null>(null)
 
   useEffect(() => {
     onSelectRef.current = onSelectPoint
-  }, [onSelectPoint])
+    onStationRef.current = onSelectStation
+  }, [onSelectPoint, onSelectStation])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -145,6 +155,9 @@ export default function MapView({
       setReady(true)
     })
     map.on('click', (e) => {
+      // Una estación de verificación tiene prioridad sobre el clic de pronóstico (T-44).
+      const st = stationAt(map, e.point)
+      if (st && onStationRef.current) return onStationRef.current(st.icao)
       const dep = departmentAt(map, e.point)
       onSelectRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng, departamento: dep?.nombre })
     })
@@ -159,9 +172,12 @@ export default function MapView({
       hoveredId = id
     }
     map.on('mousemove', (e) => {
-      const dep = departmentAt(map, e.point)
+      const st = stationAt(map, e.point)
+      const dep = st ? null : departmentAt(map, e.point)
       setHovered(dep?.id ?? null)
-      setHover(dep ? { x: e.point.x, y: e.point.y, nombre: dep.nombre } : null)
+      map.getCanvas().style.cursor = st ? 'pointer' : ''
+      const nombre = st ? `${st.icao} · ${st.nombre} — mejor: ${st.best}` : dep?.nombre
+      setHover(nombre ? { x: e.point.x, y: e.point.y, nombre } : null)
     })
     map.on('mouseout', () => {
       setHovered(null)
@@ -256,6 +272,11 @@ export default function MapView({
     const map = mapRef.current
     if (ready && map) setIsobars(map, isobarsUrl, DEPARTMENTS_FILL)
   }, [ready, isobarsUrl])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map) setStations(map, stations, selectedStation)
+  }, [ready, stations, selectedStation])
 
   useEffect(() => {
     const map = mapRef.current

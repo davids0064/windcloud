@@ -63,7 +63,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: `metrics.py` → `precision.json` (schema 1). Lluvia en bloques de 6 h (por hora no discrimina: FAR ≈ 0,9 en todos)._
 - [x] **T-43** Workflow `verify.yml` diario; histórico en rama `data`; publicar `precision.json`. → RF-9
   _Hecho en local: `daily.py` + `verify.yml` (03:30 UTC) + paso en `deploy.yml`. **Primera corrida en GitHub pendiente** (código sin subir)._
-- [ ] **T-44** Página **Precisión**: ranking de modelos, mapa de estaciones por mejor modelo, detalle por estación. → RF-9
+- [x] **T-44** Página **Precisión**: ranking de modelos, mapa de estaciones por mejor modelo, detalle por estación. → RF-9
+  _Hecho: `web/src/precision/` (pestaña diferida, 2,8 KB gzip) + `map/stations.ts`. Verificado en Chrome con 7 días reales._
 - [ ] **T-45** Conectar pesos de `precision.json` al consenso + "¿Por qué este número?". → RF-7
   *Hecho fase 3:* tras 14 días, ranking visible y consenso ponderado activo.
 

@@ -1,10 +1,14 @@
-import { lazy, Suspense, useCallback, useState } from 'react'
+import { lazy, Suspense, useCallback, useMemo, useState } from 'react'
 import { zoomForKind, type Place } from './api/geocoding'
 import { CLOUD_LAYERS, type CloudKind } from './api/gibs'
 import { CloudPanel } from './clouds/CloudPanel'
 import { useCloudAnimation } from './clouds/useCloudAnimation'
 import type { BasemapId } from './map/basemaps'
 import type { ClickedPoint, FlyTarget, LatLon } from './map/MapView'
+import type { MapStation } from './map/stations'
+import { bestByStation, modelColorOf, modelLabel } from './precision/data'
+import type { PrecisionSelection } from './precision/PrecisionTab'
+import { usePrecision } from './precision/usePrecision'
 import { PlaceSearch } from './search/PlaceSearch'
 import type { Located } from './shell/geolocation'
 import { LocateButton } from './shell/LocateButton'
@@ -25,6 +29,8 @@ import './App.css'
 const MapView = lazy(() => import('./map/MapView'))
 // El panel de punto (con su gráfica) también se carga aparte.
 const PointPanel = lazy(() => import('./point/PointPanel'))
+// La pestaña Precisión (tablas y lista de estaciones) solo se carga al abrirla.
+const PrecisionTab = lazy(() => import('./precision/PrecisionTab'))
 
 interface SelectedPoint extends LatLon {
   /** Nombre si viene del buscador o de la ubicación; vacío si fue un clic sin departamento. */
@@ -48,6 +54,29 @@ export default function App() {
   const [scalar, setScalar] = useState<ScalarName | null>(null)
   const [isobarsOn, setIsobarsOn] = useState(false)
   const [gridModel, setGridModel] = useState<GridModel>('gfs')
+  const [precisionSel, setPrecisionSel] = useState<PrecisionSelection>({
+    win: '7',
+    variable: 'temperatura',
+    lead: 1,
+  })
+  const [station, setStation] = useState<string | null>(null)
+  const precision = usePrecision(tab === 'precision')
+  const precisionData = precision.status === 'ready' ? precision.data : null
+  const mapStations = useMemo<MapStation[] | null>(() => {
+    if (!precisionData) return null
+    const best = bestByStation(precisionData, precisionSel.win, precisionSel.variable)
+    return precisionData.estaciones.map((s) => {
+      const m = best.get(s.icao) ?? null
+      return {
+        icao: s.icao,
+        nombre: s.nombre,
+        lat: s.lat,
+        lon: s.lon,
+        color: m ? modelColorOf(m) : null,
+        best: m ? modelLabel(m) : 'sin muestra suficiente',
+      }
+    })
+  }, [precisionData, precisionSel.win, precisionSel.variable])
   const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn, gridModel)
   const gridReady = grid.status === 'ready' ? grid : null
   const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null
@@ -107,6 +136,20 @@ export default function App() {
     [choosePoint],
   )
 
+  /** Desde la lista: abre el detalle y centra el mapa. Desde el mapa: solo abre el detalle. */
+  const selectStation = useCallback(
+    (icao: string | null, fly = true) => {
+      setStation(icao)
+      if (!icao) return
+      setTab('precision')
+      setMenuOpen(true)
+      const s = precisionData?.estaciones.find((x) => x.icao === icao)
+      if (fly && s) setFlyTo({ lat: s.lat, lon: s.lon, zoom: 7, key: Date.now() })
+    },
+    [precisionData],
+  )
+  const onMapStation = useCallback((icao: string) => selectStation(icao, false), [selectStation])
+
   const onLocated = useCallback(
     (where: Located) => {
       setFlyTo({ lat: where.lat, lon: where.lon, zoom: 10, key: Date.now() })
@@ -126,6 +169,9 @@ export default function App() {
           wind={gridReady?.field ?? null}
           scalar={scalarLayer}
           isobarsUrl={isobarsUrl}
+          stations={tab === 'precision' ? mapStations : null}
+          selectedStation={station}
+          onSelectStation={onMapStation}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -189,16 +235,15 @@ export default function App() {
           <PointTab point={point} panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} />
         )}
         {tab === 'precision' && (
-          <ComingSoon title="Precisión verificada" phase="fase 3 (T-40 a T-45)">
-            <p>
-              Aquí verás qué modelo acierta más en cada lugar: comparación diaria contra estaciones
-              METAR de aeropuertos e IDEAM (error medio, sesgo, aciertos de lluvia) en ventanas de 7
-              y 30 días.
-            </p>
-            <p>
-              Mientras no exista esa verificación, el consenso usa pesos iguales y así lo indica.
-            </p>
-          </ComingSoon>
+          <Suspense fallback={<p className="tab-section">Cargando…</p>}>
+            <PrecisionTab
+              state={precision}
+              selection={precisionSel}
+              onSelection={setPrecisionSel}
+              station={station}
+              onStation={selectStation}
+            />
+          </Suspense>
         )}
         {tab === 'riesgo' && (
           <ComingSoon title="Riesgo meteorológico" phase="fase 4 (T-50 a T-53)">
