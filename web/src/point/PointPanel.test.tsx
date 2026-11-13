@@ -2,6 +2,8 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearOpenMeteoCache } from '../api/openMeteo'
+import { clearPrecisionCache } from '../precision/data'
+import { scores, SUMMARY } from '../precision/fixture'
 import { MODELS } from '../core/models'
 import PointPanel from './PointPanel'
 
@@ -73,14 +75,17 @@ describe('PointPanel', () => {
   const fetchMock = vi.fn()
   beforeEach(() => {
     clearOpenMeteoCache()
+    clearPrecisionCache()
     fetchMock.mockReset()
     fetchMock.mockImplementation(
       realisticFetch((url) =>
-        url.includes('/static/meta.json')
-          ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
-          : url.includes('ensemble-api')
-            ? { ok: true, json: async () => ensembleBody(30, 31) }
-            : { ok: true, json: async () => rawForecast() },
+        url.includes('/data/precision')
+          ? { ok: false, status: 404 }
+          : url.includes('/static/meta.json')
+            ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
+            : url.includes('ensemble-api')
+              ? { ok: true, json: async () => ensembleBody(30, 31) }
+              : { ok: true, json: async () => rawForecast() },
       ),
     )
     vi.stubGlobal('fetch', fetchMock)
@@ -124,6 +129,42 @@ describe('PointPanel', () => {
     expect(screen.getByText('¿Por qué este número?')).toBeInTheDocument()
     expect(screen.getByText(/todos los modelos pesan igual/)).toBeInTheDocument()
     expect(screen.getAllByText(/Fuente: Open-Meteo/).length).toBeGreaterThanOrEqual(3) // tarjetas, gráfica, ensambles
+  })
+
+  it('con 14 días de verificación cerca pondera temperatura y viento y muestra los pesos (T-45)', async () => {
+    const days = Array.from({ length: 14 }, (_, i) => `2026-10-${String(i + 1).padStart(2, '0')}`)
+    const summary = {
+      ...SUMMARY,
+      ventanas: { ...SUMMARY.ventanas, '30': { ...SUMMARY.ventanas['30'], dias: days } },
+    }
+    const detail = {
+      ...SUMMARY,
+      icao: 'SKBO',
+      ventanas: { '30': { metricas: scores(1, 300), ranking: {} } },
+    }
+    fetchMock.mockImplementation(
+      realisticFetch((url) =>
+        url.endsWith('/data/precision.json')
+          ? { ok: true, json: async () => summary }
+          : url.endsWith('/data/precision/SKBO.json')
+            ? { ok: true, json: async () => detail }
+            : url.includes('/static/meta.json')
+              ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
+              : url.includes('ensemble-api')
+                ? { ok: true, json: async () => ensembleBody(30, 31) }
+                : { ok: true, json: async () => rawForecast() },
+      ),
+    )
+    render(<PointPanel point={point} onClose={() => {}} />)
+    expect(
+      await screen.findByText(/consenso de 8 modelos · ponderado por precisión/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/ponderados por el error de cada modelo en SKBO/)).toBeInTheDocument()
+    const table = screen.getByRole('table', { name: /Peso de cada modelo \(igual sería 13 %\)/ })
+    const first = within(table).getAllByRole('row')[1]
+    expect(first).toHaveTextContent(/^ECMWF IFS16 %16 %$/) // 1/1,1 ÷ Σ 1/(MAE+0,1) = 16 % (igual: 13 %)
+    // la temperatura del consenso se acerca a los modelos de menor error (15,0 frente a 15,4 con pesos iguales)
+    expect(screen.getByText('15,3')).toBeInTheDocument()
   })
 
   it('cambia la variable de la gráfica', async () => {

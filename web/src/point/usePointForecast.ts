@@ -1,17 +1,14 @@
 import { useEffect, useState } from 'react'
 import { fetchModelRun, fetchMultiModel, type MultiModelForecast } from '../api/openMeteo'
-import {
-  consensusSeries,
-  equalWeights,
-  type ConsensusSeries,
-  type WeightInfo,
-} from '../core/consensus'
+import { consensusSeries, type ConsensusSeries } from '../core/consensus'
+import { consensusWeights, nearestStation, type ConsensusWeights } from '../core/verifiedWeights'
+import { fetchPrecision, fetchStationDetail } from '../precision/data'
 import type { LatLon } from '../map/MapView'
 
 export interface PointForecast {
   forecast: MultiModelForecast
   consensus: ConsensusSeries
-  weights: WeightInfo
+  weights: ConsensusWeights
   /** Hora de inicio del run por `apiId` (null = desconocida). */
   runs: Record<string, Date | null>
 }
@@ -20,6 +17,18 @@ type State =
   | { status: 'loading'; key: string }
   | { status: 'ready'; key: string; data: PointForecast }
   | { status: 'error'; key: string; message: string }
+
+/** Resumen y detalle de la estación más cercana; nunca rompe el panel (null si no hay). */
+async function loadVerification(point: LatLon) {
+  try {
+    const summary = await fetchPrecision()
+    const near = nearestStation(point.lat, point.lon, summary.estaciones)
+    const detail = near ? await fetchStationDetail(near.station.icao).catch(() => null) : null
+    return [summary, detail] as const
+  } catch {
+    return [null, null] as const
+  }
+}
 
 const keyOf = (p: LatLon) => `${p.lat.toFixed(3)},${p.lon.toFixed(3)}`
 
@@ -36,9 +45,15 @@ export function usePointForecast(point: LatLon | null) {
       try {
         // Sin signal: la consulta se comparte en caché; si el punto cambia, aquí solo se ignora el resultado.
         const forecast = await fetchMultiModel(point.lat, point.lon)
-        // Pesos iguales hasta que exista verificación (RF-7 / T-45).
-        const weights = equalWeights(forecast.models.map((m) => m.model.apiId))
-        const consensus = consensusSeries(forecast, weights)
+        // Pesos por precisión verificada cerca del punto (T-45); si falla, pesos iguales y se dice.
+        const [summary, detail] = await loadVerification(point)
+        const weights = consensusWeights(
+          forecast.models.map((m) => m.model.apiId),
+          point,
+          summary,
+          detail,
+        )
+        const consensus = consensusSeries(forecast, weights.base, weights.byVariable)
         const runList = await Promise.all(forecast.models.map((m) => fetchModelRun(m.model)))
         const runs = Object.fromEntries(forecast.models.map((m, i) => [m.model.apiId, runList[i]]))
         if (!controller.signal.aborted) {

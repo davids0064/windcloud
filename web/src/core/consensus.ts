@@ -6,7 +6,7 @@
  * - Dirección del viento: se promedian componentes u/v, nunca grados (350° y 10° → 0°, no 180°).
  *   La velocidad del consenso es la media ponderada de velocidades (promediar vectores la subestimaría
  *   cuando los modelos discrepan en dirección).
- * - Pesos: iguales mientras no haya verificación (RF-9); `weightsFromMae` queda listo para T-45.
+ * - Pesos: iguales, o por variable desde la verificación (T-45, `verifiedWeights.ts`).
  */
 import type { MultiModelForecast, Series } from '../api/openMeteo'
 import type { VariableId } from './variables'
@@ -30,7 +30,7 @@ export function equalWeights(modelIds: readonly string[]): WeightInfo {
   }
 }
 
-/** w = 1 / (MAE + ε) (diseño §5.2). Modelos sin MAE reciben el peso medio del resto. Para T-45. */
+/** w = 1 / (MAE + ε) (diseño §5.2). Modelos sin MAE reciben el peso medio del resto. */
 export function weightsFromMae(maes: Record<string, number | undefined>, eps = 0.1): WeightInfo {
   const known = Object.entries(maes).filter((e): e is [string, number] => e[1] !== undefined)
   if (!known.length) return equalWeights(Object.keys(maes))
@@ -122,9 +122,25 @@ export type ConsensusSeries = Record<VariableId, Series> & {
   count: number[]
 }
 
-/** Consenso hora a hora de todas las variables. */
-export function consensusSeries(forecast: MultiModelForecast, info: WeightInfo): ConsensusSeries {
-  const w = forecast.models.map((m) => info.weights[m.model.apiId] ?? 0)
+/**
+ * Consenso hora a hora de todas las variables. `byVariable` reemplaza los pesos de `info` en las variables
+ * que traiga (T-45: temperatura y viento ponderados por precisión).
+ */
+export function consensusSeries(
+  forecast: MultiModelForecast,
+  info: WeightInfo,
+  byVariable: Partial<Record<VariableId, WeightInfo>> = {},
+): ConsensusSeries {
+  const wOf = (v: VariableId) =>
+    forecast.models.map((m) => (byVariable[v] ?? info).weights[m.model.apiId] ?? 0)
+  const w = {
+    temperature_2m: wOf('temperature_2m'),
+    wind_speed_10m: wOf('wind_speed_10m'),
+    wind_direction_10m: wOf('wind_direction_10m'),
+    wind_gusts_10m: wOf('wind_gusts_10m'),
+    cloud_cover: wOf('cloud_cover'),
+    precipitation: wOf('precipitation'),
+  }
   const at = (v: VariableId, i: number) => forecast.models.map((m) => m.values[v][i] ?? null)
   const series = {
     temperature_2m: [],
@@ -137,14 +153,18 @@ export function consensusSeries(forecast: MultiModelForecast, info: WeightInfo):
   } as unknown as ConsensusSeries
 
   forecast.times.forEach((_, i) => {
-    series.temperature_2m.push(weightedMean(at('temperature_2m', i), w))
-    series.wind_speed_10m.push(weightedMean(at('wind_speed_10m', i), w))
+    series.temperature_2m.push(weightedMean(at('temperature_2m', i), w.temperature_2m))
+    series.wind_speed_10m.push(weightedMean(at('wind_speed_10m', i), w.wind_speed_10m))
     series.wind_direction_10m.push(
-      consensusDirection(at('wind_speed_10m', i), at('wind_direction_10m', i), w),
+      consensusDirection(
+        at('wind_speed_10m', i),
+        at('wind_direction_10m', i),
+        w.wind_direction_10m,
+      ),
     )
-    series.wind_gusts_10m.push(weightedMean(at('wind_gusts_10m', i), w))
-    series.cloud_cover.push(weightedMean(at('cloud_cover', i), w))
-    series.precipitation.push(weightedMedian(at('precipitation', i), w))
+    series.wind_gusts_10m.push(weightedMean(at('wind_gusts_10m', i), w.wind_gusts_10m))
+    series.cloud_cover.push(weightedMean(at('cloud_cover', i), w.cloud_cover))
+    series.precipitation.push(weightedMedian(at('precipitation', i), w.precipitation))
     series.count.push(at('temperature_2m', i).filter((x) => x !== null).length)
   })
   return series

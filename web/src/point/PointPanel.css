@@ -266,6 +266,31 @@
   color: var(--text-muted);
 }
 
+.point-panel__weights {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.point-panel__weights caption {
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.point-panel__weights th,
+.point-panel__weights td {
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+
+.point-panel__weights th:first-child,
+.point-panel__weights td:first-child {
+  text-align: left;
+}
+
 /* Con el panel abierto, los controles del mapa a la derecha se corren para no quedar debajo. */
 @media (min-width: 641px) {
   .app--panel-open .maplibregl-ctrl-top-right,

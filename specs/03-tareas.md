@@ -65,7 +65,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho en local: `daily.py` + `verify.yml` (03:30 UTC) + paso en `deploy.yml`. **Primera corrida en GitHub pendiente** (código sin subir)._
 - [x] **T-44** Página **Precisión**: ranking de modelos, mapa de estaciones por mejor modelo, detalle por estación. → RF-9
   _Hecho: `web/src/precision/` (pestaña diferida, 2,8 KB gzip) + `map/stations.ts`. Verificado en Chrome con 7 días reales._
-- [ ] **T-45** Conectar pesos de `precision.json` al consenso + "¿Por qué este número?". → RF-7
+- [x] **T-45** Conectar pesos de `precision.json` al consenso + "¿Por qué este número?". → RF-7
+  _Hecho: `core/verifiedWeights.ts`; se activa sola al llegar a 14 días de verificación (hoy 10 → pesos iguales con aviso)._
   *Hecho fase 3:* tras 14 días, ranking visible y consenso ponderado activo.
 
 ## Fase 4 · Riesgo, incendios y alertas

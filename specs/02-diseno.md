@@ -244,6 +244,15 @@ consenso = Σ w_m · x_m / Σ w_m     (sobre modelos con valor no nulo)
   media ponderada de velocidades (el módulo del vector medio la subestimaría si los modelos discrepan en dirección).
   Vector medio < 0,5 km/h → dirección indefinida (null).
 - Precipitación: mediana ponderada (robusta a un modelo que exagera).
+- **Implementado (T-45, `core/verifiedWeights.ts`):** estación de `precision.json` más cercana (haversine) a ≤ 150 km;
+  ventana de 30 días con ≥ 14 días de datos; MAE del pronóstico emitido 1 día antes (no hay verificación para plazos
+  mayores, se usa el mismo peso en los 7 días). Temperatura ← MAE temperatura; viento, ráfagas y dirección ← MAE
+  viento. **Nubosidad y lluvia con pesos iguales** (la nubosidad no se verifica; la lluvia solo como sí/no en
+  bloques de 6 h, sin MAE comparable). Modelo con < 24 pares en la estación → peso medio del resto. Cualquier
+  falta (sin `precision.json`, sin estación cercana, < 14 días, sin detalle) → pesos iguales con el motivo exacto
+  («lleva 10 de 14 días»…). La carga de la verificación nunca rompe el panel de punto.
+- «¿Por qué este número?»: motivo + tabla de peso normalizado por modelo (temperatura, viento) y referencia
+  «igual sería 1/N». Encabezado del panel: «consenso de N modelos · ponderado por precisión».
 
 ### 5.3 Acuerdo
 Dispersión `s` = desviación estándar entre modelos (para viento: de la velocidad).

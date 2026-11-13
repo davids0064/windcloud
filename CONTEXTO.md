@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (5/10: T-40 a T-44). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 6/10** (T-40 a T-45 ✅; faltan redes locales T-46…T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-44 (pestaña Precisión: ranking, mapa de estaciones por mejor modelo, detalle por estación) |
-| Siguiente tarea | **T-45** pesos del consenso desde `precision.json` + «¿Por qué este número?». Subir el código cuando se decida: activa `grids.yml` y `verify.yml` |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 194 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
+| Última tarea cerrada | T-45 (consenso ponderado por precisión verificada + «¿Por qué este número?» con pesos) |
+| Siguiente tarea | Fase 3 restante: T-46…T-49 (redes locales). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí). O pasar a Fase 4 |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 204 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (un día → `out/verify/pares/`, ~1 min) |
@@ -117,6 +117,10 @@
 - **2026-11-13 · Histórico de verificación en CSV.gz, no parquet (T-43):** biblioteca estándar, sin pandas/pyarrow;
   rama `data` con historial (solo crece); se completan días faltantes de los últimos 10; `precision.json` se parte en
   resumen + detalle por estación.
+
+- **2026-11-13 · Pesos del consenso (T-45):** solo temperatura y viento (ráfagas y dirección con los de viento), con
+  el MAE a 1 día de la estación verificada más cercana (≤ 150 km, ventana 30 días, ≥ 14 días). Nubosidad y lluvia
+  siempre pesos iguales. Se activa sola; mientras tanto el panel dice cuántos días lleva.
 
 ## 4. Preguntas abiertas / riesgos
 
@@ -252,6 +256,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-45 Consenso ponderado por precisión
+- **Tareas:** T-45 ✅ (activación real cuando la verificación llegue a 14 días)
+- **Hecho:** `core/verifiedWeights.ts` (distancia, estación más cercana, reglas de activación con motivo exacto,
+  pesos por variable, normalización); `consensusSeries(forecast, base, byVariable)`; `usePointForecast` carga
+  resumen + detalle de la estación (fallos → pesos iguales); panel: «ponderado por precisión» y tabla de pesos en
+  «¿Por qué este número?»; Metodología explica la regla con las constantes del código.
+- **Verificado:** 204 pruebas web ✓ (10 nuevas: reglas, peso medio para modelos sin muestra, consenso por variable,
+  panel con 14 días → pesos 16 % vs 13 % igual y temperatura 15,3 vs 15,4), lint, build, bundle 87,5 KB, cobertura
+  core 98,7 %. Chrome (Bogotá, datos reales): «SKBO a 13 km… lleva 10 de 14 días: por ahora todos pesan igual»;
+  consola limpia.
+- **Pendiente / siguiente paso:** T-46…T-49 (redes locales) o subir el código para que la verificación acumule días.
 
 ### 2026-11-13 · T-44 Pestaña Precisión
 - **Tareas:** T-44 ✅

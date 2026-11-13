@@ -143,3 +143,26 @@ describe('consensusSeries', () => {
     expect(c.temperature_2m[0]).toBe(14.5)
   })
 })
+
+describe('consensusSeries con pesos por variable (T-45)', () => {
+  it('aplica los pesos solo a la variable indicada', () => {
+    const models = ['a', 'b'].map((apiId, i) => ({
+      model: { apiId } as never,
+      values: {
+        temperature_2m: [10 + i * 10],
+        wind_speed_10m: [10 + i * 10],
+        wind_direction_10m: [0],
+        wind_gusts_10m: [null],
+        cloud_cover: [10 + i * 10],
+        precipitation: [0],
+      },
+    }))
+    const forecast = { times: [0], models } as never
+    const base = equalWeights(['a', 'b'])
+    const heavyA = { weights: { a: 3, b: 1 }, equal: false, reason: '' }
+    const c = consensusSeries(forecast, base, { temperature_2m: heavyA })
+    expect(c.temperature_2m[0]).toBeCloseTo(12.5) // (10·3 + 20·1) / 4
+    expect(c.cloud_cover[0]).toBeCloseTo(15) // sin pesos propios: iguales
+    expect(c.wind_speed_10m[0]).toBeCloseTo(15)
+  })
+})

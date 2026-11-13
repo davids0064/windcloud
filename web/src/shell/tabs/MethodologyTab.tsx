@@ -3,6 +3,7 @@ import { RAIN_AGREEMENT, SPREAD_THRESHOLDS } from '../../core/agreement'
 import { MODELS } from '../../core/models'
 import { PROB_AGREEMENT_PTS, RAIN_DAY_MM } from '../../core/probability'
 import { STALE_RUN_HOURS } from '../../core/runs'
+import { MAX_STATION_KM, MIN_VERIFIED_DAYS, VERIFIED_WINDOW } from '../../core/verifiedWeights'
 import { ALPHA_RAMP } from '../../clouds/alphaRamp'
 
 /**
@@ -20,8 +21,8 @@ export function MethodologyTab() {
       <section className="tab-section">
         <h2>Metodología</h2>
         <p>
-          Versión preliminar: describe lo que ya funciona. La completa (verificación y riesgo) llega
-          en T-60.
+          Versión preliminar: describe lo que ya funciona. La completa (riesgo, fórmulas y
+          referencias) llega en T-60.
         </p>
       </section>
 
@@ -35,9 +36,12 @@ export function MethodologyTab() {
         <dt>Consenso</dt>
         <dd>
           Promedio de los modelos con dato en cada hora; la lluvia usa la mediana para que un modelo
-          que exagera no la dispare; la dirección del viento se promedia por componentes. Hoy todos
-          los modelos pesan igual: los pesos por precisión llegarán con la verificación contra
-          estaciones (fase 3).
+          que exagera no la dispare; la dirección del viento se promedia por componentes. Pesos: si
+          hay un aeropuerto verificado a menos de {MAX_STATION_KM} km con al menos{' '}
+          {MIN_VERIFIED_DAYS} días de datos, en temperatura y viento cada modelo pesa 1 / (error
+          medio + 0,1) según su error allí en los últimos {VERIFIED_WINDOW} días (pronóstico a 1
+          día); si no, todos pesan igual. Nubosidad y lluvia siempre pesan igual. El panel de punto
+          muestra los pesos usados en «¿Por qué este número?».
         </dd>
 
         <dt>Acuerdo (indicador propio, «Estimado»)</dt>
@@ -84,6 +88,14 @@ export function MethodologyTab() {
       </table>
 
       <dl>
+        <dt>Precisión verificada</dt>
+        <dd>
+          Cada día se compara el pronóstico emitido 1 y 2 días antes con los METAR de ~40
+          aeropuertos: error medio y sesgo en temperatura y viento (horas en que los 8 modelos
+          tienen dato), y aciertos y falsas alarmas de lluvia en bloques de 6 h (llovió si algún
+          reporte lo indicó; el modelo anunció lluvia si sumaba ≥ 1 mm). Ver la pestaña Precisión.
+        </dd>
+
         <dt>Probabilidad de lluvia</dt>
         <dd>
           Fracción de miembros de cada ensamble (

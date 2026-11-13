@@ -4,6 +4,7 @@ import { OPEN_METEO_SOURCE } from '../api/openMeteo'
 import { LOW_AGREEMENT_WARNING } from '../core/agreement'
 import { formatRunRange, formatRunUtc, isRunStale, runRange } from '../core/runs'
 import { MODELS } from '../core/models'
+import { normalizedWeights, type ConsensusWeights } from '../core/verifiedWeights'
 import { LABELS, UNITS, type VariableId } from '../core/variables'
 import type { LatLon } from '../map/MapView'
 import { DataChip } from '../ui/DataChip'
@@ -131,6 +132,7 @@ export default function PointPanel({ point, onClose }: Props) {
         <div className="point-panel__body">
           <p className="point-panel__when">
             Ahora ({view.hour} hora local) · consenso de {data.consensus.count[view.i]} modelos
+            {data.weights.weighted && ' · ponderado por precisión'}
           </p>
           <SourceLine
             source="Open-Meteo Forecast API"
@@ -318,11 +320,18 @@ export default function PointPanel({ point, onClose }: Props) {
           <details className="point-panel__why">
             <summary>¿Por qué este número?</summary>
             <p>{data.weights.reason}</p>
+            {data.weights.weighted && (
+              <WeightsTable
+                weights={data.weights}
+                models={data.forecast.models.map((m) => m.model)}
+              />
+            )}
             <p>
-              Temperatura, viento, ráfagas y nubosidad: promedio de los modelos con dato en esa
-              hora. Lluvia: mediana (un modelo que exagera no la dispara). Dirección del viento:
-              promedio de componentes, no de grados. Acuerdo: dispersión entre modelos (umbrales en
-              la página de Metodología).
+              Temperatura, viento, ráfagas y nubosidad: promedio
+              {data.weights.weighted ? ' ponderado' : ''} de los modelos con dato en esa hora.
+              Lluvia: mediana (un modelo que exagera no la dispara). Dirección del viento: promedio
+              de componentes, no de grados. Acuerdo: dispersión entre modelos (umbrales en la página
+              de Metodología).
             </p>
           </details>
 
@@ -337,5 +346,44 @@ export default function PointPanel({ point, onClose }: Props) {
         </div>
       )}
     </aside>
+  )
+}
+
+const pct = (x: number) => `${Math.round(x * 100)} %`
+
+/** Peso de cada modelo en temperatura y viento (RF-7: «¿Por qué este número?» con los pesos usados). */
+function WeightsTable({
+  weights,
+  models,
+}: {
+  weights: ConsensusWeights
+  models: { apiId: string; label: string }[]
+}) {
+  const ids = models.map((m) => m.apiId)
+  const t = weights.byVariable.temperature_2m
+  const w = weights.byVariable.wind_speed_10m
+  const tn = t ? normalizedWeights(t, ids) : null
+  const wn = w ? normalizedWeights(w, ids) : null
+  const igual = pct(1 / ids.length)
+  return (
+    <table className="point-panel__weights">
+      <caption>Peso de cada modelo (igual sería {igual})</caption>
+      <thead>
+        <tr>
+          <th scope="col">Modelo</th>
+          <th scope="col">Temperatura</th>
+          <th scope="col">Viento</th>
+        </tr>
+      </thead>
+      <tbody>
+        {models.map((m) => (
+          <tr key={m.apiId}>
+            <td>{m.label}</td>
+            <td>{tn ? pct(tn[m.apiId]) : igual}</td>
+            <td>{wn ? pct(wn[m.apiId]) : igual}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
