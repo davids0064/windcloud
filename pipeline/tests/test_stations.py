@@ -1,6 +1,5 @@
 """T-40: selección de estaciones METAR (sin red; frontera = GeoJSON real)."""
 
-import urllib.error
 from collections import Counter
 
 import pytest
@@ -57,28 +56,3 @@ def test_seleccion(colombia):
     assert bog["departamento"] == "Bogotá D.C."
     assert bog["km_a_colombia"] == 0 and bog["reportes_24h"] == 24 and bog["red"] == "METAR"
     assert got[1]["departamento"] is None and got[1]["pais"] == "VE"
-
-
-def test_fetch_json_reintenta():
-    calls, waits = [], []
-
-    def get(url):
-        calls.append(url)
-        if len(calls) < 3:
-            raise urllib.error.URLError("504")
-        return b'[{"icaoId": "SKBO"}]'
-
-    assert stations.fetch_json("u", get=get, sleep=waits.append) == [{"icaoId": "SKBO"}]
-    assert waits == [3.0, 10.0]
-
-
-def test_fetch_json_falla_tras_reintentos():
-    def get(url):
-        raise TimeoutError
-
-    with pytest.raises(RuntimeError, match="reintentos"):
-        stations.fetch_json("u", get=get, sleep=lambda s: None)
-
-
-def test_lotes():
-    assert list(stations.batched(list("abcde"), 2)) == [["a", "b"], ["c", "d"], ["e"]]

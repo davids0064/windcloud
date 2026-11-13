@@ -6,8 +6,7 @@ de países vecinos a menos de `--km` de Colombia (frontera = unión de los depar
 
 Hallazgos con la API real (aviationweather.gov, 2026-11-13):
 - `stationinfo?bbox=` da el catálogo (134 estaciones en la región, 47 en Colombia);
-  `metar?ids=…&hours=24` da los reportes. Lotes de 40 ids a veces responden 504: se usan
-  lotes de 20 con reintentos.
+  `metar?ids=…&hours=24` da los reportes (tope de 400 por respuesta: ver `metar.py`).
 - En Colombia reportan 37 de 38 aeropuertos con METAR, 7 a 24 veces al día (varios solo de día).
 - El viento viene en nudos; no hay campo de precipitación (la lluvia sale del tiempo presente).
 Se exige un mínimo de reportes en 24 h para no verificar contra estaciones casi mudas.
@@ -21,10 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
-import time
-import urllib.error
 from collections import Counter
-from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -32,34 +28,14 @@ import shapely
 from shapely.geometry import Point, shape
 from shapely.ops import nearest_points
 
-from . import grids
+from . import metar
 
-API = "https://aviationweather.gov/api/data"
-SOURCE = "NOAA Aviation Weather Center (aviationweather.gov), dominio público"
 #: (sur, oeste, norte, este) en el orden que pide la API
 REGION_BBOX = (-5.0, -82.0, 13.5, -66.0)
 ROOT = Path(__file__).resolve().parents[3]
 DEPARTMENTS = ROOT / "web/public/geo/colombia-departamentos.geojson"
 OUTPUT = ROOT / "pipeline/data/stations.json"
 KM_PER_DEG = 111.32
-
-
-def fetch_json(url: str, get: Callable[[str], bytes] = grids.http_get, sleep=time.sleep) -> object:
-    """GET JSON con 3 intentos (la API a veces responde 504 con lotes grandes)."""
-    last: Exception | None = None
-    for wait in (0.0, 3.0, 10.0):
-        if wait:
-            sleep(wait)
-        try:
-            return json.loads(get(url))
-        except (urllib.error.URLError, TimeoutError, ConnectionError, json.JSONDecodeError) as e:
-            last = e
-    raise RuntimeError(f"Falló tras reintentos: {url}") from last
-
-
-def batched(items: list[str], size: int) -> Iterable[list[str]]:
-    for i in range(0, len(items), size):
-        yield items[i : i + size]
 
 
 def colombia_shape(path: Path = DEPARTMENTS):
@@ -134,17 +110,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     s, w, n, e = REGION_BBOX
-    catalog = fetch_json(f"{API}/stationinfo?bbox={s},{w},{n},{e}&format=json")
+    catalog = metar.fetch_json(f"{metar.API}/stationinfo?bbox={s},{w},{n},{e}&format=json")
     ids = [x["icaoId"] for x in catalog if x.get("icaoId") and "METAR" in (x.get("siteType") or [])]
-    reports: Counter = Counter()
-    for batch in batched(ids, 20):
-        obs = fetch_json(f"{API}/metar?ids={','.join(batch)}&hours=24&format=json")
-        reports.update(o["icaoId"] for o in obs)
-        time.sleep(1.0)  # cortesía con la API
+    reports = Counter(o["icaoId"] for o in metar.fetch_metars(ids, hours=24))
     colombia, fc = colombia_shape()
     stations = select_stations(catalog, reports, colombia, fc, args.km, args.min_reportes)
     doc = {
-        "source": SOURCE,
+        "source": metar.SOURCE,
         "generatedAt": datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z"),
         "criterio": (
             f"METAR activos (≥ {args.min_reportes} reportes/24 h) en Colombia o a ≤ {args.km:g} km"

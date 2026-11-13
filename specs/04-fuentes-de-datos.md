@@ -8,7 +8,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 |---|---|---|---|---|---|
 | **Open-Meteo Forecast API** | ECMWF IFS, AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway, KMA y más; `best_match`. *MET Norway solo es independiente en Escandinavia: en Colombia repite a ECMWF y WindCloud no lo usa (diseño §5.1)* | No | ~10 000 llamadas/día, **solo no comercial**; datos CC BY 4.0 | Panel de punto multi-modelo | Lista de modelos y nombres |
 | **Open-Meteo Ensemble API** | ECMWF ENS (51), GFS ENS (31), ICON-EPS | No | Igual | Probabilidad de lluvia ✅ en uso | ✅ 51 y 31 miembros verificados 2026-11-13; coste 8,2/consulta |
-| **Open-Meteo Previous Runs API** | Pronósticos pasados por lead time | No | Igual | Verificación sin archivar runs | Variables `_previous_dayN` |
+| **Open-Meteo Previous Runs API** | Pronósticos pasados por lead time | No | Igual | Verificación sin archivar runs | Variables `_previous_dayN`; varias ubicaciones por llamada (listas en `latitude`/`longitude`/`elevation`). Verificado 13/11/2026 con los 8 modelos, día 1 y 2 |
 | **Open-Meteo Geocoding** | Buscar lugares (ciudades, regiones, países; datos GeoNames) | No | Igual | Buscador ✅ en uso | — |
 | **Open-Meteo Air Quality** | PM2.5, PM10, O₃ (CAMS) | No | Igual | Panel de punto | — |
 | **MET Norway Locationforecast** | Modelo noruego / ECMWF | No (exige `User-Agent` identificable genérico) | Gratis, CC BY 4.0 | Respaldo si Open-Meteo falla | Política de uso |
@@ -25,7 +25,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | Fuente | Qué da | Clave | Licencia | Uso | Verificar |
 |---|---|---|---|---|---|
 | **NASA GIBS (WMTS)** | Imágenes GOES-East/West, Himawari, Meteosat; ~10 min | No | Abierta (atribuir NASA) | Capa de nubes observadas ✅ en uso (GOES-East banda 2 y 13) | ✅ IDs verificados 2026-11-13; latencia real 30–50 min; DescribeDomains adelanta horas aún no publicadas; a veces 503 puntual (el reintento lo resuelve) |
-| **aviationweather.gov Data API** | METAR de aeropuertos en JSON | No | Dominio público (NOAA) | Verificación de modelos | Límite de peticiones; lotes de 40 ids dieron 504 → lotes de 20 con reintentos. Viento en nudos, sin campo de lluvia (sale del tiempo presente del `rawOb`). Verificado 13/11/2026: 37/38 METAR de Colombia activos |
+| **aviationweather.gov Data API** | METAR de aeropuertos en JSON | No | Dominio público (NOAA) | Verificación de modelos | Límite de peticiones; **tope de 400 registros por respuesta, sin aviso** → lotes de 10 que se parten si lo tocan; lotes grandes dan 504 → reintentos. Historial con `date=AAAAMMDD_HHMM&hours=N` (≥ 12 días). Viento en nudos, sin campo de lluvia (sale del tiempo presente del `rawOb`). Verificado 13/11/2026: 37/38 METAR de Colombia activos |
 | **IDEAM / datos.gov.co (Socrata)** | Estaciones hidrometeorológicas de Colombia | No (token opcional) | Datos abiertos Colombia | Verificación local extra | Latencia y frecuencia de los datasets |
 | **RainViewer** | Tiles de radar mundial | No | Gratis solo uso personal/educativo, atribución con enlace | ❌ **No se usa** (T-37) | ✅ 2026-11-13: zoom máx. 7, 2 h, sin nowcast/satélite, 100 pet./min/IP; **sin cobertura en ciudades colombianas** (máscara: solo Leticia). Reevaluar |
 | **NOAA GOES GLM (AWS Open Data)** | Rayos | No | Dominio público | Capa de rayos | Volumen de datos |

@@ -285,8 +285,19 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
    3. **METAR** `aviationweather.gov/api/data/metar` (JSON, gratis) cada hora — cobertura mínima garantizada.
    - Control de calidad: descartar valores fuera de rango físico, saltos imposibles y estaciones con < 80 % de datos en la ventana.
    - Las métricas se publican **por red**, para no mezclar redes de distinta calidad sin decirlo.
-3. **Pronósticos archivados:** Open-Meteo **Previous Runs API** (`temperature_2m_previous_day1`, `..._day2`)
-   por modelo y estación → evita tener que guardar nosotros cada run.
+   - **Emparejado METAR (implementado, `metar.py` + `verify.py`):** por hora en punto UTC, el METAR de
+     rutina más cercano (± 20 min) da temperatura (°C enteros) y viento (nudos × 1,852); lluvia sí/no =
+     algún METAR/SPECI de la hora que termina con precipitación en `wxString` (DZ, RA, SN, GR…, con SH/TS;
+     no VC ni TS sola) o tiempo reciente RE… en el reporte (antes de RMK). Sin METAR de rutina → hora sin
+     dato. QC mínimo: temperatura −30…50 °C, viento 0…200 km/h. METAR pedido con `date=D_2359&hours=25`
+     (la hora previa a 00Z sirve para la lluvia de la primera hora). La API corta en **400 registros**
+     por respuesta: lotes de 10 que se parten en dos si tocan el tope.
+3. **Pronósticos archivados:** Open-Meteo **Previous Runs API** (`temperature_2m`, `wind_speed_10m`,
+   `precipitation` con `_previous_day1` y `_day2`) para los **8 modelos** del panel en una sola llamada por
+   cada 10 estaciones, con `elevation=` = altitud de la estación (corrige la temperatura por altura) y
+   `timezone=GMT` → evita tener que guardar nosotros cada run. Verificado: los 8 modelos responden.
+   Salida diaria `pipeline/out/verify/pares/AAAA-MM-DD.csv`: `hora_utc, icao, red, variable, obs,
+   <modelo>_d1, <modelo>_d2…` (lluvia: obs 0/1, pronóstico en mm de la hora anterior).
 4. **Métricas** por estación × modelo × variable × lead (24 h, 48 h), ventanas 7 y 30 días:
    MAE, sesgo, RMSE; lluvia: POD (aciertos), FAR (falsas alarmas), CSI.
 5. Salida `precision.json` (resumen ligero para el cliente) + histórico parquet en rama `data`.

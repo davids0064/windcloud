@@ -11,13 +11,14 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (1/10: T-40). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (2/10: T-40, T-41). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-40 (`pipeline/data/stations.json`: 43 estaciones METAR activas) |
-| Siguiente tarea | **Fase 3:** T-41 `verify.py` (METAR + Previous Runs API). O subir el código para que `grids.yml` corra |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations) 52 pruebas · CI |
+| Última tarea cerrada | T-41 (`verify.py`: pares METAR ↔ Previous Runs de los 8 modelos, por hora) |
+| Siguiente tarea | **Fase 3:** T-46 (acceso a redes locales) o T-42 (métricas). O subir el código para que `grids.yml` corra |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify) 71 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
+| Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (→ `out/verify/pares/`, ~1 min) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
@@ -103,6 +104,10 @@
 
 - **2026-11-13 · Estaciones de verificación (T-40):** METAR activos (≥ 6 reportes/24 h) en Colombia o a ≤ 100 km;
   lista fija en git (`pipeline/data/stations.json`), regenerada a mano. Así las métricas no cambian de muestra cada día.
+
+- **2026-11-13 · Emparejado de verificación (T-41):** hora en punto UTC, METAR de rutina ± 20 min; lluvia sí/no por
+  hora con METAR+SPECI+RE…; pronóstico de Previous Runs con `elevation` de la estación. Pares en CSV largo por variable
+  (métricas en T-42; dónde vive el histórico se decide en T-43).
 
 ## 4. Preguntas abiertas / riesgos
 
@@ -211,7 +216,8 @@
 
 ---
 
-- **aviationweather.gov:** lotes de 40 ids a veces dan 504 → lotes de 20 + reintentos. Muchos aeropuertos colombianos
+- **aviationweather.gov corta en 400 registros por respuesta sin avisar** (20 aeropuertos × 25 h → 400, uno fuera).
+  `metar.fetch_metars` parte el lote si toca el tope. Lotes grandes también dan 504 → reintentos. Muchos aeropuertos colombianos
   solo reportan de día (7–26 METAR/día): el control de "≥ 80 % de datos" debe contar horas esperadas, no 24.
   Viento en nudos; sin campo de lluvia (hay que leer el tiempo presente: RA, SHRA, TSRA…).
 
@@ -227,6 +233,19 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-41 Pares observación–pronóstico
+- **Tareas:** T-41 ✅
+- **Exploración real:** Previous Runs acepta los 8 modelos con `_previous_day1/2` y varias ubicaciones por llamada;
+  METAR histórico con `date=…&hours=…`; **tope oculto de 400 registros** (afectaba también a T-40: se regeneró
+  `stations.json`, misma lista de 43).
+- **Hecho:** `metar.py` (cliente compartido: lotes, tope, reintentos; lluvia desde `wxString` y RE…; nudos→km/h),
+  `verify.py` (observación horaria con QC, Previous Runs con altitud, pares CSV); `stations.py` usa `metar.py`.
+- **Verificado:** 71 pruebas pipeline ✓ (incl. sincronía de modelos con `web/src/core/models.ts`). Corrida real del
+  12/11: 2 583 pares, 42 estaciones (SETU sin METAR en punto), 54 s. Muestra de un día (no concluyente): MAE
+  temperatura día 1 de ICON 1,37 · AIFS 1,45 · UKMO 1,49 · IFS 1,52 … GFS 2,14 (sesgo −1,1 °C); viento 3,6–4,8 km/h,
+  todos subestiman.
+- **Pendiente / siguiente paso:** T-46 (redes locales) o T-42 (métricas y ventanas 7/30 días).
 
 ### 2026-11-13 · T-40 Estaciones METAR → **Fase 3 iniciada**
 - **Tareas:** T-40 ✅

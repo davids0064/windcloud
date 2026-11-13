@@ -52,7 +52,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 ## Fase 3 · Precisión verificada
 - [x] **T-40** `stations.json`: aeropuertos METAR de Colombia y vecinos (código ICAO, lat, lon, altitud). → RF-9
   _Hecho: `pipeline/data/stations.json` (43: 37 CO + 6 vecinos ≤ 100 km), generado con `windcloud_pipeline.stations`._
-- [ ] **T-41** `pipeline/verify.py`: observaciones METAR (aviationweather.gov) + Previous Runs API de Open-Meteo. → RF-9
+- [x] **T-41** `pipeline/verify.py`: observaciones METAR (aviationweather.gov) + Previous Runs API de Open-Meteo. → RF-9
+  _Hecho: `metar.py` (tope de 400 registros) + `verify.py` → `out/verify/pares/AAAA-MM-DD.csv`; 12/11: 2 583 pares de 42 estaciones._
 - [ ] **T-46** Investigar acceso a datos de cada red local (SAB, SIATA, CDIAC, CVC): ¿API o descarga abierta? ¿términos de uso? ¿licencia?
       Registrar resultado en `04-fuentes-de-datos.md`. Si no hay acceso permitido → solo enlace. → RF-9, RF-14
 - [ ] **T-47** Adaptadores `pipeline/sources/<red>.py` para las redes con acceso permitido + control de calidad + métricas por red. → RF-9

@@ -1,6 +1,6 @@
 {
  "source": "NOAA Aviation Weather Center (aviationweather.gov), dominio público",
- "generatedAt": "2026-11-13T18:48:07Z",
+ "generatedAt": "2026-11-13T19:07:25Z",
  "criterio": "METAR activos (≥ 6 reportes/24 h) en Colombia o a ≤ 100 km",
  "stations": [
   {
@@ -60,7 +60,7 @@
    "lon": -77.708,
    "elev_m": 2936,
    "km_a_colombia": 3,
-   "reportes_24h": 6,
+   "reportes_24h": 7,
    "red": "METAR"
   },
   {
@@ -240,7 +240,7 @@
    "lon": -76.718,
    "elev_m": 20,
    "km_a_colombia": 0,
-   "reportes_24h": 22,
+   "reportes_24h": 25,
    "red": "METAR"
   },
   {
@@ -252,7 +252,7 @@
    "lon": -69.943,
    "elev_m": 78,
    "km_a_colombia": 0,
-   "reportes_24h": 26,
+   "reportes_24h": 28,
    "red": "METAR"
   },
   {
@@ -264,7 +264,7 @@
    "lon": -75.59,
    "elev_m": 1491,
    "km_a_colombia": 0,
-   "reportes_24h": 19,
+   "reportes_24h": 22,
    "red": "METAR"
   },
   {
@@ -276,7 +276,7 @@
    "lon": -75.825,
    "elev_m": 12,
    "km_a_colombia": 0,
-   "reportes_24h": 20,
+   "reportes_24h": 23,
    "red": "METAR"
   },
   {
@@ -288,7 +288,7 @@
    "lon": -75.47,
    "elev_m": 2075,
    "km_a_colombia": 0,
-   "reportes_24h": 20,
+   "reportes_24h": 23,
    "red": "METAR"
   },
   {
@@ -300,7 +300,7 @@
    "lon": -75.294,
    "elev_m": 449,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -312,7 +312,7 @@
    "lon": -67.491,
    "elev_m": 51,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -324,7 +324,7 @@
    "lon": -75.735,
    "elev_m": 1341,
    "km_a_colombia": 0,
-   "reportes_24h": 22,
+   "reportes_24h": 25,
    "red": "METAR"
   },
   {
@@ -336,7 +336,7 @@
    "lon": -76.609,
    "elev_m": 1726,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -348,7 +348,7 @@
    "lon": -77.291,
    "elev_m": 1798,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -360,7 +360,7 @@
    "lon": -81.358,
    "elev_m": 7,
    "km_a_colombia": 0,
-   "reportes_24h": 19,
+   "reportes_24h": 22,
    "red": "METAR"
   },
   {
@@ -372,7 +372,7 @@
    "lon": -75.426,
    "elev_m": 2132,
    "km_a_colombia": 0,
-   "reportes_24h": 24,
+   "reportes_24h": 27,
    "red": "METAR"
   },
   {
@@ -384,7 +384,7 @@
    "lon": -72.918,
    "elev_m": 11,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -396,7 +396,7 @@
    "lon": -71.86,
    "elev_m": 207,
    "km_a_colombia": 0,
-   "reportes_24h": 20,
+   "reportes_24h": 23,
    "red": "METAR"
   },
   {
@@ -408,7 +408,7 @@
    "lon": -72.64,
    "elev_m": 185,
    "km_a_colombia": 0,
-   "reportes_24h": 20,
+   "reportes_24h": 23,
    "red": "METAR"
   },
   {
@@ -420,7 +420,7 @@
    "lon": -74.231,
    "elev_m": 5,
    "km_a_colombia": 0,
-   "reportes_24h": 22,
+   "reportes_24h": 25,
    "red": "METAR"
   },
   {
@@ -432,7 +432,7 @@
    "lon": -81.704,
    "elev_m": 6,
    "km_a_colombia": 0,
-   "reportes_24h": 22,
+   "reportes_24h": 25,
    "red": "METAR"
   },
   {
@@ -444,7 +444,7 @@
    "lon": -71.76,
    "elev_m": 361,
    "km_a_colombia": 0,
-   "reportes_24h": 21,
+   "reportes_24h": 24,
    "red": "METAR"
   },
   {
@@ -456,7 +456,7 @@
    "lon": -70.735,
    "elev_m": 127,
    "km_a_colombia": 0,
-   "reportes_24h": 18,
+   "reportes_24h": 21,
    "red": "METAR"
   },
   {
@@ -516,7 +516,7 @@
    "lon": -71.728,
    "elev_m": 76,
    "km_a_colombia": 86,
-   "reportes_24h": 8,
+   "reportes_24h": 7,
    "red": "METAR"
   }
  ]
