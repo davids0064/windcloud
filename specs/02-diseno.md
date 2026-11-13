@@ -38,8 +38,8 @@ sirve como archivos estáticos. Lo específico del usuario (su punto) se consult
 |---|---|---|
 | Frontend | React 19 + TypeScript 7 + Vite 8 | Igual que fuego.huella.world; ecosistema grande |
 | Calidad web | oxlint + Prettier + Vitest (jsdom, Testing Library) | oxlint viene con el template de Vite; typescript-eslint aún no soporta TS 7 |
-| Mapa base | **MapLibre GL JS** | Libre (BSD), sin token |
-| Capas de datos | **deck.gl** (`MapboxOverlay` sobre MapLibre) | Hexágonos, heatmaps, GeoJSON, 3D |
+| Mapa base | **MapLibre GL JS 6** (worker vía `setWorkerUrl` + `?url` de Vite) | Libre (BSD), sin token; v5 descartada por aviso crítico de XSS |
+| Capas de datos | **deck.gl 9.4** (`MapboxOverlay` intercalado sobre MapLibre) + adaptador `map/deckCompat.ts` | Hexágonos, heatmaps, GeoJSON, 3D; el adaptador cubre `map.transform` que MapLibre 6 quitó |
 | Viento animado | Capa WebGL propia basada en la técnica de `webgl-wind` (licencia ISC) | Gratis, sin dependencias comerciales |
 | Gráficas | uPlot (ligero) o Recharts | Series multi-modelo |
 | Estado/datos | TanStack Query (caché 30 min, RNF-5) + Zustand | Simple |
@@ -73,6 +73,14 @@ windcloud/
 ```
 
 ## 4. Capas del mapa
+
+### 4.0 Mapas base (RF-1) — `web/src/map/basemaps.ts`
+Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibilidad de capas, sin `setStyle`
+(así no se pierden las capas de datos):
+- **Oscuro:** estilo `dark` tal cual (incluye fronteras de países y límites de estado de OSM).
+- **Satélite:** raster EOX Sentinel-2 cloudless 2020 justo sobre el fondo; se ocultan los rellenos (`fill`), se
+  conservan líneas y nombres.
+- **Relieve 3D:** `raster-dem` Terrarium (AWS) → `setTerrain` ×1,5 + sombreado bajo las líneas, cámara a 55°.
 
 ### 4.1 Viento (RF-2)
 - **Fuente:** GFS 0.25° (NOMADS, filtro `filter_gfs_0p25.pl` para bajar solo `UGRD`/`VGRD` a 10 m, 850, 500 hPa)

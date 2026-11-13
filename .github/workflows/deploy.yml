@@ -1,16 +1,13 @@
 name: Deploy web
 
-# Publica web/ en Cloudflare Pages (plan gratuito) en cada push a main. → RNF-1, T-04
+# Publica web/ en Cloudflare Pages (plan gratuito). → RNF-1, T-04
+# Por ahora solo manual (Actions → Deploy web → Run workflow): el desarrollo se hace en local
+# hasta decidir publicar. Para desplegar en cada push, volver a añadir el disparador `push`.
 # Requiere los secretos del repositorio:
 #   CLOUDFLARE_API_TOKEN   token con permiso "Cloudflare Pages: Edit"
 #   CLOUDFLARE_ACCOUNT_ID  ID de la cuenta de Cloudflare
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - web/**
-      - .github/workflows/deploy.yml
   workflow_dispatch:
 
 permissions:

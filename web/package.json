@@ -15,6 +15,11 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@deck.gl/core": "~9.4.1",
+    "@deck.gl/mapbox": "~9.4.1",
+    "@luma.gl/core": "~9.4.0",
+    "@math.gl/web-mercator": "^4.1.0",
+    "maplibre-gl": "^6.18.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },

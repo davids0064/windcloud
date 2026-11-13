@@ -8,10 +8,10 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-02** `web/`: Vite + React + TS, oxlint, Prettier, Vitest; tema oscuro con variables CSS. → RNF-4
 - [x] **T-03** `pipeline/`: Python 3.12, `uv`/pip, pytest, eccodes instalado en CI (`ci.yml`). → —
 - [ ] **T-04** Workflow `deploy.yml`: build de `web/` y publicación en Cloudflare Pages en cada push a `main`. → RNF-1
-  *Hecho:* URL pública con "Hola WindCloud". 🟡 Workflow listo; falta repo en GitHub + secretos de Cloudflare.
+  *Hecho:* URL pública con "Hola WindCloud". 🟡 Workflow listo y en modo manual; **pospuesta** hasta decidir publicar (falta secretos de Cloudflare).
 
 ## Fase 1 · MVP: mapa + panel de precisión por punto
-- [ ] **T-10** MapView con MapLibre + overlay deck.gl, centrado en Colombia, bases oscuro/satélite/relieve. → RF-1
+- [x] **T-10** MapView con MapLibre + overlay deck.gl, centrado en Colombia, bases oscuro/satélite/relieve. → RF-1
 - [ ] **T-11** Límites departamentales (geoBoundaries ADM1 simplificado, ≤ 300 KB). → RF-1
 - [ ] **T-12** Capa de nubes NASA GIBS (GOES-East visible e IR); leer IDs reales de GetCapabilities; animación 3 h. → RF-3
 - [ ] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6

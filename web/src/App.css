@@ -1,45 +1,83 @@
-.hello {
-  min-height: 100vh;
+.app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.app__loading {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-content: center;
-  gap: 12px;
-  padding: var(--gutter);
-  text-align: center;
-}
-
-.hello h1 {
-  margin: 0;
-  font-size: clamp(2rem, 8vw, 3.5rem);
-  letter-spacing: -0.02em;
-}
-
-.hello p {
   margin: 0;
   color: var(--text-muted);
-  max-width: 36rem;
 }
 
-.chips {
+.app__header {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 8px;
+  align-items: baseline;
+  gap: 10px;
+  max-width: calc(100% - 70px);
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
 }
 
-.chip {
-  padding: 2px 10px;
-  border: 1px solid currentColor;
-  border-radius: 999px;
+.app__title {
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.app__tagline {
+  color: var(--text-muted);
   font-size: 0.8rem;
 }
 
-.chip--observed {
-  color: var(--observed);
+.point-chip {
+  position: absolute;
+  top: 62px;
+  left: 10px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 12px;
+  max-width: calc(100% - 70px);
+  padding: 8px 8px 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
 }
-.chip--forecast {
-  color: var(--forecast);
+
+.point-chip__note {
+  grid-column: 1;
+  color: var(--text-muted);
+  font-size: 0.75rem;
 }
-.chip--estimated {
-  color: var(--estimated);
+
+.point-chip button {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 480px) {
+  .app__tagline {
+    display: none;
+  }
 }

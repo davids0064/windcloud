@@ -11,13 +11,15 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 0 · Cimientos — **3/4 tareas cerradas** (T-04 en código, falta publicar) |
-| Última tarea cerrada | T-03 (pipeline Python) |
-| Siguiente tarea | **Cerrar T-04**: crear repo público en GitHub, añadir secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`, hacer push → URL pública. Luego **T-10** (MapView) |
-| Código existente | `web/` (página "Hola WindCloud", tema oscuro, 2 pruebas) · `pipeline/` (paquete uv, 4 pruebas de humo) · `.github/workflows/{ci,deploy}.yml` |
-| Repositorio git | Inicializado en local (rama `main`), **sin remoto** ni commits |
-| URL pública | — (pendiente de T-04) |
-| Bloqueos | T-04 necesita acciones del usuario: cuenta Cloudflare + repo GitHub (`gh auth login`) |
+| Fase | Fase 1 · MVP — **1/9 tareas** (T-10 ✅). Fase 0: 3/4 (T-04 pospuesta) |
+| Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
+| Última tarea cerrada | T-10 (MapView: MapLibre 6 + deck.gl, 3 mapas base, clic → punto) |
+| Siguiente tarea | **T-11** límites departamentales (geoBoundaries ADM1 ≤ 300 KB) |
+| Código existente | `web/src/map/` (MapView, basemaps, BasemapSwitcher, deckCompat, locale) · `App.tsx` (shell mínimo + chip de punto) · 11 pruebas web · `pipeline/` 4 pruebas · CI |
+| Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
+| Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
+| URL pública | — (T-04 pospuesta) |
+| Bloqueos | Ninguno para trabajo local |
 
 ## 2. Resumen del proyecto (cambia poco)
 
@@ -45,6 +47,11 @@
 | 2026-11-13 | Pipeline como paquete uv `pipeline/src/windcloud_pipeline/`; ruff para estilo | Imports limpios y pruebas | 02 §3 |
 | 2026-11-13 | eccodes por ruedas pip (`eccodes` + `eccodeslib`), sin `apt` en CI | Más simple y reproducible | 02 §2 |
 | 2026-11-13 | Workflow `ci.yml` separado de `deploy.yml` (lint, formato, pruebas, build en PR y main) | Calidad antes de publicar | 02 §3 |
+| 2026-11-13 | Desarrollo 100 % local antes de desplegar; `deploy.yml` solo manual (`workflow_dispatch`); CI se mantiene | Pedido del usuario: revisar todo local primero | 03 T-04 |
+| 2026-11-13 | MapLibre **6** + adaptador `deckCompat.ts` en vez de bajar a v5 | v5 tiene XSS crítico (GHSA-jrc7-96c5-q579); deck.gl 9.4 aún lee `map.transform` | 02 §2 |
+| 2026-11-13 | Satélite = EOX Sentinel-2 cloudless (CC BY-NC-SA); Esri descartado | Esri exige cuenta ArcGIS; EOX sin clave | 04 Cartografía |
+| 2026-11-13 | Mapas base por visibilidad de capas sobre un solo estilo, sin `setStyle` | No perder capas de datos/deck.gl al cambiar base | 02 §4.0 |
+| 2026-11-13 | Mapa cargado con `React.lazy` | Bundle inicial 70 KB gz; mapa 410 KB gz aparte (RNF-2) | — |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -62,6 +69,16 @@
   `RuntimeError: Cannot find the ecCodes library` y cfgrib no aparece en `xr.backends.list_engines()`.
 - `uv init` mete nombre y correo del usuario en `pyproject.toml` → borrarlos (repo público).
 - `npm create vite` (2026) usa oxlint, React 19 y TS 7; `--no-interactive` evita los prompts.
+- Lockfile npm generado en macOS omite deps opcionales de Linux (`@emnapi/*`) → `npm ci` falla en CI.
+  Solución: borrar `node_modules` + `package-lock.json` y `npm install`; comprobar con `npm ci --dry-run --os=linux --cpu=x64`.
+- `gh auth login` por defecto no da el scope `workflow`: hace falta `gh auth refresh -h github.com -s workflow` para subir `.github/workflows/`.
+- **MapLibre 6 + Vite:** el worker se resuelve con `import.meta.url` y el pre-empaquetado de Vite lo rompe
+  ("Worker failed to load"). Solución: `setWorkerUrl(import 'maplibre-gl/dist/maplibre-gl-worker.mjs?url')`.
+- **MapLibre 6 no tiene export por defecto:** usar imports con nombre (`import { Map } from 'maplibre-gl'`).
+- **deck.gl 9.4 + MapLibre 6:** `map.transform` ya no existe (Map no hereda de Camera) → `TypeError ... 'elevation'`
+  con terreno 3D y al dibujar capas. Adaptador en `web/src/map/deckCompat.ts`; quitarlo cuando deck.gl soporte v6.
+- MapLibre trae textos en inglés ("Zoom in", "Map"): se traducen con la opción `locale` (`map/locale.ts`).
+- jsdom no tiene WebGL: probar la lógica de mapa con mapas falsos y mockear `MapView` en pruebas de `App`.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -79,6 +96,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Pendiente / siguiente paso:** …
 -->
 
+### 2026-11-13 · T-10 MapView (Fase 1)
+- **Tareas:** T-10 ✅
+- **Hecho:** `web/src/map/MapView.tsx` (MapLibre 6 + `MapboxOverlay` intercalado, navegación, escala métrica,
+  atribución compacta, marcador en el punto clicado), `basemaps.ts` (oscuro / satélite / relieve 3D, vista inicial
+  4.5, −74, z5), `BasemapSwitcher.tsx`, `deckCompat.ts`, `locale.ts` (controles en español). `App.tsx` ahora es el
+  mapa a pantalla completa con cabecera y chip de coordenadas (es-CO) que anuncia el panel de T-22.
+  `deploy.yml` pasa a solo manual.
+- **Verificado:** typecheck ✓, lint ✓, 11/11 pruebas ✓, build ✓, `npm audit` 0 vulnerabilidades. En Chrome:
+  los 3 mapas base cargan, relieve muestra los Andes en 3D, clic marca el punto, consola sin errores.
+- **Decisiones:** ver §3 (todo local, MapLibre 6 + adaptador, EOX, sin setStyle, lazy).
+- **Pendiente / siguiente paso:** T-11 límites departamentales. Aviso de Vite por chunk > 500 KB del mapa: revisar en T-62.
+
 ### 2026-11-13 · Fase 0 · Cimientos (T-01 a T-04)
 - **Tareas:** T-01 ✅ · T-02 ✅ · T-03 ✅ · T-04 🟡 (workflow escrito, sin publicar)
 - **Hecho:** `git init` (main), `LICENSE` MIT, `README.md` con atribuciones, `.gitignore`.
@@ -89,7 +118,8 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Verificado:** `npm run lint` ✓, `format:check` ✓, `npm test` 2/2 ✓, `npm run build` ✓ (JS 68,8 KB gzip);
   `uv run pytest` 4/4 ✓ (eccodes + cfgrib cargan), `ruff check` y `ruff format --check` ✓. Workflows no ejecutados aún.
 - **Decisiones:** ver §3 (React 19/TS 7, oxlint, paquete uv, eccodeslib, ci.yml).
-- **Pendiente / siguiente paso:** usuario crea repo en GitHub + secretos Cloudflare → push → URL pública cierra T-04. Después T-10.
+- **Publicación:** repo público `davids0064/windcloud` creado y subido; primer CI falló por el lockfile (corregido), ahora CI ✅. Deploy ❌ esperado: faltan secretos de Cloudflare.
+- **Pendiente / siguiente paso:** usuario guarda secretos Cloudflare → relanzar `deploy.yml` → URL pública cierra T-04. Después T-10.
 
 ### 2026-11-13 · Creación del documento de contexto
 - **Tareas:** ninguna de `03-tareas.md` (iteración de organización)
