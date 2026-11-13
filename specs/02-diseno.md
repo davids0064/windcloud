@@ -61,12 +61,13 @@ windcloud/
 │  │  ├─ core/                # consensus.ts, agreement.ts, units.ts, sources.ts  (TS puro, testeado)
 │  │  ├─ api/                 # openMeteo.ts, gibs.ts, radar.ts, staticData.ts
 │  │  └─ pages/               # Mapa, MiPunto, Precision, Riesgo, Metodologia
-│  └─ public/geo/             # departamentos Colombia (geoBoundaries ADM1, simplificado)
+│  └─ public/geo/             # departamentos Colombia (generado por pipeline geo.py; excluido de Prettier)
 ├─ pipeline/                  # Python (proyecto uv, paquete windcloud_pipeline)
 │  ├─ src/windcloud_pipeline/
 │  │  ├─ grids.py             # GRIB → PNG viento
 │  │  ├─ verify.py            # verificación de modelos
 │  │  ├─ risk.py              # índices de riesgo
+│  │  ├─ geo.py               # departamentos: geoBoundaries → coverage_simplify → GeoJSON ≤ 300 KB
 │  │  └─ sources/             # adaptadores de redes locales
 │  └─ tests/
 └─ .github/workflows/{ci,deploy,grids,verify,risk}.yml
@@ -87,6 +88,13 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
   (tierra `#36424f`, agua `#1f3044`, fronteras `#aab5c1`, nombres ≥ 4,5:1 de contraste, probado en Vitest).
 - **Nombres en español:** capas `place_*` y `water_name` usan `coalesce(name:es, name:latin, name)`; las vías
   conservan su nombre local.
+
+### 4.0.2 Departamentos (RF-1, T-11) — `web/src/map/departments.ts`
+- Datos: `pipeline/src/windcloud_pipeline/geo.py` descarga geoBoundaries ADM1 (commit fijo), aplica
+  `shapely.coverage_simplify` (0,01° ≈ 1,1 km; fronteras compartidas sin huecos ni solapes), redondea a 4 decimales
+  y normaliza nombres ("Bogotá D.C.", "San Andrés y Providencia"). Falla si supera 300 KB.
+- Capas nativas MapLibre bajo los nombres: relleno invisible (resaltado con `feature-state` al pasar el cursor),
+  halo oscuro + línea clara (legible en oscuro y satélite). Tooltip con el nombre; el clic informa el departamento.
 
 ### 4.0.1 Buscador (RF-13) — `web/src/search/PlaceSearch.tsx`, `web/src/api/geocoding.ts`
 - Open-Meteo Geocoding (`language=es`, `count=8`), debounce 300 ms, mínimo 2 letras, caché en memoria,

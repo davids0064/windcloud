@@ -57,7 +57,7 @@ si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer d
 | **EOX Sentinel-2 cloudless 2020** (`tiles.maps.eox.at`) | Mapas base satélite y relieve 3D | CC BY-NC-SA 4.0 (no comercial, igual que Open-Meteo); atribución EOX + Copernicus |
 | ~~Esri World Imagery~~ | Descartado | Sus términos exigen cuenta de ArcGIS |
 | **AWS Terrain Tiles (Terrarium)** | Relieve 3D (elevación del terreno) | Abierta (Mapzen / AWS Open Data) |
-| **geoBoundaries** | Límites departamentales | CC BY 4.0 |
+| **geoBoundaries** gbOpen COL ADM1 (commit `9469f09`) | Límites departamentales (`web/public/geo/colombia-departamentos.geojson`) | Para Colombia proviene de **OpenStreetMap → ODbL 1.0** (no CC BY): atribuir "© colaboradores de OpenStreetMap" y compartir derivados con la misma licencia |
 | **deck.gl** | Capas de datos | MIT |
 | **webgl-wind** (técnica / código) | Partículas de viento | ISC |
 

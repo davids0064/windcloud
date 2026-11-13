@@ -101,3 +101,17 @@
   border-color: var(--text-muted);
   color: var(--text);
 }
+
+.map-view__tooltip {
+  position: absolute;
+  z-index: 1;
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  font-size: 0.8rem;
+  white-space: nowrap;
+  transform: translate(12px, -50%);
+  pointer-events: none;
+}

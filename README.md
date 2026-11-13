@@ -44,7 +44,10 @@ WindCloud no produce pronósticos propios: reúne y compara los de estas fuentes
 | [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api) | Imágenes satelitales GOES de nubes | Abierta, con atribución a NASA |
 | [aviationweather.gov](https://aviationweather.gov/data/api/) | Observaciones METAR para verificar modelos | Dominio público (NOAA) |
 | [IDEAM / datos.gov.co](https://www.datos.gov.co/) | Estaciones hidrometeorológicas de Colombia | Datos abiertos de Colombia |
-| [geoBoundaries](https://www.geoboundaries.org/) | Límites departamentales | CC BY 4.0 |
+| [geoBoundaries](https://www.geoboundaries.org/) | Límites departamentales | Para Colombia, datos © colaboradores de [OpenStreetMap](https://www.openstreetmap.org/copyright), ODbL 1.0 |
+| [OpenFreeMap](https://openfreemap.org/) | Mapa base vectorial | Libre; datos © OpenStreetMap (ODbL) |
+| [EOX Sentinel-2 cloudless](https://s2maps.eu/) | Mapa base satélite y relieve | CC BY-NC-SA 4.0 (datos Copernicus Sentinel modificados) |
+| [AWS Terrain Tiles](https://registry.opendata.aws/terrain-tiles/) | Elevación para el relieve 3D | Abierta (Mapzen) |
 | [MapLibre GL JS](https://maplibre.org/) | Motor de mapa | BSD-3-Clause |
 | [deck.gl](https://deck.gl/) | Capas de datos | MIT |
 | [webgl-wind](https://github.com/mapbox/webgl-wind) | Técnica de partículas de viento | ISC |

@@ -11,12 +11,13 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **1/9 tareas** (T-10 ✅). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **2/9 tareas** (T-10 ✅, T-11 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-10 (MapView). Además: mapa más claro + nombres en español + buscador (parte de T-13) |
-| Siguiente tarea | **T-11** límites departamentales (geoBoundaries ADM1 ≤ 300 KB); luego completar T-13 |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, BasemapSwitcher, deckCompat, locale) · `web/src/api/` (http, geocoding) · `web/src/search/PlaceSearch` · `App.tsx` (cabecera + buscador + chip de punto) · 31 pruebas web · `pipeline/` 4 pruebas · CI |
+| Última tarea cerrada | T-11 (límites departamentales: 268 KB, hover con nombre, clic → "Punto en <departamento>") |
+| Siguiente tarea | **T-12** nubes NASA GIBS (GOES-East visible/IR, animación 3 h) — leer IDs de GetCapabilities |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/api/` (http, geocoding) · `web/src/search/PlaceSearch` · `web/public/geo/` · 37 pruebas web · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
+| Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
 | Bloqueos | Ninguno para trabajo local |
@@ -58,6 +59,8 @@
 | 2026-11-13 | Sombreado del relieve con tonos de la paleta (`HILLSHADE_PAINT`), no negro | Usuario: "en relieve se ve oscuro, mantén los colores" | 02 §4.0 |
 | 2026-11-13 | Paleta 2.ª iteración más clara (tierra `#36424f`); sombreado bajo el agua; cámara del relieve a 45° | Usuario: "aún se ve oscuro". Medido: brillo medio 53→65 (oscuro) y 51→63 (relieve) | 02 §4.0 |
 | 2026-11-13 | **Relieve 3D = imagen satelital sobre terreno 3D**, sin sombreado artificial (se elimina la capa `hillshade`) | Usuario: "mejor los colores de satélite, mantenlos en relieve 3D" | 02 §4.0 |
+| 2026-11-13 | Departamentos generados por script reproducible (`geo.py`, shapely `coverage_simplify`) en vez de conversión manual | Reproducible, probado, con presupuesto de tamaño | 02 §4.0.2 |
+| 2026-11-13 | geoBoundaries COL ADM1 es **ODbL** (viene de OSM), no CC BY; corregido en 04 y README | Licencia real según la API | 04 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -94,6 +97,12 @@
 - Para "se ve oscuro", medir en vez de adivinar: capturas con `save_to_disk` + luminancia media con Pillow
   (`uv run python -I` desde `pipeline/`), separando agua y tierra. En el relieve la cámara inclinada muestra más mar
   (30 % vs 12 % del área), y eso, no el color, era lo que lo hacía ver más oscuro.
+- **Prettier formatea `public/geo/*.geojson`** y lo infla (268 KB → 431 KB): `public/geo` va en `.prettierignore`.
+- El Python de python.org en macOS no trae certificados CA → `CERTIFICATE_VERIFY_FAILED`. Usar
+  `ssl.create_default_context(cafile=certifi.where())`; nunca desactivar la verificación.
+- `shapely.coverage_simplify` simplifica fronteras compartidas igual en ambos lados (sin huecos/solapes), a
+  diferencia de simplificar polígono por polígono.
+- No usar `cat > archivo` sin heredoc en comandos: espera teclado y bloquea la terminal.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
 ---
@@ -110,6 +119,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-11 Límites departamentales
+- **Tareas:** T-11 ✅
+- **Hecho:** `pipeline/src/windcloud_pipeline/geo.py` (+ `shapely`, `certifi`; 5 pruebas: reducción de vértices,
+  sin huecos ni solapes, nombres, redondeo) → `web/public/geo/colombia-departamentos.geojson` (33 unidades,
+  268 KB, 102 KB gzip). `web/src/map/departments.ts` (relleno para hover, halo + línea, `departmentAt`); `MapView`
+  resalta y muestra tooltip; el clic pasa el departamento y el chip dice "Punto en Meta".
+- **Verificado:** pipeline 9/9 ✓ + ruff; web 37/37 ✓, typecheck, lint, build ✓. Geometría: 33/33 válidas, solapes 0,
+  área +0,00 %. En Chrome: líneas legibles en oscuro y satélite, hover "Meta", chip "Punto en Meta", atribución
+  ODbL visible, consola sin errores.
+- **Decisiones:** script reproducible; licencia ODbL corregida en specs y README.
+- **Pendiente / siguiente paso:** T-12 nubes NASA GIBS.
 
 ### 2026-11-13 · Relieve 3D con colores del satélite
 - **Tareas:** ajuste de T-10 pedido por el usuario.

@@ -1,6 +1,6 @@
 import { lazy, Suspense, useCallback, useState } from 'react'
 import { zoomForKind, type Place } from './api/geocoding'
-import type { FlyTarget, LatLon } from './map/MapView'
+import type { ClickedPoint, FlyTarget, LatLon } from './map/MapView'
 import { PlaceSearch } from './search/PlaceSearch'
 import './App.css'
 
@@ -19,6 +19,14 @@ interface SelectedPoint extends LatLon {
 
 export default function App() {
   const [point, setPoint] = useState<SelectedPoint | null>(null)
+
+  const onMapClick = useCallback((p: ClickedPoint) => {
+    setPoint({
+      lat: p.lat,
+      lon: p.lon,
+      label: p.departamento ? `Punto en ${p.departamento}` : undefined,
+    })
+  }, [])
   const [flyTo, setFlyTo] = useState<FlyTarget | null>(null)
 
   const onSelectPlace = useCallback((place: Place) => {
@@ -38,7 +46,7 @@ export default function App() {
   return (
     <div className="app">
       <Suspense fallback={<p className="app__loading">Cargando mapa…</p>}>
-        <MapView onSelectPoint={setPoint} selectedPoint={point} flyTo={flyTo} />
+        <MapView onSelectPoint={onMapClick} selectedPoint={point} flyTo={flyTo} />
       </Suspense>
 
       <header className="app__header">

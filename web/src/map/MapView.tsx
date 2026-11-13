@@ -18,6 +18,7 @@ import {
 } from './basemaps'
 import { BasemapSwitcher } from './BasemapSwitcher'
 import { installDeckTransformShim } from './deckCompat'
+import { departmentAt, DEPARTMENTS_SOURCE, installDepartments } from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
 import { applyDarkPalette, applySpanishLabels } from './palette'
 import './MapView.css'
@@ -37,9 +38,14 @@ export interface FlyTarget extends LatLon {
   key: number
 }
 
+/** Punto elegido con un clic; `departamento` si cae dentro de Colombia. */
+export interface ClickedPoint extends LatLon {
+  departamento?: string
+}
+
 interface MapViewProps {
   /** RF-1: clic en el mapa → panel de punto (RF-6) para esas coordenadas. */
-  onSelectPoint?: (point: LatLon) => void
+  onSelectPoint?: (point: ClickedPoint) => void
   selectedPoint?: LatLon | null
   /** Destino al que mover la cámara (p. ej. resultado del buscador). */
   flyTo?: FlyTarget | null
@@ -54,6 +60,7 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapView
   const [ready, setReady] = useState(false)
   const [basemap, setBasemap] = useState<BasemapId>('oscuro')
   const [failed, setFailed] = useState(false)
+  const [hover, setHover] = useState<{ x: number; y: number; nombre: string } | null>(null)
 
   useEffect(() => {
     onSelectRef.current = onSelectPoint
@@ -84,9 +91,32 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapView
       applyDarkPalette(map)
       applySpanishLabels(map)
       installBasemapSources(map)
+      installDepartments(map)
       setReady(true)
     })
-    map.on('click', (e) => onSelectRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng }))
+    map.on('click', (e) => {
+      const dep = departmentAt(map, e.point)
+      onSelectRef.current?.({ lat: e.lngLat.lat, lon: e.lngLat.lng, departamento: dep?.nombre })
+    })
+
+    // Resaltar el departamento bajo el cursor y mostrar su nombre (T-11).
+    let hoveredId: string | number | null = null
+    const setHovered = (id: string | number | null) => {
+      if (hoveredId === id) return
+      if (hoveredId !== null)
+        map.setFeatureState({ source: DEPARTMENTS_SOURCE, id: hoveredId }, { hover: false })
+      if (id !== null) map.setFeatureState({ source: DEPARTMENTS_SOURCE, id }, { hover: true })
+      hoveredId = id
+    }
+    map.on('mousemove', (e) => {
+      const dep = departmentAt(map, e.point)
+      setHovered(dep?.id ?? null)
+      setHover(dep ? { x: e.point.x, y: e.point.y, nombre: dep.nombre } : null)
+    })
+    map.on('mouseout', () => {
+      setHovered(null)
+      setHover(null)
+    })
     map.on('error', (e) => {
       // Un fallo del estilo base deja el mapa vacío: se avisa en vez de mostrar un lienzo negro (P4).
       if (!map.isStyleLoaded() && !map.loaded()) setFailed(true)
@@ -131,6 +161,15 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo }: MapView
         aria-label="Mapa meteorológico"
         role="region"
       />
+      {hover && (
+        <div
+          className="map-view__tooltip"
+          style={{ left: hover.x, top: hover.y }}
+          aria-hidden="true"
+        >
+          {hover.nombre}
+        </div>
+      )}
       <BasemapSwitcher value={basemap} onChange={setBasemap} disabled={!ready} />
       {failed && (
         <p className="map-view__error" role="alert">

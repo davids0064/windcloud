@@ -5,11 +5,13 @@ description = "Trabajos programados de WindCloud: texturas de viento, verificaci
 license = "MIT"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "certifi>=2026.10.23",
     "cfgrib>=0.9.14",
     "eccodes>=2.41",
     "eccodeslib>=2.50.0.34",
     "numpy>=2.1",
     "pillow>=11",
+    "shapely>=2.1",
     "xarray>=2025.1",
 ]
 
