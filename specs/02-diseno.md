@@ -139,11 +139,20 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 
 ## 5. Motor de consenso y acuerdo (RF-6, RF-7, RF-8) — `web/src/core/`
 
-### 5.1 Modelos consultados (Open-Meteo, parámetro `models=`)
-`ecmwf_ifs025, ecmwf_aifs025_single, gfs_seamless, icon_seamless, gem_seamless, jma_seamless,
-meteofrance_seamless, ukmo_seamless, metno_seamless` (+ `best_match` como referencia).
-Validar la lista contra la documentación vigente de Open-Meteo en T-20; modelos sin cobertura
-devuelven `null` y se excluyen del consenso para esa hora.
+### 5.1 Modelos consultados (Open-Meteo, parámetro `models=`) — `web/src/core/models.ts`
+Validados contra la API real el 2026-11-13 (Bogotá): `ecmwf_ifs` (9 km), `ecmwf_aifs025_single`, `gfs_seamless`,
+`icon_seamless`, `gem_seamless`, `jma_seamless`, `meteofrance_seamless`, `ukmo_seamless` → **8 modelos independientes**.
+- `ecmwf_ifs` (9 km) en vez de `ecmwf_ifs025` (28 km): mismo modelo, más resolución para terreno montañoso.
+- **`metno_seamless` excluido:** fuera de Escandinavia MET Norway rellena con ECMWF IFS; en Bogotá fue idéntico a
+  `ecmwf_ifs` (72/72 h) y contaría ECMWF dos veces. Salvaguarda en código: se descarta todo modelo cuya temperatura
+  sea idéntica a otro (≥ 24 h comparables) y se informa como "duplicado".
+- Sin `best_match` (no aporta un modelo distinto y consume cuota).
+- Huecos reales: AIFS y JMA no dan ráfagas; ARPEGE llega a ~104 h y UKMO a ~164 h. Los `null` se excluyen por hora.
+- **Hora del run (P2):** `https://api.open-meteo.com/data/{metaId}/static/meta.json` → `last_run_initialisation_time`
+  (CORS `*`). `metaId` del componente global: `ecmwf_ifs`, `ecmwf_aifs025_single`, `ncep_gfs013`, `dwd_icon`,
+  `cmc_gem_gdps_15km`, `jma_gsm`, `meteofrance_arpege_world025`, `ukmo_global_deterministic_10km`.
+- Petición: `timeformat=unixtime`, `timezone=auto`, `wind_speed_unit=kmh`, coordenadas redondeadas a 0,01°, 7 días.
+  Caché en memoria 30 min por punto (no se cachean errores).
 
 Una sola petición HTTP con todos los modelos (cuenta como varias llamadas en el límite; ver RNF-6).
 
@@ -153,7 +162,9 @@ w_m = 1 / (MAE_m(estación_más_cercana, variable, lead) + ε)      ε = 0.1
 w_m = 1 para todos si no hay verificación a < 150 km o < 14 días de datos
 consenso = Σ w_m · x_m / Σ w_m     (sobre modelos con valor no nulo)
 ```
-- Dirección del viento: promediar **componentes u/v**, nunca grados directamente.
+- Dirección del viento: promediar **componentes u/v**, nunca grados directamente. La velocidad de consenso es la
+  media ponderada de velocidades (el módulo del vector medio la subestimaría si los modelos discrepan en dirección).
+  Vector medio < 0,5 km/h → dirección indefinida (null).
 - Precipitación: mediana ponderada (robusta a un modelo que exagera).
 
 ### 5.3 Acuerdo
@@ -164,6 +175,7 @@ Dispersión `s` = desviación estándar entre modelos (para viento: de la veloci
 | Viento | s ≤ 3 km/h | ≤ 8 km/h | > 8 km/h |
 | Nubosidad | s ≤ 15 % | ≤ 30 % | > 30 % |
 | Lluvia (sí/no >0,5 mm) | ≥ 80 % de modelos de acuerdo | ≥ 60 % | < 60 % |
+Ráfagas: mismos umbrales que viento. Resumen de un periodo: nivel más frecuente; empate → el más pesimista.
 Umbrales en `core/agreement.ts`, ajustables y documentados en Metodología.
 
 ### 5.4 Probabilidad por ensamble

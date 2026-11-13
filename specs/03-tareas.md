@@ -18,8 +18,10 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       10 cuadros cada 20 min, fondo transparente por brillo, hora UTC/local y antigüedad visibles. Nubosidad *pronosticada* queda para T-36.
 - [ ] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6
       🟡 Buscador de ciudad/país hecho (`web/src/search/PlaceSearch.tsx`); faltan menú lateral, pestañas, ubicación y reloj.
-- [ ] **T-20** `api/openMeteo.ts`: petición multi-modelo (lista §5.1 del diseño), parseo por modelo, caché 30 min. → RF-6, RNF-5
-- [ ] **T-21** `core/consensus.ts` + `core/agreement.ts` con pruebas (u/v, mediana ponderada, nulos, pesos iguales). → RF-7, RF-8
+- [x] **T-20** `api/openMeteo.ts`: petición multi-modelo (lista §5.1 del diseño), parseo por modelo, caché 30 min. → RF-6, RNF-5
+      8 modelos independientes validados contra la API real; hora del run por `meta.json`; Bogotá en ~0,5 s.
+- [x] **T-21** `core/consensus.ts` + `core/agreement.ts` con pruebas (u/v, mediana ponderada, nulos, pesos iguales). → RF-7, RF-8
+      Cobertura de `core/` 97,7 % (umbral 90 % en `npm run test:coverage`).
 - [ ] **T-22** PointPanel: gráfica 7 días (una línea por modelo + consenso + banda), tarjetas con badge de acuerdo. → RF-6, RF-8
 - [ ] **T-23** Probabilidad de lluvia por ensamble (ECMWF 51 / GFS 31 miembros). → RF-6
 - [ ] **T-24** Chips Observado/Pronóstico/Estimado y "fuente + hora" en todo dato. → P2, P3, RNF-9

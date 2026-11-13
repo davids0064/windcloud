@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **3/9 tareas** (T-10, T-11, T-12 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **5/9 tareas** (T-10, T-11, T-12, T-20, T-21 ✅; T-13 🟡 buscador). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-12 (nubes observadas GOES-East visible/IR animadas 3 h, fondo transparente) |
-| Siguiente tarea | **T-13** completar shell (menú lateral, "Usar mi ubicación", reloj UTC/local) o **T-20** Open-Meteo multi-modelo |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/search/PlaceSearch` · `web/public/geo/` · 63 pruebas web · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-20 + T-21 (Open-Meteo 8 modelos + motor de consenso y acuerdo; aún sin interfaz) |
+| Siguiente tarea | **T-22** PointPanel (gráfica 7 días por modelo + consenso + banda, tarjetas con acuerdo) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/search/PlaceSearch` · `web/public/geo/` · 93 pruebas web (core 97,7 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -66,6 +66,10 @@
 | 2026-11-13 | Animación 3 h en 10 cuadros de 20 min (no 19 de 10 min); capa IR encendida por defecto | Mitad de peticiones; IR sirve día y noche | 02 §4.2 |
 | 2026-11-13 | Cuadros de nubes bajo demanda (visible al abrir, resto al reproducir) y nubes IR en blanco | Usuario: "en 3D no veo las nubes con infrarrojo". Medido: 15 s → 0,5 s | 02 §4.2 |
 | 2026-11-13 | `window.__wcMap` expuesto solo en desarrollo (`import.meta.env.DEV`) | Depurar el mapa desde la consola / Chrome | — |
+| 2026-11-13 | 8 modelos: `ecmwf_ifs` 9 km en vez de `ecmwf_ifs025`; **sin `metno_seamless`** (idéntico a ECMWF en Colombia) + salvaguarda anti-duplicados | Evitar contar ECMWF dos veces; más resolución | 02 §5.1, 01 RF-6 |
+| 2026-11-13 | Hora del run por `meta.json` de cada modelo (componente global) | La Forecast API no la trae; P2 la exige | 02 §5.1 |
+| 2026-11-13 | Caché propia en `api/openMeteo.ts` (30 min); TanStack Query se evaluará en T-22 | Funciona y se prueba sin React | 02 §2 |
+| 2026-11-13 | Velocidad de consenso = media de velocidades; dirección = media u/v | El vector medio subestima la velocidad cuando discrepan | 02 §5.2 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -119,6 +123,11 @@
   visible (añadida al final) quedaba en cola ~15 s. Regla: crear primero lo que se ve; precargar solo al animar.
 - Nubes IR en gris semitransparente desaparecen sobre la imagen satelital: aclararlas a blanco.
 - Para depurar en Chrome: `window.__wcMap` (solo dev) → `getStyle().layers`, `isSourceLoaded(id)`, `getPaintProperty`.
+- **Open-Meteo:** `metno_seamless` fuera de Escandinavia = `ecmwf_ifs` exacto. `gfs_seamless` = `gfs_global`
+  (`ncep_gfs013`). `cmc_gem_gdps` está congelado (último run mayo 2026); el vigente es `cmc_gem_gdps_15km`.
+  AIFS y JMA sin ráfagas; ARPEGE ~104 h. Coste por consulta 5,4 de 600/min (`X-RateLimit-*`).
+- Probar módulos reales en el navegador: con el dev server, `await import('/src/api/openMeteo.ts')` en
+  `javascript_tool` ejecuta el código TS de verdad contra la API (útil para verificación de punta a punta).
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -136,6 +145,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-20 + T-21 Open-Meteo multi-modelo y motor de consenso
+- **Tareas:** T-20 ✅ · T-21 ✅
+- **Hecho:** `core/models.ts` (8 modelos con `metaId`), `core/variables.ts`, `api/openMeteo.ts` (URL única, parseo por
+  sufijo, exclusión sin cobertura/duplicados, caché 30 min, hora de run), `core/consensus.ts` (media/mediana
+  ponderadas, u/v, pesos iguales con explicación, `weightsFromMae` para T-45), `core/agreement.ts` (umbrales §5.3,
+  lluvia sí/no, resumen pesimista). `npm run test:coverage` con umbral 90 % en `core/`.
+- **Validación previa con la API real:** detectado `metno_seamless` = ECMWF y `cmc_gem_gdps` congelado; coste 5,4.
+- **Verificado:** 93/93 pruebas ✓, cobertura core 97,7 %, typecheck, lint ✓. En Chrome (módulos reales vía Vite):
+  Bogotá 543 ms, 8 modelos con run (06Z, GEM/UKMO 00Z, JMA 18Z), temp. consenso 16,1 °C (14,9–17,9) acuerdo Medio
+  (s 1,06); ráfagas 13,7–56,9 km/h acuerdo Bajo (6 modelos); lluvia Alto; 8→6 modelos al final de la semana.
+- **Pendiente / siguiente paso:** T-22 PointPanel (mostrar todo esto); T-23 ensambles; T-24 fuente+hora en UI.
 
 ### 2026-11-13 · Nubes en Relieve 3D (corrección de T-12)
 - **Reporte del usuario:** en 3D no se ven las nubes con infrarrojo.

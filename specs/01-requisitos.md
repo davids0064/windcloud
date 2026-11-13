@@ -42,6 +42,7 @@ Cada requisito tiene un ID (`RF-x` funcional, `RNF-x` no funcional) que las tare
 ### RF-6 · Panel de punto multi-modelo
 **Como** usuario **quiero** ver qué dicen todos los modelos para mi ubicación **para** decidir con confianza.
 - CUANDO se seleccione un punto EL SISTEMA DEBE consultar en paralelo **todos los modelos gratuitos** disponibles para esa ubicación (mín.: ECMWF IFS, ECMWF AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway).
+  *Nota 2026-11-13:* MET Norway solo es independiente en Escandinavia; en Colombia repite a ECMWF y se excluye (diseño §5.1).
 - EL SISTEMA DEBE mostrar una gráfica de 7 días con una línea por modelo + la línea de **consenso** + banda de dispersión.
 - EL SISTEMA DEBE mostrar para cada variable (temperatura, viento, ráfagas, nubosidad, lluvia, prob. de lluvia) el **valor de consenso** y el **acuerdo** (alto/medio/bajo).
 - EL SISTEMA DEBE mostrar probabilidad de lluvia basada en **ensambles** (p. ej. "62 % de 51 miembros ECMWF prevén lluvia > 1 mm").

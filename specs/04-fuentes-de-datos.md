@@ -73,8 +73,9 @@ si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer d
 | Consumidor | Estimado |
 |---|---|
 | Verificación (40 estaciones × ~9 modelos) | ~360 |
-| Usuarios (caché 30 min, ~9 llamadas por consulta multi-modelo) | ~1 000 consultas ≈ 9 000 |
+| Usuarios (caché 30 min; una consulta de 8 modelos × 6 variables × 7 días **cuesta 5,4** según `X-RateLimit-Cost`) | ~1 000 consultas ≈ 5 400 |
 | **Total** | **≤ 10 000** → si se supera: proxy con caché en Cloudflare Worker o self-host |
 
+> **Medido 2026-11-13:** cabeceras `X-RateLimit-Limit: 600` por ventana de 60 s y `X-RateLimit-Cost: 5.4` por consulta.
 > **Nota:** el límite gratuito se aplica por IP del cliente, así que en la práctica cada usuario consume su
 > propia cuota. Aun así se diseña como si fuera global, para no depender de ello.
