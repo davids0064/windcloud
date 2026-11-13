@@ -101,6 +101,17 @@ export function MethodologyTab() {
           colores de tormenta del infrarrojo no se tocan. Es solo presentación: el dato no cambia.
         </dd>
 
+        <dt>Capas de pronóstico (GFS)</dt>
+        <dd>
+          Viento animado, ráfagas, nubosidad, lluvia y temperatura del modelo GFS 0,25° (NOAA), cada
+          3 h hasta 72 h, sobre Colombia y sus alrededores. Las imágenes se reproyectan a la
+          cuadrícula del mapa para no desplazarse (hasta 42 km de error sin hacerlo). Ráfaga =
+          máximo entre la ráfaga del modelo y el viento medio (GFS a veces da ráfagas menores).
+          Lluvia: tasa instantánea. Isobaras cada 2 hPa con la presión reducida al nivel del mar,
+          suavizada antes de trazarlas: sobre los Andes esa reducción es una extrapolación que
+          genera líneas falsas; los mapas sinópticos hacen lo mismo.
+        </dd>
+
         <dt>Frescura de los datos</dt>
         <dd>
           Cada dato muestra su fuente y la hora del run o de la imagen. Un run de más de{' '}

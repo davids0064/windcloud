@@ -147,6 +147,21 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Limitación conocida:** en Relieve 3D las partículas van a nivel del mar (no siguen el terreno).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
 
+### 4.1.1 Capas de color e isobaras (T-36, RF-4, RF-5)
+- **Pipeline:** además de viento, GFS aporta TMP 2 m (`2t`, K → °C, PNG −10…40 °C) y PRMSL (`prmsl`, Pa). Isobaras cada
+  2 hPa con **contourpy** sobre la rejilla en grados, tras **suavizado binomial** (3 pasadas [1,4,6,4,1]/16): la
+  presión reducida al nivel del mar sobre los Andes genera líneas falsas apretadas; sin suavizar pesaban 2,0 MB/run,
+  suavizadas y simplificadas (shapely, 0,05°, 2 decimales) ~480 KB/run. `isobars_{hhh}.geojson` y bloque `isobars`
+  en `meta.json`. Run Colombia completo: ~6,6 MB.
+- **Web:** MapLibre 6 **no tiene `raster-color`**: protocolo `wcescalar://{var}/{ruta}` que decodifica el gris con la
+  fórmula de `meta.json` (lineal o raíz) y aplica una tabla de 256 colores por variable (`layers/scalarStyles.ts`):
+  ráfagas transparentes < 20 km/h → amarillo/rojo/magenta; nubosidad = velo blanco; lluvia tipo radar, transparente
+  < 0,1 mm/h; temperatura divergente azul–amarillo–rojo (tipo RdYlBu). Imagen por 4 esquinas (exacta por filas
+  Mercator). Isobaras: línea blanca (más gruesa cada 10 hPa) y etiqueta de hPa sobre la línea (Noto Sans).
+- **Panel «Pronóstico»:** una sola línea de tiempo (0–72 h) para viento, capa de color (una a la vez) e isobaras;
+  leyenda por capa con marcas en su escala; una sola línea de fuente y run. Orden de capas: color < nubes < viento <
+  isobaras < departamentos < nombres. Metodología explica la reproyección, la ráfaga y el suavizado.
+
 ### 4.2 Nubes observadas (RF-3) — `web/src/api/gibs.ts`, `web/src/map/clouds.ts`, `web/src/map/cloudAlpha.ts`
 - **NASA GIBS WMTS EPSG:3857** (sin clave, CORS `*`). IDs leídos del `GetCapabilities` real (2026-11-13):
   `GOES-East_ABI_Band2_Red_Visible_1km` (Level7, zoom máx. 7) y `GOES-East_ABI_Band13_Clean_Infrared` (Level6, zoom máx. 6).

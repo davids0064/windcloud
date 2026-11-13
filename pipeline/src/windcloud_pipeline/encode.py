@@ -27,7 +27,9 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+import contourpy
 import numpy as np
+import shapely
 from PIL import Image
 
 from . import grids
@@ -57,7 +59,13 @@ SCALARS: dict[str, ScalarSpec] = {
     "gust": ScalarSpec("Ráfagas", "km/h", 0, 150, "linear", "máx(GUST, viento a 10 m)"),
     "tcc": ScalarSpec("Nubosidad total", "%", 0, 100, "linear"),
     "prate": ScalarSpec("Lluvia (tasa instantánea)", "mm/h", 0, 50, "sqrt"),
+    "t2m": ScalarSpec("Temperatura a 2 m", "°C", -10, 40, "linear"),
 }
+
+#: En el trópico los gradientes de presión son suaves: cada 4 hPa casi no habría líneas.
+ISOBAR_STEP_HPA = 2
+ISOBAR_SMOOTH_PASSES = 3  # filtro binomial 5×5; ~1,5 celdas de radio efectivo
+ISOBAR_SIMPLIFY_DEG = 0.05  # un quinto de celda (0,25°): invisible a escala regional
 
 
 # ------------------------------------------------------------------------------------ proyección
@@ -146,7 +154,53 @@ def scalar_fields(step: grids.GridStep) -> dict[str, np.ndarray]:
     out["tcc"] = f["tcc"]
     if "prate" in f:
         out["prate"] = f["prate"] * grids.KGM2S_TO_MMH
+    if "t2m" in f:
+        out["t2m"] = f["t2m"] - 273.15
     return out
+
+
+def smooth(field: np.ndarray, passes: int) -> np.ndarray:
+    """Suavizado binomial separable [1, 4, 6, 4, 1]/16, `passes` veces (bordes reflejados)."""
+    k = np.array([1, 4, 6, 4, 1], dtype=np.float64) / 16
+    out = field.astype(np.float64)
+    for _ in range(passes):
+        for axis in (0, 1):
+            pad = [(2, 2) if a == axis else (0, 0) for a in range(2)]
+            p = np.pad(out, pad, mode="reflect")
+            n = out.shape[axis]
+            out = sum(k[i] * np.take(p, range(i, i + n), axis=axis) for i in range(5))
+    return out
+
+
+def isobars(step: grids.GridStep, every_hpa: int = ISOBAR_STEP_HPA) -> dict:
+    """Isobaras (GeoJSON de líneas lon/lat) cada `every_hpa` hPa, sobre la rejilla en grados.
+
+    La presión está reducida al nivel del mar: sobre los Andes es una extrapolación que amplifica el
+    ruido (líneas apretadas siguiendo la cordillera). Como en los mapas sinópticos, se suaviza antes
+    de trazar; se aclara en Metodología.
+    """
+    hpa = smooth(step.fields["prmsl"] / 100.0, ISOBAR_SMOOTH_PASSES)
+    gen = contourpy.contour_generator(x=step.lons, y=step.lats, z=hpa, line_type="Separate")
+    lo = int(np.floor(np.nanmin(hpa) / every_hpa) * every_hpa)
+    hi = int(np.ceil(np.nanmax(hpa) / every_hpa) * every_hpa)
+    features = []
+    for level in range(lo, hi + 1, every_hpa):
+        for line in gen.lines(level):
+            if len(line) < 2:
+                continue
+            # Simplificar y redondear a 0,01°: a escala regional se ve igual y pesa mucho menos.
+            simple = shapely.LineString(line).simplify(ISOBAR_SIMPLIFY_DEG)
+            coords = [[round(float(x), 2), round(float(y), 2)] for x, y in simple.coords]
+            if len(coords) < 2:
+                continue
+            features.append(
+                {
+                    "type": "Feature",
+                    "properties": {"hpa": level},
+                    "geometry": {"type": "LineString", "coordinates": coords},
+                }
+            )
+    return {"type": "FeatureCollection", "features": features}
 
 
 def save_png(array: np.ndarray, path: Path) -> int:
@@ -179,6 +233,7 @@ def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
 
     frames: dict[str, list[dict[str, float | int]]] = {lvl: [] for lvl in WIND_LEVELS}
     scalar_steps: dict[str, list[int]] = {name: [] for name in SCALARS}
+    isobar_steps: list[int] = []
     total = 0
     for st in steps:
         f = {k: resample_rows(v, st.lats, dst_lats) for k, v in st.fields.items()}
@@ -192,6 +247,11 @@ def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
                 encode_scalar(values, SCALARS[name]), tmp / f"{name}_{st.step:03d}.png"
             )
             scalar_steps[name].append(st.step)
+        if "prmsl" in st.fields:  # en grados, sin remuestrear: GeoJSON ya es lon/lat
+            iso_path = tmp / f"isobars_{st.step:03d}.geojson"
+            iso_path.write_text(json.dumps(isobars(st), separators=(",", ":")), encoding="utf-8")
+            total += iso_path.stat().st_size
+            isobar_steps.append(st.step)
 
     meta = {
         "schema": SCHEMA,
@@ -226,6 +286,13 @@ def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
                 "steps": scalar_steps[name],
             }
             for name, s in SCALARS.items()
+        },
+        "isobars": {
+            "units": "hPa",
+            "every": ISOBAR_STEP_HPA,
+            "file": "isobars_{step}.geojson",
+            "steps": isobar_steps,
+            "note": "Presión reducida al nivel del mar (extrapolada sobre montañas)",
         },
         "bytes": total,
     }

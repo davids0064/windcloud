@@ -11,10 +11,10 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 4/8** (T-30, T-32, T-34, T-35 ✅; fps ✅; datos < 9 h ✅ con run fresco). Faltan T-31, T-33, T-36, T-37. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 5/8** (T-30, T-32, T-34, T-35, T-36 ✅). Faltan T-31 (ECMWF), T-33 (publicación cada 6 h), T-37 (radar). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-35 (línea de tiempo 0–72 h, altura 10 m / ~1,5 km / ~5,5 km, reproducción) |
-| Siguiente tarea | **T-36** capas escalares (ráfagas, nubosidad y lluvia pronosticadas) — o T-33 (publicar rejillas cada 6 h) |
+| Última tarea cerrada | T-36 (capas de color ráfagas/nubes/lluvia/temperatura + isobaras, línea de tiempo común) |
+| Siguiente tarea | **T-33** workflow `grids.yml` (publicar rejillas cada 6 h) — o T-37 radar / T-31 ECMWF |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
@@ -89,6 +89,9 @@
 | 2026-11-13 | PNG con filas remuestreadas a Web Mercator | Una imagen lat/lon pegada por esquinas se desplaza hasta ~42 km (medido) | 02 §4.1 |
 | 2026-11-13 | Escalares con rango fijo y lluvia en raíz cuadrada; ráfaga = máx(GUST, viento 10 m) | Colores comparables entre pasos; lloviznas visibles; GFS da GUST < viento | 02 §4.1 |
 | 2026-11-13 | Línea de tiempo por pasos con precarga del nivel (no interpolación temporal entre pasos) | Simple, inmediato al mover; 48 fps reproduciendo | 02 §4.1 |
+| 2026-11-13 | Capas de color coloreadas en el navegador con protocolo propio | MapLibre 6 no tiene `raster-color` | 02 §4.1.1 |
+| 2026-11-13 | Isobaras con presión suavizada antes de trazar | Reducción al nivel del mar sobre los Andes crea líneas falsas (visto en Chrome) | 02 §4.1.1 |
+| 2026-11-13 | Una sola línea de tiempo para todas las capas de pronóstico | Viento, color e isobaras siempre de la misma hora | 02 §4.1.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -174,6 +177,11 @@
 - **Verificar codificaciones con una imagen de control:** decodificar el PNG y mirarlo. En GFS f024 se ven los
   alisios del Caribe (21 km/h del ESE), calma amazónica y el chorro de Tehuantepec: orientación y detalle correctos.
 - `.gitignore` ignora `*.grib2`: los fixtures necesitan `!pipeline/tests/fixtures/*.grib2`.
+- **MapLibre 6 no trae `raster-color`** (no está en el style-spec instalado): colorear PNG grises en el navegador.
+- GFS: temperatura 2 m = `2t` (K), presión = `prmsl` en `meanSea` (Pa). Isobaras crudas sobre los Andes = maraña de
+  líneas falsas: suavizar (los mapas sinópticos lo hacen).
+- **El chequeo de bundle volvió a salvar:** `App` importaba `scalarUrl` desde un módulo que importa MapLibre (368 KB).
+  Regla: helpers de URL/constantes en módulos sin dependencias (`layers/scalarUrl.ts`).
 - **Pruebas lentas, no rotas:** con Chrome + servidor abiertos (o un build en paralelo), la 1.ª prueba de cada archivo
   pasaba de 5 s (entorno jsdom ~46 % del tiempo). `testTimeout: 15_000` en `vite.config.ts`. Correr la suite completa
   antes de cada commit (el de T-34 se hizo con 5 fallos por tiempo, corregido justo después).
@@ -194,6 +202,19 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-36 Capas de color e isobaras
+- **Tareas:** T-36 ✅
+- **Pipeline:** TMP 2 m y PRMSL añadidos (fixtures reales actualizados); temperatura como PNG; isobaras GeoJSON con
+  contourpy tras suavizado binomial y simplificación (2,0 MB → 480 KB/run). 31 pruebas ✓.
+- **Web:** `layers/` (scalarStyles: escalas y tabla de colores; scalarProtocol: coloreo en el navegador; scalarUrl;
+  forecastLayers: imagen por esquinas e isobaras con etiquetas); `wind/useForecastGrid.ts` (antes useWindField; línea
+  de tiempo común, sin bajar viento si está apagado); `wind/ForecastPanel.tsx` (reemplaza WindPanel); Metodología
+  ampliada. 175 pruebas ✓, JS inicial 83 KB.
+- **Verificado en Chrome:** temperatura sigue las tres cordilleras (Andes azules, llanuras rojas: imagen bien
+  colocada); lluvia tipo radar con núcleo intenso cerca de Cali; ráfagas transparentes en tierra y naranja sobre los
+  alisios; nubosidad como velo blanco; isobaras limpias 1008–1014 hPa tras suavizar (antes, maraña sobre los Andes).
+- **Encontrado y corregido:** isobaras falsas por la reducción al nivel del mar; MapLibre colado al bundle (368 KB).
 
 ### 2026-11-13 · T-35 Línea de tiempo y altura del viento
 - **Tareas:** T-35 ✅

@@ -14,8 +14,11 @@ import { ComingSoon } from './shell/tabs/ComingSoon'
 import { MapTab } from './shell/tabs/MapTab'
 import { MethodologyTab } from './shell/tabs/MethodologyTab'
 import { PointTab } from './shell/tabs/PointTab'
-import { useWindField } from './wind/useWindField'
-import { WindPanel } from './wind/WindPanel'
+import { scalarFileUrl } from './layers/forecastLayers'
+import { scalarUrl } from './layers/scalarUrl'
+import type { ScalarName } from './layers/scalarStyles'
+import { ForecastPanel } from './wind/ForecastPanel'
+import { useForecastGrid } from './wind/useForecastGrid'
 import './App.css'
 
 // El mapa (MapLibre + deck.gl) se carga aparte para no inflar el bundle inicial (RNF-2).
@@ -42,7 +45,31 @@ export default function App() {
   const [cloudKind, setCloudKind] = useState<CloudKind | null>('infrarrojo')
   const cloud = useCloudAnimation(cloudKind)
   const [windOn, setWindOn] = useState(true)
-  const windState = useWindField(windOn)
+  const [scalar, setScalar] = useState<ScalarName | null>(null)
+  const [isobarsOn, setIsobarsOn] = useState(false)
+  const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn)
+  const gridReady = grid.status === 'ready' ? grid : null
+  const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null
+  const scalarLayer =
+    gridReady &&
+    scalar &&
+    step !== null &&
+    gridReady.loaded.meta.scalars[scalar]?.steps.includes(step)
+      ? {
+          name: scalar,
+          url: scalarUrl(
+            scalar,
+            scalarFileUrl(gridReady.loaded.base, gridReady.loaded.meta.scalars[scalar].file, step),
+          ),
+          scale: gridReady.loaded.meta.scalars[scalar],
+          bounds: gridReady.loaded.meta.bounds,
+        }
+      : null
+  const isobars = gridReady?.loaded.meta.isobars
+  const isobarsUrl =
+    gridReady && isobarsOn && isobars && step !== null && isobars.steps.includes(step)
+      ? scalarFileUrl(gridReady.loaded.base, isobars.file, step)
+      : null
 
   const choosePoint = useCallback((p: SelectedPoint) => {
     setPoint(p)
@@ -95,7 +122,9 @@ export default function App() {
           selectedPoint={point}
           flyTo={flyTo}
           basemap={basemap}
-          wind={windState.status === 'ready' ? windState.field : null}
+          wind={gridReady?.field ?? null}
+          scalar={scalarLayer}
+          isobarsUrl={isobarsUrl}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -125,7 +154,17 @@ export default function App() {
           <MapTab
             basemap={basemap}
             onBasemapChange={setBasemap}
-            wind={<WindPanel on={windOn} onToggle={setWindOn} state={windState} />}
+            wind={
+              <ForecastPanel
+                state={grid}
+                windOn={windOn}
+                onWindOn={setWindOn}
+                scalar={scalar}
+                onScalar={setScalar}
+                isobarsOn={isobarsOn}
+                onIsobarsOn={setIsobarsOn}
+              />
+            }
             clouds={
               <CloudPanel
                 kind={cloudKind}

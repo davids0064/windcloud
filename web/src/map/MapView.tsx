@@ -10,6 +10,9 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useRef, useState } from 'react'
 import type { CloudLayerInfo } from '../api/gibs'
+import { setIsobars, setScalarLayer } from '../layers/forecastLayers'
+import { registerScalarProtocol, setScalarLut } from '../layers/scalarProtocol'
+import { buildLut, SCALAR_STYLES, type ScalarName, type ScalarScale } from '../layers/scalarStyles'
 import { initialParticleCount } from '../wind/particles'
 import { WIND_LAYER_ID, WindLayer, type WindField } from '../wind/WindLayer'
 import {
@@ -42,6 +45,7 @@ import './MapView.css'
 // lo mueve y el worker no carga. Se le da la URL explícita, válida en desarrollo y en build.
 setWorkerUrl(maplibreWorkerUrl)
 registerCloudProtocol() // teselas de nubes con fondo transparente (cloudAlpha.ts)
+registerScalarProtocol() // capas de color de pronóstico (scalarProtocol.ts)
 
 /** Las nubes van debajo del viento (si está) y de los departamentos. */
 const cloudsBefore = (map: MapLibreMap) =>
@@ -73,6 +77,10 @@ interface MapViewProps {
   basemap?: BasemapId
   /** Campo de viento a animar (T-34); null = capa apagada. */
   wind?: WindField | null
+  /** Capa de color de pronóstico (T-36). */
+  scalar?: { name: ScalarName; url: string; scale: ScalarScale; bounds: WindField['bounds'] } | null
+  /** URL del GeoJSON de isobaras del paso visible (T-36). */
+  isobarsUrl?: string | null
   /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
   clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number; preloadAll?: boolean } | null
 }
@@ -85,6 +93,8 @@ export default function MapView({
   clouds,
   basemap = 'oscuro',
   wind = null,
+  scalar = null,
+  isobarsUrl = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
@@ -229,6 +239,23 @@ export default function MapView({
     // Encima de las nubes, debajo de departamentos y nombres.
     map.addLayer(layer, map.getLayer(DEPARTMENTS_FILL) ? DEPARTMENTS_FILL : undefined)
   }, [ready, wind])
+
+  // Capa de color e isobaras (T-36). Orden: capa de color < nubes < viento < isobaras < departamentos.
+  const scalarName = scalar?.name
+  const scalarUrlStr = scalar?.url
+  useEffect(() => {
+    const map = mapRef.current
+    if (!ready || !map) return
+    if (!scalar) return setScalarLayer(map, null)
+    setScalarLut(scalar.name, buildLut(scalar.scale, SCALAR_STYLES[scalar.name].stops))
+    const firstCloud = map.getStyle().layers.find((l) => l.id.startsWith(CLOUD_PREFIX))?.id
+    setScalarLayer(map, { url: scalar.url, bounds: scalar.bounds }, firstCloud ?? cloudsBefore(map))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- nombre y URL resumen el cambio
+  }, [ready, scalarName, scalarUrlStr])
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map) setIsobars(map, isobarsUrl, DEPARTMENTS_FILL)
+  }, [ready, isobarsUrl])
 
   useEffect(() => {
     const map = mapRef.current

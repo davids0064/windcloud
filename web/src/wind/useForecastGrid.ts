@@ -27,10 +27,12 @@ type MetaState =
   | { status: 'ready'; loaded: LoadedMeta }
 
 /**
- * Viento del run más reciente con línea de tiempo y nivel (T-34, T-35). El meta se lee una vez; las imágenes se
- * guardan por nivel y paso, y al elegir un nivel se precargan sus 25 pasos para que mover el tiempo sea inmediato.
+ * Rejilla de pronóstico del run más reciente: línea de tiempo común a todas las capas (viento, capa de color,
+ * isobaras) y campo de viento del nivel elegido (T-34, T-35, T-36). El meta se lee una vez; las imágenes de viento
+ * se guardan por nivel y paso y se precargan los 25 pasos del nivel para que mover el tiempo sea inmediato.
+ * `windOn` = falso: no se descargan imágenes de viento (solo la línea de tiempo para otras capas).
  */
-export function useWindField(enabled: boolean) {
+export function useForecastGrid(enabled: boolean, windOn = true) {
   const [metaState, setMetaState] = useState<MetaState>({ status: 'loading' })
   const [level, setLevel] = useState<WindLevel>('10m')
   const [stepIndex, setStepIndex] = useState<number | null>(null)
@@ -73,7 +75,7 @@ export function useWindField(enabled: boolean) {
 
   // 2) campo del nivel y paso elegidos; luego precarga del resto de pasos de ese nivel
   useEffect(() => {
-    if (!enabled || !loaded || stepIndex === null) return
+    if (!enabled || !windOn || !loaded || stepIndex === null) return
     let alive = true
     const step = loaded.meta.steps[stepIndex]
     bitmap(level, step)
@@ -96,7 +98,7 @@ export function useWindField(enabled: boolean) {
       alive = false
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- bitmap usa la caché (ref)
-  }, [enabled, loaded, level, stepIndex])
+  }, [enabled, windOn, loaded, level, stepIndex])
 
   // 3) reproducción: avanza un paso cada PLAY_INTERVAL_MS y vuelve al inicio
   const total = loaded?.meta.steps.length ?? 0
@@ -108,11 +110,12 @@ export function useWindField(enabled: boolean) {
 
   if (!enabled) return { status: 'off' as const }
   if (metaState.status === 'error') return { status: 'error' as const, message: metaState.message }
-  if (!loaded || stepIndex === null || !field) return { status: 'loading' as const }
+  if (!loaded || stepIndex === null || (windOn && !field)) return { status: 'loading' as const }
   return {
     status: 'ready' as const,
     loaded,
-    field,
+    /** null si el viento está apagado. */
+    field: windOn ? field : null,
     level,
     stepIndex,
     playing,

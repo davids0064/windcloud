@@ -99,11 +99,11 @@ def test_codifica_un_run_real_con_meta_y_escritura_atomica(tmp_path):
     img = Image.open(out / "wind_10m_003.png")
     assert img.mode == "RGBA" and img.size == (meta["width"], meta["height"])
     assert Image.open(out / "gust_000.png").mode == "LA"
-    assert len(list(out.glob("*.png"))) == 2 * (3 + 3)
+    assert len(list(out.glob("*.png"))) == 2 * (3 + 4)  # 3 vientos + ráfaga, nubes, lluvia, temp.
 
     # Re-codificar reemplaza sin dejar restos
     encode.encode_run(run_dir, tmp_path / "web")
-    assert len(list(out.glob("*.png"))) == 12
+    assert len(list(out.glob("*.png"))) == 14
 
 
 def test_el_valor_decodificado_coincide_con_el_grib_en_bogota(tmp_path):
@@ -140,3 +140,45 @@ def test_latest_json_apunta_al_run_mas_reciente_y_no_retrocede(tmp_path):
     encode.write_latest(d, datetime(2026, 11, 13, 0, tzinfo=UTC))  # más viejo: se ignora
     assert json.loads((d / "latest.json").read_text())["run"] == "2026-11-13T12:00:00Z"
     assert not list(d.glob("*.tmp"))
+
+
+def test_temperatura_en_celsius_y_rango_fijo():
+    g = grids.read_step(FIX / "gfs_bogota_f003.grib2")
+    t = encode.scalar_fields(g)["t2m"]
+    assert -5 < float(np.nanmin(t)) and float(np.nanmax(t)) < 40  # Andes fríos, valles cálidos
+    assert encode.SCALARS["t2m"].units == "°C"
+
+
+def test_isobaras_cada_2_hpa_en_lon_lat():
+    g = grids.read_step(FIX / "gfs_bogota_f003.grib2")
+    fc = encode.isobars(g)
+    assert fc["type"] == "FeatureCollection" and fc["features"]
+    levels = {f["properties"]["hpa"] for f in fc["features"]}
+    assert all(lv % 2 == 0 for lv in levels)
+    hpa = g.fields["prmsl"] / 100
+    assert min(levels) >= np.floor(np.nanmin(hpa)) - 2
+    assert max(levels) <= np.ceil(np.nanmax(hpa)) + 2
+    for f in fc["features"]:
+        for lon, lat in f["geometry"]["coordinates"]:
+            assert -76 <= lon <= -72 and 3 <= lat <= 7
+
+
+def test_el_run_codificado_incluye_isobaras_en_meta(tmp_path):
+    run_dir = tmp_path / "gfs" / "2026111306"
+    run_dir.mkdir(parents=True)
+    shutil.copy(FIX / "gfs_bogota_f003.grib2", run_dir / "f003.grib2")
+    out = encode.encode_run(run_dir, tmp_path / "web")
+    meta = json.loads((out / "meta.json").read_text(encoding="utf-8"))
+    assert meta["isobars"]["steps"] == [3] and meta["isobars"]["every"] == 2
+    assert (out / "isobars_003.geojson").exists()
+    assert meta["scalars"]["t2m"]["min"] == -10
+
+
+def test_suavizado_conserva_constantes_y_reduce_el_ruido():
+    flat = np.full((10, 12), 1012.0)
+    assert np.allclose(encode.smooth(flat, 3), flat)
+    rng = np.random.default_rng(1)
+    noisy = 1012 + rng.normal(0, 3, (40, 40))  # "ruido de montaña"
+    assert encode.smooth(noisy, 3).std() < noisy.std() / 3
+    ramp = np.tile(np.linspace(1008, 1016, 30), (20, 1))  # gradiente real: se conserva
+    assert np.allclose(encode.smooth(ramp, 3)[:, 5:-5], ramp[:, 5:-5], atol=1e-6)

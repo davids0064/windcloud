@@ -34,6 +34,7 @@ export interface GridMeta {
     file: string
     levels: Record<WindLevel, { label: string; frames: WindFrame[] }>
   }
+  isobars?: { units: 'hPa'; every: number; file: string; steps: number[]; note: string }
   scalars: Record<
     string,
     {

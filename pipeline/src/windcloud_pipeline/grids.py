@@ -54,8 +54,16 @@ REGIONS: dict[str, tuple[float, float, float, float] | None] = {
     "global": None,
 }
 
-VARIABLES = ("UGRD", "VGRD", "GUST", "TCDC", "PRATE")
-LEVELS = ("10_m_above_ground", "850_mb", "500_mb", "surface", "entire_atmosphere")
+VARIABLES = ("UGRD", "VGRD", "GUST", "TCDC", "PRATE", "TMP", "PRMSL")
+LEVELS = (
+    "10_m_above_ground",
+    "2_m_above_ground",
+    "850_mb",
+    "500_mb",
+    "surface",
+    "entire_atmosphere",
+    "mean_sea_level",
+)
 
 #: Campo de salida ← (shortName de eccodes, typeOfLevel, level). Siempre stepType "instant".
 FIELDS: dict[str, tuple[str, str, int]] = {
@@ -68,6 +76,8 @@ FIELDS: dict[str, tuple[str, str, int]] = {
     "gust": ("gust", "surface", 0),
     "tcc": ("tcc", "atmosphere", 0),
     "prate": ("prate", "surface", 0),
+    "t2m": ("2t", "heightAboveGround", 2),  # K
+    "prmsl": ("prmsl", "meanSea", 0),  # Pa, reducida al nivel del mar
 }
 STEP_TYPE = "instant"
 

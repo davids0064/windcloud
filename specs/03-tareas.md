@@ -41,7 +41,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       `web/src/wind/`: 60 fps con 40 000 partículas (WebGL2, retina); 8 000 en móvil y reducción automática si < 30 fps.
 - [x] **T-35** Línea de tiempo 0–72 h y selector de modelo/nivel. → RF-2
       Altura 10 m / ~1,5 km / ~5,5 km, 25 pasos precargados, reproducir (48 fps), marca «ahora». Modelo: solo GFS hasta T-31.
-- [ ] **T-36** Capas escalares: ráfagas, nubosidad pronosticada, lluvia, temperatura, isobaras. → RF-4, RF-5
+- [x] **T-36** Capas escalares: ráfagas, nubosidad pronosticada, lluvia, temperatura, isobaras. → RF-4, RF-5
+      Coloreadas en el navegador (MapLibre 6 sin `raster-color`); isobaras suavizadas (ruido de montaña); línea de tiempo común.
 - [ ] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
   *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad.
 
