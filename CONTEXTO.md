@@ -11,14 +11,15 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 7/10** (T-40 a T-46 ✅; faltan T-47…T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 8/10** (T-40 a T-47 ✅; faltan T-48, T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-46 (investigación de acceso a redes locales: solo IDEAM integrable) |
-| Siguiente tarea | **T-47** adaptador IDEAM (`sources/ideam.py`), luego T-48/T-49. **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 204 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
+| Última tarea cerrada | T-47 (red IDEAM: 211 estaciones, verificación por red, selector de red, límites de Open-Meteo) |
+| Siguiente tarea | **T-48** (Pereira, Bucaramanga) y **T-49** (enlace «Red oficial de tu ciudad»). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 205 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam) 94 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
-| Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (un día → `out/verify/pares/`, ~1 min) |
+| Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
+| Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD] [--red METAR|IDEAM|todas]` (METAR ~1 min, IDEAM ~3 min; ojo con el límite de Open-Meteo) |
 | Verificación diaria (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.daily` (completa días faltantes → `out/verify/pares/*.csv.gz` y `out/web/data/precision*.json`) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
@@ -125,6 +126,10 @@
 - **2026-11-13 · Redes locales (T-46):** solo enlace para SAB, SIATA, CDIAC y CVC (sin histórico abierto vigente); la
   verificación suma **IDEAM** (datos.gov.co, CC BY-SA) como segunda red. No se raspa ninguna página.
 
+- **2026-11-13 · IDEAM como 2.ª red (T-47):** 211 estaciones (una por celda de 0,25°, lejos de los METAR), métricas
+  por red y selector en la web; región = todas las redes juntas, siempre con la opción de verlas por separado.
+- **2026-11-13 · Ritmo y presupuesto de Open-Meteo:** ≤ 500 llamadas ponderadas/min y ≤ 4 000 por corrida diaria.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -139,6 +144,9 @@
 
 - ¿Pedir acceso a datos a SIATA (`solicitud.datos@siata.gov.co`) y CDIAC (`idea_man@unal.edu.co`)? Lo decide y envía
   el usuario. ¿Capturar cada noche el acumulado diario del SAB (frágil) o basta IDEAM en Bogotá?
+
+- La rama `data` crecerá ~150 MB/año con IDEAM (~300 KB/día de pares). Si molesta: guardar IDEAM agregado o
+  recortar a las estaciones con mejor cobertura.
 
 ## 5. Aprendizajes y trampas conocidas
 
@@ -254,6 +262,11 @@
   Comprobado contra el METAR de El Dorado.
 - El catálogo de datos.gov.co se consulta mejor con `api.us.socrata.com/api/catalog/v1?domains=www.datos.gov.co&q=…`.
 
+- **Open-Meteo cuenta llamadas ponderadas** (ubicaciones × variables × modelos / 10) con límites de 600/min, 5 000/h y
+  10 000/día: 10 ubicaciones × 48 variables por segundo dieron HTTP 429. Hay que ir a ritmo y presupuestar.
+- **SoQL de datos.gov.co:** no hay `date_trunc_ymdh` ni `date_extract_mi`; sí `date_extract_hh`, `date_extract_mm`
+  y `date_trunc_ymd`.
+
 ## 6. Bitácora de iteraciones (más reciente arriba)
 
 <!--
@@ -266,6 +279,20 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-47 Red IDEAM y verificación por red
+- **Tareas:** T-47 ✅
+- **Hecho:** `sources/ideam.py` (SoQL hora en punto, lluvia por hora, hora local → UTC, m/s → km/h, QC, selección
+  de estaciones con altitud del DEM, nombres limpios); `data/stations-ideam.json` (211 estaciones); `verify.py`
+  por red (`--red`, `pares/<red>/`, `load_stations`); `metrics` con `dias_por_red` y fuentes por red; `daily.py` por
+  red con retraso de IDEAM, ritmo de Open-Meteo, espera tras 429 y presupuesto por corrida; web: selector de red;
+  Metodología y `verify.yml` (45 min) actualizados.
+- **Datos reales:** IDEAM 8–11/11 (~14 800 pares/día, 3–4 min/día); un intento sin ritmo dio HTTP 429 (de ahí el
+  ritmo). Hora verificada: MAE ICON 1,6 °C con conversión vs 3,2 sin ella. IDEAM 7 días: ICON 1,6 · IFS 1,6 · UKMO
+  1,7 … JMA 2,3 °C (algo peor que METAR, estaciones rurales y datos preliminares).
+- **Verificado:** pipeline 94 ✓, web 205 ✓, lint, build; Chrome: selector IDEAM (211 estaciones en mapa y lista,
+  «Preliminar: 4 días», fuente IDEAM), detalle de Lloro (GEM 0,9 °C primero); consola limpia.
+- **Pendiente / siguiente paso:** T-48, T-49.
 
 ### 2026-11-13 · T-46 Acceso a datos de redes locales
 - **Tareas:** T-46 ✅

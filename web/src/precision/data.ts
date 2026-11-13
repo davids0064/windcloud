@@ -53,7 +53,8 @@ export interface PrecisionSummary {
   schema: 1
   generatedAt: string
   hasta: string
-  fuentes: { observacion: string; pronostico: string }
+  /** `redes`: fuente de cada red (T-47); falta en resúmenes anteriores. */
+  fuentes: { observacion: string; pronostico: string; redes?: Record<string, string> }
   modelos: string[]
   leads_dias: number[]
   umbrales: {
@@ -67,6 +68,8 @@ export interface PrecisionSummary {
     WindowId,
     {
       dias: string[]
+      /** Días con datos de cada red (T-47). */
+      dias_por_red?: Record<string, number>
       region: { metricas: Scores; ranking: Ranking }
       redes: Record<string, Scores>
       estaciones: Record<string, { ranking: Ranking }>
@@ -173,6 +176,35 @@ export function rankModels(
 }
 
 /** Mejor modelo por estación (día 1) para colorear el mapa; null si la estación no tiene muestra. */
+/** Filtro de red: todas juntas o una (METAR, IDEAM…). */
+export type NetworkFilter = 'todas' | string
+
+/** Redes presentes, en el orden en que aparecen las estaciones. */
+export function networksOf(summary: PrecisionSummary): string[] {
+  return [...new Set(summary.estaciones.map((s) => s.red))]
+}
+
+/** Métricas de la ventana para todas las redes juntas o para una. */
+export function scoresFor(summary: PrecisionSummary, win: WindowId, red: NetworkFilter): Scores {
+  const w = summary.ventanas[win]
+  return red === 'todas' ? w.region.metricas : (w.redes[red] ?? w.region.metricas)
+}
+
+export function stationsOf(summary: PrecisionSummary, red: NetworkFilter): StationInfo[] {
+  return red === 'todas' ? summary.estaciones : summary.estaciones.filter((s) => s.red === red)
+}
+
+/** Días con datos de la ventana (de una red si se eligió y el resumen lo trae). */
+export function daysFor(summary: PrecisionSummary, win: WindowId, red: NetworkFilter): number {
+  const w = summary.ventanas[win]
+  return red === 'todas' ? w.dias.length : (w.dias_por_red?.[red] ?? w.dias.length)
+}
+
+export const NETWORK_LABEL: Record<string, string> = {
+  METAR: 'aeropuertos (METAR)',
+  IDEAM: 'estaciones automáticas del IDEAM',
+}
+
 export function bestByStation(
   summary: PrecisionSummary,
   win: WindowId,

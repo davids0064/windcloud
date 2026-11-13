@@ -1,10 +1,13 @@
 name: Verificación de precisión
 
-# Compara cada día los pronósticos de los 8 modelos con los METAR (T-41, T-42, T-43 → RF-9).
+# Compara cada día los pronósticos de los 8 modelos con los METAR y las estaciones del IDEAM (T-41…T-47 → RF-9).
+# - IDEAM (datos.gov.co) publica el día local completo al día siguiente: se verifica con 2 días de retraso.
+# - Open-Meteo gratis limita 600/min, 5 000/h y 10 000/día (llamadas ponderadas): daily.py va a ritmo y gasta
+#   como máximo ~4 000 por corrida (un día METAR ≈ 210, un día IDEAM ≈ 1 010); lo que no quepa queda para mañana.
 # - Corre a las 03:30 UTC: el METAR de las 23 UTC de ayer ya llegó y los pronósticos día 1/2 están archivados.
 # - Completa cualquier día faltante de los últimos 10 (se recupera solo si un día falló o no corrió).
 # - Rama `data` CON historial (a diferencia de `grids`): el histórico de pares es lo que da valor al ranking.
-#     data/pares/AAAA-MM-DD.csv.gz   pares observación–pronóstico (~57 KB/día)
+#     data/pares/<red>/AAAA-MM-DD.csv.gz   pares observación–pronóstico (METAR ~57 KB/día, IDEAM ~300 KB/día)
 #     data/web/precision.json        resumen (región, redes, ranking por estación)
 #     data/web/precision/<ICAO>.json detalle por estación
 #     data/web/verificacion-status.json
@@ -26,7 +29,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v7
@@ -67,7 +70,7 @@ jobs:
               commit --quiet -m "Verificación hasta ${hasta}"
           git push --quiet \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
-          echo "Guardado: $(ls pares | wc -l) días de pares ($(du -sh pares | cut -f1))."
+          echo "Guardado: $(du -sh pares | cut -f1) de pares."
 
       - name: Resultado
         if: steps.verify.outcome == 'failure'

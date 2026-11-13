@@ -12,8 +12,8 @@ STATIONS = [{"icao": "SKBO", "red": "METAR"}]
 def fake_verify(fail_on=()):
     calls = []
 
-    def run(day, stations, history):
-        calls.append(day)
+    def run(day, stations, history, network="METAR"):
+        calls.append(day if network == "METAR" else (network, day))
         if day in fail_on:
             raise RuntimeError("HTTP 504")
         rows = [
@@ -26,8 +26,8 @@ def fake_verify(fail_on=()):
                 **{c: "15" for c in verify.forecast_columns()},
             }
         ]
-        verify.write_pairs(rows, verify.pairs_path(history, day))
-        return verify.pairs_path(history, day)
+        verify.write_pairs(rows, verify.pairs_path(history, day, network))
+        return verify.pairs_path(history, day, network)
 
     return run, calls
 
@@ -36,6 +36,27 @@ def test_dias_pendientes(tmp_path):
     verify.write_pairs([], verify.pairs_path(tmp_path, date(2026, 11, 12)))
     got = daily.pending_days(tmp_path, TODAY, lookback=3)
     assert got == [date(2026, 11, 10), date(2026, 11, 11)]
+    # IDEAM publica con 2 días de retraso: el 12 todavía no se pide
+    assert daily.pending_days(tmp_path, TODAY, lookback=3, network="IDEAM") == [
+        date(2026, 11, 10),
+        date(2026, 11, 11),
+    ]
+
+
+def test_varias_redes(tmp_path):
+    fn, calls = fake_verify()
+    stations = [*STATIONS, {"icao": "IDEAM-1", "red": "IDEAM"}]
+    status = daily.run(
+        tmp_path / "pares",
+        tmp_path / "web",
+        stations,
+        today=TODAY,
+        lookback=2,
+        verify_day=fn,
+        log=lambda m: None,
+    )
+    assert calls == [date(2026, 11, 12), date(2026, 11, 11), ("IDEAM", date(2026, 11, 11))]
+    assert {"red": "IDEAM", "dia": "2026-11-11"} in status["verificados"]
 
 
 def test_completa_publica_y_registra_fallos(tmp_path):
@@ -52,8 +73,11 @@ def test_completa_publica_y_registra_fallos(tmp_path):
         now=datetime(2026, 11, 13, 4, tzinfo=UTC),
         log=lambda m: None,
     )
-    assert calls == [date(2026, 11, 10), bad, date(2026, 11, 12)]
-    assert status["verificados"] == ["2026-11-10", "2026-11-12"]
+    assert calls == [date(2026, 11, 12), bad, date(2026, 11, 10)]  # lo más reciente primero
+    assert status["verificados"] == [
+        {"red": "METAR", "dia": "2026-11-12"},
+        {"red": "METAR", "dia": "2026-11-10"},
+    ]
     assert status["fallidos"][0]["dia"] == "2026-11-11" and "504" in status["fallidos"][0]["error"]
     assert status["dias_ventana"] == {"7": 2, "30": 2} and status["hasta"] == "2026-11-12"
     assert json.loads((web / "verificacion-status.json").read_text()) == status
@@ -70,4 +94,23 @@ def test_completa_publica_y_registra_fallos(tmp_path):
         verify_day=fn2,
         log=lambda m: None,
     )
-    assert calls2 == [bad, date(2026, 11, 13)]
+    assert calls2 == [date(2026, 11, 13), bad]
+
+
+def test_presupuesto_de_llamadas(tmp_path):
+    """Sin presupuesto de Open-Meteo, los días más viejos quedan para la próxima corrida."""
+    fn, calls = fake_verify()
+    one_day = verify.call_weight(1)
+    status = daily.run(
+        tmp_path / "pares",
+        tmp_path / "web",
+        STATIONS,
+        today=TODAY,
+        lookback=4,
+        budget=2 * one_day,
+        verify_day=fn,
+        log=lambda m: None,
+    )
+    assert calls == [date(2026, 11, 12), date(2026, 11, 11)]
+    assert [a["dia"] for a in status["aplazados"]] == ["2026-11-10", "2026-11-09"]
+    assert status["llamadas_open_meteo"] == round(2 * one_day)

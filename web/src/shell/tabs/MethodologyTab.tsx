@@ -91,9 +91,10 @@ export function MethodologyTab() {
         <dt>Precisión verificada</dt>
         <dd>
           Cada día se compara el pronóstico emitido 1 y 2 días antes con los METAR de ~40
-          aeropuertos: error medio y sesgo en temperatura y viento (horas en que los 8 modelos
-          tienen dato), y aciertos y falsas alarmas de lluvia en bloques de 6 h (llovió si algún
-          reporte lo indicó; el modelo anunció lluvia si sumaba ≥ 1 mm). Ver la pestaña Precisión.
+          aeropuertos y con ~200 estaciones automáticas del IDEAM (datos preliminares, red aparte):
+          error medio y sesgo en temperatura y viento (horas en que los 8 modelos tienen dato), y
+          aciertos y falsas alarmas de lluvia en bloques de 6 h (llovió si algún reporte lo indicó;
+          el modelo anunció lluvia si sumaba ≥ 1 mm). Ver la pestaña Precisión.
         </dd>
 
         <dt>Probabilidad de lluvia</dt>

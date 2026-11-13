@@ -2,13 +2,18 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { clearPrecisionCache } from './data'
-import { DETAIL_SKBO, SUMMARY } from './fixture'
+import { DETAIL_SKBO, scores, SUMMARY } from './fixture'
 import PrecisionTab, { type PrecisionSelection } from './PrecisionTab'
 import type { Loadable } from './usePrecision'
 import type { PrecisionSummary } from './data'
 
 function Harness({ state }: { state: Loadable<PrecisionSummary> }) {
-  const [sel, setSel] = useState<PrecisionSelection>({ win: '7', variable: 'temperatura', lead: 1 })
+  const [sel, setSel] = useState<PrecisionSelection>({
+    win: '7',
+    variable: 'temperatura',
+    lead: 1,
+    red: 'todas',
+  })
   const [station, setStation] = useState<string | null>(null)
   return (
     <PrecisionTab
@@ -65,6 +70,44 @@ describe('PrecisionTab', () => {
     expect(bodyRows()[0]).toHaveTextContent(/ECMWF IFS3,0/)
     fireEvent.click(screen.getByRole('button', { name: 'Ver toda la región' }))
     expect(screen.getByRole('heading', { name: 'Ranking en toda la región' })).toBeInTheDocument()
+  })
+
+  it('con dos redes permite verlas por separado (T-47)', () => {
+    const two: PrecisionSummary = {
+      ...SUMMARY,
+      fuentes: { ...SUMMARY.fuentes, redes: { METAR: 'NOAA AWC', IDEAM: 'IDEAM datos.gov.co' } },
+      estaciones: [
+        ...SUMMARY.estaciones,
+        {
+          icao: 'IDEAM-1',
+          nombre: 'Lloro',
+          pais: 'CO',
+          departamento: 'Chocó',
+          lat: 5.5,
+          lon: -76.5,
+          red: 'IDEAM',
+        },
+      ],
+      ventanas: {
+        ...SUMMARY.ventanas,
+        '7': {
+          ...SUMMARY.ventanas['7'],
+          dias_por_red: { METAR: 7, IDEAM: 4 },
+          redes: { METAR: scores(), IDEAM: scores(5) },
+        },
+      },
+    }
+    render(<Harness state={{ status: 'ready', data: two }} />)
+    expect(
+      screen.getByText(/3 aeropuertos \(METAR\) y 1 estaciones automáticas del IDEAM/),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /\(todas las redes\)/ })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('radio', { name: 'IDEAM' }))
+    expect(bodyRows()[0]).toHaveTextContent(/^1 ECMWF IFS5,0/)
+    expect(screen.getByText(/Preliminar: 4 días con datos/)).toBeInTheDocument()
+    expect(screen.getByText(/Fuente: IDEAM datos\.gov\.co \(red: IDEAM\)/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /IDEAM.*Lloro/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /SKBO/ })).not.toBeInTheDocument()
   })
 
   it('sin datos lo dice y recuerda que el consenso usa pesos iguales', () => {

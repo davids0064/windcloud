@@ -28,6 +28,7 @@ from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 from . import metar, verify
+from .sources import ideam
 
 ROOT = Path(__file__).resolve().parents[3]
 PAIRS = ROOT / "pipeline/out/verify/pares"
@@ -41,6 +42,8 @@ RAIN_MIN_HOURS = 3
 #: mínimo de pares para que un modelo entre al ranking de una estación o región
 MIN_PAIRS = 24
 CONTINUOUS = ("temperatura", "viento")
+#: fuente de cada red (P2: todo dato visible con su fuente)
+NETWORK_SOURCES = {"METAR": metar.SOURCE, "IDEAM": ideam.SOURCE}
 
 
 # ---------- lectura ----------
@@ -52,11 +55,13 @@ def load_pairs(pairs_dir: Path, until: date, days: int) -> tuple[list[dict], lis
     found: list[str] = []
     for i in range(days - 1, -1, -1):
         d = until - timedelta(days=i)
-        path = verify.pairs_path(pairs_dir, d)
-        if not path.exists():
+        paths = [verify.pairs_path(pairs_dir, d, net) for net in verify.NETWORK_LAG_DAYS]
+        paths = [p for p in paths if p.exists()]
+        if not paths:
             continue
         found.append(d.isoformat())
-        rows.extend(verify.read_pairs(path))
+        for path in paths:
+            rows.extend(verify.read_pairs(path))
     return rows, found
 
 
@@ -182,8 +187,12 @@ def window_summary(rows: list[dict], days_found: list[str], stations: list[dict]
             continue
         sc = scores_for(sub)
         st_out[s["icao"]] = {"metricas": sc, "ranking": ranking(sc)}
+    days_by_net: dict[str, set[str]] = defaultdict(set)
+    for r in rows:
+        days_by_net[r["red"]].add(r["hora_utc"][:10])
     return {
         "dias": days_found,
+        "dias_por_red": {net: len(d) for net, d in sorted(days_by_net.items())},
         "region": {"metricas": region, "ranking": ranking(region)},
         "redes": {net: scores_for(sub) for net, sub in sorted(by_network.items())},
         "estaciones": st_out,
@@ -193,6 +202,7 @@ def window_summary(rows: list[dict], days_found: list[str], stations: list[dict]
 def build_precision(
     pairs_dir: Path, until: date, stations: list[dict], now: datetime | None = None
 ) -> dict:
+    networks = sorted({s.get("red", "METAR") for s in stations}, key=list(NETWORK_SOURCES).index)
     windows = {}
     for w in WINDOWS:
         rows, found = load_pairs(pairs_dir, until, w)
@@ -203,7 +213,11 @@ def build_precision(
         .isoformat(timespec="seconds")
         .replace("+00:00", "Z"),
         "hasta": until.isoformat(),
-        "fuentes": {"observacion": metar.SOURCE, "pronostico": verify.FORECAST_SOURCE},
+        "fuentes": {
+            "observacion": " · ".join(NETWORK_SOURCES[n] for n in networks),
+            "pronostico": verify.FORECAST_SOURCE,
+            "redes": {n: NETWORK_SOURCES[n] for n in networks},
+        },
         "modelos": list(verify.MODELS),
         "leads_dias": list(verify.LEADS),
         "umbrales": {
@@ -231,6 +245,7 @@ def split_for_web(doc: dict) -> tuple[dict, dict[str, dict]]:
     for w, win in doc["ventanas"].items():
         summary["ventanas"][w] = {
             "dias": win["dias"],
+            "dias_por_red": win["dias_por_red"],
             "region": win["region"],
             "redes": win["redes"],
             "estaciones": {
@@ -280,7 +295,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--web", type=Path, default=WEB)
     args = parser.parse_args(argv)
     until = args.hasta or (datetime.now(UTC).date() - timedelta(days=1))
-    stations = json.loads(verify.STATIONS.read_text(encoding="utf-8"))["stations"]
+    stations = verify.load_stations()
     doc = build_precision(args.pares, until, stations)
     written = write_web(doc, args.web)
     for w, win in doc["ventanas"].items():

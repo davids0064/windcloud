@@ -1,0 +1,3596 @@
+{
+ "source": "IDEAM, estaciones automáticas vía datos.gov.co (CC BY-SA 4.0; datos preliminares)",
+ "generatedAt": "2026-11-13T21:45:16Z",
+ "dia_referencia": "2026-11-11",
+ "criterio": "temperatura, viento y lluvia en ≥ 20 h; una por celda de 0.25°; a ≥ 10 km de un METAR; altitud del DEM de Open-Meteo",
+ "candidatas": 328,
+ "stations": [
+  {
+   "icao": "IDEAM-11035010",
+   "codigo": "0011035010",
+   "nombre": "Lloro",
+   "pais": "CO",
+   "departamento": "Choco",
+   "municipio": "Lloró",
+   "lat": 5.499,
+   "lon": -76.539,
+   "elev_m": 59,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-11080010",
+   "codigo": "0011080010",
+   "nombre": "Bellavista",
+   "pais": "CO",
+   "departamento": "Choco",
+   "municipio": "Bojayá (Bellavista)",
+   "lat": 6.5539,
+   "lon": -76.8811,
+   "elev_m": 17,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-11110110",
+   "codigo": "0011110110",
+   "nombre": "Boquerón De Toyo",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Cañasgordas",
+   "lat": 6.6994,
+   "lon": -75.9775,
+   "elev_m": 2111,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1111500036",
+   "codigo": "1111500036",
+   "nombre": "Abriaquí",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Abriaquí",
+   "lat": 6.6364,
+   "lon": -76.0626,
+   "elev_m": 1998,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1111500203",
+   "codigo": "1111500203",
+   "nombre": "Campo Alegre",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Dabeiba",
+   "lat": 7.0268,
+   "lon": -76.2528,
+   "elev_m": 1404,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-11115040",
+   "codigo": "0011115040",
+   "nombre": "Musinga",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Frontino",
+   "lat": 6.778,
+   "lon": -76.2033,
+   "elev_m": 1363,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-11135030",
+   "codigo": "0011135030",
+   "nombre": "Unguia",
+   "pais": "CO",
+   "departamento": "Choco",
+   "municipio": "Unguía",
+   "lat": 8.0367,
+   "lon": -77.0879,
+   "elev_m": 8,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-12015100",
+   "codigo": "0012015100",
+   "nombre": "Pista Indira",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Turbo",
+   "lat": 7.9408,
+   "lon": -76.6962,
+   "elev_m": 6,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-12045020",
+   "codigo": "0012045020",
+   "nombre": "Cristo Rey",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Puerto Escondido",
+   "lat": 9.0722,
+   "lon": -76.2256,
+   "elev_m": 12,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-13075010",
+   "codigo": "0013075010",
+   "nombre": "Chimá",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Chima",
+   "lat": 9.1508,
+   "lon": -75.6221,
+   "elev_m": 10,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15015100",
+   "codigo": "0015015100",
+   "nombre": "Parque Tayrona",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Santa Marta",
+   "lat": 11.3017,
+   "lon": -73.9288,
+   "elev_m": 23,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15015120",
+   "codigo": "0015015120",
+   "nombre": "Unimagdalena",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Santa Marta",
+   "lat": 11.223,
+   "lon": -74.1859,
+   "elev_m": 16,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15035020",
+   "codigo": "0015035020",
+   "nombre": "Termoguajira",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Dibulla",
+   "lat": 11.2525,
+   "lon": -73.4114,
+   "elev_m": 6,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15065040",
+   "codigo": "0015065040",
+   "nombre": "La Paulina",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Fonseca",
+   "lat": 10.8981,
+   "lon": -72.8285,
+   "elev_m": 171,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15070080",
+   "codigo": "0015070080",
+   "nombre": "Kauraquimana",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Uribia",
+   "lat": 12.2184,
+   "lon": -71.4587,
+   "elev_m": 45,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1507500207",
+   "codigo": "1507500207",
+   "nombre": "Ipichirrain",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Uribia",
+   "lat": 11.7156,
+   "lon": -72.2144,
+   "elev_m": 30,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15075501",
+   "codigo": "0015075501",
+   "nombre": "Aeropuerto Puerto Bolivar",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Uribia",
+   "lat": 12.2243,
+   "lon": -71.9829,
+   "elev_m": 25,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15080070",
+   "codigo": "0015080070",
+   "nombre": "Sillamana",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Uribia",
+   "lat": 11.8994,
+   "lon": -71.5159,
+   "elev_m": 88,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1508500053",
+   "codigo": "1508500053",
+   "nombre": "Puerto Estrella",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Uribia",
+   "lat": 12.3392,
+   "lon": -71.3451,
+   "elev_m": 20,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-15085030",
+   "codigo": "0015085030",
+   "nombre": "Escuela Agricola Carraipia",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Maicao",
+   "lat": 11.2167,
+   "lon": -72.3599,
+   "elev_m": 114,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1509500118",
+   "codigo": "1509500118",
+   "nombre": "Guachaca",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Santa Marta",
+   "lat": 11.2102,
+   "lon": -73.8444,
+   "elev_m": 230,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-16015120",
+   "codigo": "0016015120",
+   "nombre": "Universidad De Pamplona",
+   "pais": "CO",
+   "departamento": "Norte De Santander",
+   "municipio": "Pamplona",
+   "lat": 7.3609,
+   "lon": -72.6661,
+   "elev_m": 2590,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1602500044",
+   "codigo": "1602500044",
+   "nombre": "Gramalote",
+   "pais": "CO",
+   "departamento": "Norte De Santander",
+   "municipio": "Gramalote",
+   "lat": 7.9132,
+   "lon": -72.803,
+   "elev_m": 1277,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-1602500110",
+   "codigo": "1602500110",
+   "nombre": "Arboledas",
+   "pais": "CO",
+   "departamento": "Norte De Santander",
+   "municipio": "Arboledas",
+   "lat": 7.6463,
+   "lon": -72.799,
+   "elev_m": 979,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-16055120",
+   "codigo": "0016055120",
+   "nombre": "Aguas De La Virgen",
+   "pais": "CO",
+   "departamento": "Norte De Santander",
+   "municipio": "Ocaña",
+   "lat": 8.2277,
+   "lon": -73.3975,
+   "elev_m": 1660,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21015020",
+   "codigo": "0021015020",
+   "nombre": "Sevilla",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Pitalito",
+   "lat": 1.8248,
+   "lon": -76.1303,
+   "elev_m": 1310,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21015030",
+   "codigo": "0021015030",
+   "nombre": "Parque Arqueologico",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "San Agustín",
+   "lat": 1.8885,
+   "lon": -76.295,
+   "elev_m": 1754,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21025030",
+   "codigo": "0021025030",
+   "nombre": "Altamira El Grifo",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Altamira",
+   "lat": 2.0792,
+   "lon": -75.7362,
+   "elev_m": 1346,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21035040",
+   "codigo": "0021035040",
+   "nombre": "Libano El",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Suaza",
+   "lat": 1.87,
+   "lon": -75.83,
+   "elev_m": 1046,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21045010",
+   "codigo": "0021045010",
+   "nombre": "Betulia La",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Agrado",
+   "lat": 2.2816,
+   "lon": -75.7051,
+   "elev_m": 777,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21050060",
+   "codigo": "0021050060",
+   "nombre": "La Argentina",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "La Argentina",
+   "lat": 2.1991,
+   "lon": -75.9723,
+   "elev_m": 1533,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21095010",
+   "codigo": "0021095010",
+   "nombre": "Juncal El",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Palermo",
+   "lat": 2.8288,
+   "lon": -75.3312,
+   "elev_m": 482,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21105030",
+   "codigo": "0021105030",
+   "nombre": "Algeciras",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Algeciras",
+   "lat": 2.52,
+   "lon": -75.32,
+   "elev_m": 994,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21115100",
+   "codigo": "0021115100",
+   "nombre": "Palacio-Vegalarga",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Neiva",
+   "lat": 2.9426,
+   "lon": -75.0664,
+   "elev_m": 1178,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21125010",
+   "codigo": "0021125010",
+   "nombre": "Santa Maria",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Santa María",
+   "lat": 2.9357,
+   "lon": -75.5891,
+   "elev_m": 1340,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21130050",
+   "codigo": "0021130050",
+   "nombre": "Hacienda Perez",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Aipe",
+   "lat": 3.2436,
+   "lon": -75.2559,
+   "elev_m": 395,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21135020",
+   "codigo": "0021135020",
+   "nombre": "Jabalcon",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Saldaña",
+   "lat": 3.8558,
+   "lon": -75.0157,
+   "elev_m": 313,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21140120",
+   "codigo": "0021140120",
+   "nombre": "Las Cruces",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Alpujarra",
+   "lat": 3.4259,
+   "lon": -74.9202,
+   "elev_m": 1476,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21145080",
+   "codigo": "0021145080",
+   "nombre": "Santa Ana",
+   "pais": "CO",
+   "departamento": "Huila",
+   "municipio": "Colombia",
+   "lat": 3.5898,
+   "lon": -74.7029,
+   "elev_m": 1465,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21185080",
+   "codigo": "0021185080",
+   "nombre": "Valle De San Juan",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Valle De San Juan",
+   "lat": 4.2165,
+   "lon": -75.1046,
+   "elev_m": 586,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21185090",
+   "codigo": "0021185090",
+   "nombre": "Nataima",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Espinal",
+   "lat": 4.1881,
+   "lon": -74.9605,
+   "elev_m": 373,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2119500111",
+   "codigo": "2119500111",
+   "nombre": "Base Aerea Melgar",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Melgar",
+   "lat": 4.2197,
+   "lon": -74.6294,
+   "elev_m": 327,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21195120",
+   "codigo": "0021195120",
+   "nombre": "Ita Valsalice",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Silvania",
+   "lat": 4.3929,
+   "lon": -74.3927,
+   "elev_m": 1427,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21195170",
+   "codigo": "0021195170",
+   "nombre": "Paquilo",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Cabrera",
+   "lat": 3.9936,
+   "lon": -74.3981,
+   "elev_m": 3034,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21205012",
+   "codigo": "0021205012",
+   "nombre": "Universidad Nacional",
+   "pais": "CO",
+   "departamento": "Bogotá",
+   "municipio": "Bogotá, D.C",
+   "lat": 4.6372,
+   "lon": -74.0889,
+   "elev_m": 2553,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21205660",
+   "codigo": "0021205660",
+   "nombre": "Mercedes",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Anapoima",
+   "lat": 4.5791,
+   "lon": -74.5232,
+   "elev_m": 770,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21205670",
+   "codigo": "0021205670",
+   "nombre": "La Florida",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Anolaima",
+   "lat": 4.768,
+   "lon": -74.4342,
+   "elev_m": 1905,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21205910",
+   "codigo": "0021205910",
+   "nombre": "La Cosecha",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Zipaquirá",
+   "lat": 4.9892,
+   "lon": -74.0012,
+   "elev_m": 2565,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21205970",
+   "codigo": "0021205970",
+   "nombre": "Hacienda Santa Ana",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Nemocón",
+   "lat": 5.0905,
+   "lon": -73.8812,
+   "elev_m": 2571,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21206280",
+   "codigo": "0021206280",
+   "nombre": "Acapulco",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Bojacá",
+   "lat": 4.6482,
+   "lon": -74.3204,
+   "elev_m": 2667,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21206920",
+   "codigo": "0021206920",
+   "nombre": "Villa Teresa",
+   "pais": "CO",
+   "departamento": "Bogotá",
+   "municipio": "Bogotá, D.C",
+   "lat": 4.3562,
+   "lon": -74.1592,
+   "elev_m": 3553,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21206980",
+   "codigo": "0021206980",
+   "nombre": "Santa Cruz De Siecha",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Guasca",
+   "lat": 4.785,
+   "lon": -73.8701,
+   "elev_m": 3140,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21245140",
+   "codigo": "0021245140",
+   "nombre": "Santa Isabel",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Santa Isabel",
+   "lat": 4.7119,
+   "lon": -75.0945,
+   "elev_m": 2254,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21255090",
+   "codigo": "0021255090",
+   "nombre": "Armero Granja",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Armero (Guayabal)",
+   "lat": 5.0,
+   "lon": -74.9,
+   "elev_m": 281,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21255160",
+   "codigo": "0021255160",
+   "nombre": "Hacienda Pajonales",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Ambalema",
+   "lat": 4.7579,
+   "lon": -74.8309,
+   "elev_m": 244,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-21255170",
+   "codigo": "0021255170",
+   "nombre": "Murillo",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Murillo",
+   "lat": 4.8706,
+   "lon": -75.1733,
+   "elev_m": 3002,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2201500047",
+   "codigo": "2201500047",
+   "nombre": "Herrera",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Planadas",
+   "lat": 3.2841,
+   "lon": -75.8024,
+   "elev_m": 1725,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-22020020",
+   "codigo": "0022020020",
+   "nombre": "Pena Rica",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Planadas",
+   "lat": 3.0451,
+   "lon": -75.7618,
+   "elev_m": 1745,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2202500051",
+   "codigo": "2202500051",
+   "nombre": "Planadas",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Planadas",
+   "lat": 3.2082,
+   "lon": -75.6466,
+   "elev_m": 1320,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-22045010",
+   "codigo": "0022045010",
+   "nombre": "Demostracion Granja",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Chaparral",
+   "lat": 3.7224,
+   "lon": -75.5034,
+   "elev_m": 891,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-22055020",
+   "codigo": "0022055020",
+   "nombre": "Mesa De Pole",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Ataco",
+   "lat": 3.4558,
+   "lon": -75.5364,
+   "elev_m": 677,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-22065040",
+   "codigo": "0022065040",
+   "nombre": "San Antonio Quinta",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "San Antonio",
+   "lat": 3.9212,
+   "lon": -75.4677,
+   "elev_m": 1558,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-22070030",
+   "codigo": "0022070030",
+   "nombre": "Santa Helena",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Roncesvalles",
+   "lat": 4.1246,
+   "lon": -75.4995,
+   "elev_m": 2578,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2302500064",
+   "codigo": "2302500064",
+   "nombre": "Manzanares",
+   "pais": "CO",
+   "departamento": "Caldas",
+   "municipio": "Manzanares",
+   "lat": 5.2651,
+   "lon": -75.1431,
+   "elev_m": 1974,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23025040",
+   "codigo": "0023025040",
+   "nombre": "Albania",
+   "pais": "CO",
+   "departamento": "Tolima",
+   "municipio": "Mariquita",
+   "lat": 5.3011,
+   "lon": -74.9146,
+   "elev_m": 760,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23035030",
+   "codigo": "0023035030",
+   "nombre": "Base Palanquero",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Puerto Salgar",
+   "lat": 5.4942,
+   "lon": -74.6581,
+   "elev_m": 171,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23065110",
+   "codigo": "0023065110",
+   "nombre": "Yacopi",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Yacopí",
+   "lat": 5.4812,
+   "lon": -74.3512,
+   "elev_m": 1355,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23065120",
+   "codigo": "0023065120",
+   "nombre": "La Cabrera",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Pacho",
+   "lat": 5.1379,
+   "lon": -74.1366,
+   "elev_m": 2007,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23065180",
+   "codigo": "0023065180",
+   "nombre": "Villeta",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Villeta",
+   "lat": 5.0169,
+   "lon": -74.471,
+   "elev_m": 877,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23085080",
+   "codigo": "0023085080",
+   "nombre": "Granja Experimental El Nus",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "San Roque",
+   "lat": 6.4836,
+   "lon": -74.8367,
+   "elev_m": 825,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23085160",
+   "codigo": "0023085160",
+   "nombre": "Corrientes",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "San Vicente",
+   "lat": 6.3119,
+   "lon": -75.2536,
+   "elev_m": 1980,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23085220",
+   "codigo": "0023085220",
+   "nombre": "San Carlos",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "San Carlos",
+   "lat": 6.1577,
+   "lon": -75.0389,
+   "elev_m": 1120,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23105070",
+   "codigo": "0023105070",
+   "nombre": "Maceo",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Yolombó",
+   "lat": 6.5716,
+   "lon": -74.7947,
+   "elev_m": 1101,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23125080",
+   "codigo": "0023125080",
+   "nombre": "Otanche",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Otanche",
+   "lat": 5.6617,
+   "lon": -74.1846,
+   "elev_m": 1099,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23125100",
+   "codigo": "0023125100",
+   "nombre": "Buenavista",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Buenavista",
+   "lat": 5.5149,
+   "lon": -73.9431,
+   "elev_m": 2187,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23125120",
+   "codigo": "0023125120",
+   "nombre": "Cimitarra",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Cimitarra",
+   "lat": 6.3086,
+   "lon": -73.9522,
+   "elev_m": 189,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23175020",
+   "codigo": "0023175020",
+   "nombre": "Aeropuerto Otu",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Remedios",
+   "lat": 7.0118,
+   "lon": -74.7163,
+   "elev_m": 634,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23180070",
+   "codigo": "0023180070",
+   "nombre": "Sabana De Torres",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Sabana De Torres",
+   "lat": 7.39,
+   "lon": -73.4894,
+   "elev_m": 150,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23190130",
+   "codigo": "0023190130",
+   "nombre": "Tona",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Tona",
+   "lat": 7.1997,
+   "lon": -72.9692,
+   "elev_m": 1832,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23190440",
+   "codigo": "0023190440",
+   "nombre": "Naranjo El",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Lebrija",
+   "lat": 7.205,
+   "lon": -73.2997,
+   "elev_m": 788,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2319500065",
+   "codigo": "2319500065",
+   "nombre": "Granja Piedecuesta",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Piedecuesta",
+   "lat": 6.9933,
+   "lon": -73.0678,
+   "elev_m": 950,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2319500125",
+   "codigo": "2319500125",
+   "nombre": "Polideportivo Cachira",
+   "pais": "CO",
+   "departamento": "Norte De Santander",
+   "municipio": "Cáchira",
+   "lat": 7.7372,
+   "lon": -73.0489,
+   "elev_m": 1986,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23195090",
+   "codigo": "0023195090",
+   "nombre": "Vivero Surata",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Suratá",
+   "lat": 7.3658,
+   "lon": -72.9875,
+   "elev_m": 1788,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23195110",
+   "codigo": "0023195110",
+   "nombre": "Llano Grande",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Girón",
+   "lat": 7.0256,
+   "lon": -73.1672,
+   "elev_m": 738,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-23195240",
+   "codigo": "0023195240",
+   "nombre": "Aguachica",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Aguachica",
+   "lat": 8.1234,
+   "lon": -73.5799,
+   "elev_m": 96,
+   "horas_dia_ref": {
+    "temperatura": 22,
+    "viento": 22,
+    "lluvia": 22
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24010840",
+   "codigo": "0024010840",
+   "nombre": "Panelas",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Motavita",
+   "lat": 5.6344,
+   "lon": -73.3865,
+   "elev_m": 3218,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2401500052",
+   "codigo": "2401500052",
+   "nombre": "Puente Guillermo",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Puente Nacional",
+   "lat": 5.7964,
+   "lon": -73.7267,
+   "elev_m": 2392,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24015110",
+   "codigo": "0024015110",
+   "nombre": "La Boyera",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Ubaté",
+   "lat": 5.3038,
+   "lon": -73.8517,
+   "elev_m": 2636,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24015300",
+   "codigo": "0024015300",
+   "nombre": "Villa De Leiva",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Villa De Leiva",
+   "lat": 5.6433,
+   "lon": -73.5177,
+   "elev_m": 2162,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24025030",
+   "codigo": "0024025030",
+   "nombre": "La Sierra",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Paipa",
+   "lat": 5.9671,
+   "lon": -73.162,
+   "elev_m": 2844,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24025090",
+   "codigo": "0024025090",
+   "nombre": "Mogotes",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Mogotes",
+   "lat": 6.47,
+   "lon": -72.9689,
+   "elev_m": 1691,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24030140",
+   "codigo": "0024030140",
+   "nombre": "Siachoque",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Siachoque",
+   "lat": 5.5135,
+   "lon": -73.2439,
+   "elev_m": 2752,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24030560",
+   "codigo": "0024030560",
+   "nombre": "Mongua",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Mongua",
+   "lat": 5.7584,
+   "lon": -72.7945,
+   "elev_m": 2915,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24035250",
+   "codigo": "0024035250",
+   "nombre": "Chita",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Chita",
+   "lat": 6.1878,
+   "lon": -72.4656,
+   "elev_m": 2952,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24035340",
+   "codigo": "0024035340",
+   "nombre": "Aeropuerto Alberto Lleras Camargo",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Sogamoso",
+   "lat": 5.6769,
+   "lon": -72.9679,
+   "elev_m": 2482,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24035360",
+   "codigo": "0024035360",
+   "nombre": "Socha",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Socha",
+   "lat": 5.9839,
+   "lon": -72.7164,
+   "elev_m": 2502,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24055070",
+   "codigo": "0024055070",
+   "nombre": "San Vicente De Chucuri",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "San Vicente De Chucurí",
+   "lat": 6.8234,
+   "lon": -73.4721,
+   "elev_m": 1087,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24055080",
+   "codigo": "0024055080",
+   "nombre": "Vizcaina La Lizama",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Barrancabermeja",
+   "lat": 6.983,
+   "lon": -73.7049,
+   "elev_m": 97,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-24065010",
+   "codigo": "0024065010",
+   "nombre": "Hacienda Las Brisas",
+   "pais": "CO",
+   "departamento": "Santander",
+   "municipio": "Puerto Wilches",
+   "lat": 7.2461,
+   "lon": -73.79,
+   "elev_m": 91,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25010010",
+   "codigo": "0025010010",
+   "nombre": "Puerto Libertador",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Puerto Libertador",
+   "lat": 7.8522,
+   "lon": -75.703,
+   "elev_m": 66,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2501500120",
+   "codigo": "2501500120",
+   "nombre": "Juan Jose",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Puerto Libertador",
+   "lat": 7.7302,
+   "lon": -75.8516,
+   "elev_m": 131,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 23
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25020140",
+   "codigo": "0025020140",
+   "nombre": "Sahagún",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Sahagún",
+   "lat": 8.9422,
+   "lon": -75.4507,
+   "elev_m": 75,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025002",
+   "codigo": "0025025002",
+   "nombre": "Los Alamos",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "San Sebastián De Buenavista",
+   "lat": 9.3041,
+   "lon": -74.2736,
+   "elev_m": 32,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025030",
+   "codigo": "0025025030",
+   "nombre": "Ayapel",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Ayapel",
+   "lat": 8.2951,
+   "lon": -75.1646,
+   "elev_m": 39,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025190",
+   "codigo": "0025025190",
+   "nombre": "Planeta Rica",
+   "pais": "CO",
+   "departamento": "Cordoba",
+   "municipio": "Planeta Rica",
+   "lat": 8.3993,
+   "lon": -75.5837,
+   "elev_m": 84,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025250",
+   "codigo": "0025025250",
+   "nombre": "Chiriguana",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Chiriguaná",
+   "lat": 9.361,
+   "lon": -73.5934,
+   "elev_m": 34,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025270",
+   "codigo": "0025025270",
+   "nombre": "Unisucre",
+   "pais": "CO",
+   "departamento": "Sucre",
+   "municipio": "Sampués",
+   "lat": 9.2116,
+   "lon": -75.401,
+   "elev_m": 166,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025280",
+   "codigo": "0025025280",
+   "nombre": "El Tesoro Ideam",
+   "pais": "CO",
+   "departamento": "Sucre",
+   "municipio": "Morroa",
+   "lat": 9.3571,
+   "lon": -75.2892,
+   "elev_m": 196,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025330",
+   "codigo": "0025025330",
+   "nombre": "Colegio Agropecuario Pailitas",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Pailitas",
+   "lat": 8.9542,
+   "lon": -73.6301,
+   "elev_m": 71,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025360",
+   "codigo": "0025025360",
+   "nombre": "Aeropuerto Las Flores",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "El Banco",
+   "lat": 9.0463,
+   "lon": -73.9708,
+   "elev_m": 35,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-25025380",
+   "codigo": "0025025380",
+   "nombre": "San Benito",
+   "pais": "CO",
+   "departamento": "Sucre",
+   "municipio": "San Benito Abad",
+   "lat": 9.1639,
+   "lon": -75.0447,
+   "elev_m": 90,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26015030",
+   "codigo": "0026015030",
+   "nombre": "Pnn Purace",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Puracé (Coconuco)",
+   "lat": 2.3568,
+   "lon": -76.4035,
+   "elev_m": 3625,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26015050",
+   "codigo": "0026015050",
+   "nombre": "Paletara",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Puracé (Coconuco)",
+   "lat": 2.1917,
+   "lon": -76.482,
+   "elev_m": 2989,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2604500039",
+   "codigo": "2604500039",
+   "nombre": "Corinto",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Corinto",
+   "lat": 3.18,
+   "lon": -76.25,
+   "elev_m": 1077,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26055120",
+   "codigo": "0026055120",
+   "nombre": "Universidad Del Valle",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Cali",
+   "lat": 3.378,
+   "lon": -76.5339,
+   "elev_m": 975,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26075120",
+   "codigo": "0026075120",
+   "nombre": "La Diana",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Florida",
+   "lat": 3.3141,
+   "lon": -76.1857,
+   "elev_m": 1584,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26085170",
+   "codigo": "0026085170",
+   "nombre": "Base Aerea Marco Fidel Suarez",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Cali",
+   "lat": 3.4544,
+   "lon": -76.4999,
+   "elev_m": 958,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26105240",
+   "codigo": "0026105240",
+   "nombre": "El Placer",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Buga",
+   "lat": 3.8791,
+   "lon": -76.1006,
+   "elev_m": 2110,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26105250",
+   "codigo": "0026105250",
+   "nombre": "Zaragoza",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Cartago",
+   "lat": 4.6898,
+   "lon": -75.9252,
+   "elev_m": 926,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26115090",
+   "codigo": "0026115090",
+   "nombre": "Las Brisas",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Argelia",
+   "lat": 4.7756,
+   "lon": -76.1443,
+   "elev_m": 1954,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2612500124",
+   "codigo": "2612500124",
+   "nombre": "Pijao",
+   "pais": "CO",
+   "departamento": "Quindío",
+   "municipio": "Pijao",
+   "lat": 4.3314,
+   "lon": -75.6841,
+   "elev_m": 2065,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26125300",
+   "codigo": "0026125300",
+   "nombre": "Calarca",
+   "pais": "CO",
+   "departamento": "Quindío",
+   "municipio": "Calarcá",
+   "lat": 4.5283,
+   "lon": -75.5964,
+   "elev_m": 2215,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2613500126",
+   "codigo": "2613500126",
+   "nombre": "Potreros",
+   "pais": "CO",
+   "departamento": "Risaralda",
+   "municipio": "Santa Rosa De Cabal",
+   "lat": 4.8857,
+   "lon": -75.5581,
+   "elev_m": 2107,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2614500116",
+   "codigo": "2614500116",
+   "nombre": "El Jardin Cuenca Alta Rio Risaralda",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Jardín",
+   "lat": 5.5934,
+   "lon": -75.7964,
+   "elev_m": 2141,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2615500122",
+   "codigo": "2615500122",
+   "nombre": "La Esperanza Andalucia",
+   "pais": "CO",
+   "departamento": "Caldas",
+   "municipio": "Manizales",
+   "lat": 5.0178,
+   "lon": -75.3566,
+   "elev_m": 3307,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26155150",
+   "codigo": "0026155150",
+   "nombre": "Las Brisas",
+   "pais": "CO",
+   "departamento": "Caldas",
+   "municipio": "Villamaria",
+   "lat": 4.9345,
+   "lon": -75.3504,
+   "elev_m": 4098,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26175040",
+   "codigo": "0026175040",
+   "nombre": "Hacienda Tunez",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Fredonia",
+   "lat": 5.8003,
+   "lon": -75.651,
+   "elev_m": 578,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26180180",
+   "codigo": "0026180180",
+   "nombre": "Sonson",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Sonsón",
+   "lat": 5.7153,
+   "lon": -75.2945,
+   "elev_m": 2386,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26180250",
+   "codigo": "0026180250",
+   "nombre": "Valle Alto",
+   "pais": "CO",
+   "departamento": "Caldas",
+   "municipio": "Salamina",
+   "lat": 5.35,
+   "lon": -75.3178,
+   "elev_m": 3309,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-26185020",
+   "codigo": "0026185020",
+   "nombre": "Mesopotamia",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "La Unión",
+   "lat": 5.8864,
+   "lon": -75.3186,
+   "elev_m": 2365,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2620500209",
+   "codigo": "2620500209",
+   "nombre": "Acueducto Armenia",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Armenia",
+   "lat": 6.1617,
+   "lon": -75.7758,
+   "elev_m": 1887,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2621500070",
+   "codigo": "2621500070",
+   "nombre": "Ituango",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Ituango",
+   "lat": 7.1614,
+   "lon": -75.7629,
+   "elev_m": 1868,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27011100",
+   "codigo": "0027011100",
+   "nombre": "Las Brisas",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Segovia",
+   "lat": 7.1588,
+   "lon": -74.8218,
+   "elev_m": 594,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2701500213",
+   "codigo": "2701500213",
+   "nombre": "Alto De La Cruz",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Amalfi",
+   "lat": 6.91,
+   "lon": -75.0789,
+   "elev_m": 1546,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27015190",
+   "codigo": "0027015190",
+   "nombre": "Guayabito",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Santo Domingo",
+   "lat": 6.5404,
+   "lon": -75.1467,
+   "elev_m": 1399,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27015260",
+   "codigo": "0027015260",
+   "nombre": "La Salada",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Caldas",
+   "lat": 6.0484,
+   "lon": -75.6247,
+   "elev_m": 1886,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27015280",
+   "codigo": "0027015280",
+   "nombre": "Paramo Belmira",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Entrerrios",
+   "lat": 6.632,
+   "lon": -75.6444,
+   "elev_m": 3198,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27015310",
+   "codigo": "0027015310",
+   "nombre": "Metromedellin",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Bello",
+   "lat": 6.3297,
+   "lon": -75.5521,
+   "elev_m": 1425,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27015320",
+   "codigo": "0027015320",
+   "nombre": "Aragón",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Santa Rosa De Osos",
+   "lat": 6.78,
+   "lon": -75.56,
+   "elev_m": 2626,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27025030",
+   "codigo": "0027025030",
+   "nombre": "Anorí",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "Anorí",
+   "lat": 7.0795,
+   "lon": -75.15,
+   "elev_m": 1596,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-27035050",
+   "codigo": "0027035050",
+   "nombre": "Sena - El Bagre",
+   "pais": "CO",
+   "departamento": "Antioquia",
+   "municipio": "El Bagre",
+   "lat": 7.5847,
+   "lon": -74.8007,
+   "elev_m": 90,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-28010200",
+   "codigo": "0028010200",
+   "nombre": "Hatico D Los Indio",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "San Juan Del Cesar",
+   "lat": 10.8602,
+   "lon": -73.1142,
+   "elev_m": 507,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-28015070",
+   "codigo": "0028015070",
+   "nombre": "Urumita",
+   "pais": "CO",
+   "departamento": "La Guajira",
+   "municipio": "Urumita",
+   "lat": 10.5598,
+   "lon": -73.0088,
+   "elev_m": 254,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-28025120",
+   "codigo": "0028025120",
+   "nombre": "Serrania Del Perija",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Agustín Codazzi",
+   "lat": 10.0291,
+   "lon": -73.0462,
+   "elev_m": 2222,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-28035070",
+   "codigo": "0028035070",
+   "nombre": "Guatapuri",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Valledupar",
+   "lat": 10.7321,
+   "lon": -73.3924,
+   "elev_m": 1286,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-2805500075",
+   "codigo": "2805500075",
+   "nombre": "Curumaní",
+   "pais": "CO",
+   "departamento": "Cesar",
+   "municipio": "Curumaní",
+   "lat": 9.2381,
+   "lon": -73.5129,
+   "elev_m": 63,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29004520",
+   "codigo": "0029004520",
+   "nombre": "Escuela Naval Barranquilla",
+   "pais": "CO",
+   "departamento": "Atlantico",
+   "municipio": "Barranquilla",
+   "lat": 11.0064,
+   "lon": -74.785,
+   "elev_m": 2,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29015000",
+   "codigo": "0029015000",
+   "nombre": "El Guamo",
+   "pais": "CO",
+   "departamento": "Bolivar",
+   "municipio": "El Guamo",
+   "lat": 10.0346,
+   "lon": -74.9766,
+   "elev_m": 68,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29015040",
+   "codigo": "0029015040",
+   "nombre": "Carmen De Bolivar",
+   "pais": "CO",
+   "departamento": "Bolivar",
+   "municipio": "El Carmén De Bolívar",
+   "lat": 9.7157,
+   "lon": -75.1064,
+   "elev_m": 144,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29035000",
+   "codigo": "0029035000",
+   "nombre": "Sincerin",
+   "pais": "CO",
+   "departamento": "Bolivar",
+   "municipio": "Arjona",
+   "lat": 10.1426,
+   "lon": -75.2783,
+   "elev_m": 8,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29035080",
+   "codigo": "0029035080",
+   "nombre": "Normal Manati",
+   "pais": "CO",
+   "departamento": "Atlantico",
+   "municipio": "Manatí",
+   "lat": 10.454,
+   "lon": -74.9547,
+   "elev_m": 12,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29035200",
+   "codigo": "0029035200",
+   "nombre": "Repelon",
+   "pais": "CO",
+   "departamento": "Atlantico",
+   "municipio": "Repelón",
+   "lat": 10.49,
+   "lon": -75.1269,
+   "elev_m": 12,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29045110",
+   "codigo": "0029045110",
+   "nombre": "Juan De Acosta",
+   "pais": "CO",
+   "departamento": "Atlantico",
+   "municipio": "Juan De Acosta",
+   "lat": 10.8379,
+   "lon": -75.0429,
+   "elev_m": 39,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29065000",
+   "codigo": "0029065000",
+   "nombre": "Media Luna",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Pivijai",
+   "lat": 10.51,
+   "lon": -74.5067,
+   "elev_m": 8,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 23
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29065120",
+   "codigo": "0029065120",
+   "nombre": "Batallon No. 6",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Fundación",
+   "lat": 10.4654,
+   "lon": -73.9278,
+   "elev_m": 1171,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-29065130",
+   "codigo": "0029065130",
+   "nombre": "La Gran Via",
+   "pais": "CO",
+   "departamento": "Magdalena",
+   "municipio": "Zona Bananera",
+   "lat": 10.85,
+   "lon": -74.1333,
+   "elev_m": 44,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3206500045",
+   "codigo": "3206500045",
+   "nombre": "Granada Sena",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Granada",
+   "lat": 3.446,
+   "lon": -73.7395,
+   "elev_m": 316,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3206500058",
+   "codigo": "3206500058",
+   "nombre": "Lejanías",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Lejanías",
+   "lat": 3.5183,
+   "lon": -74.0063,
+   "elev_m": 647,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3206500059",
+   "codigo": "3206500059",
+   "nombre": "Vista Hermosa",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Vistahermosa",
+   "lat": 3.0999,
+   "lon": -73.7338,
+   "elev_m": 292,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3206500214",
+   "codigo": "3206500214",
+   "nombre": "Puerto Lleras",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Puerto Lleras",
+   "lat": 3.2779,
+   "lon": -73.3549,
+   "elev_m": 241,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-34015010",
+   "codigo": "0034015010",
+   "nombre": "Las Gaviotas",
+   "pais": "CO",
+   "departamento": "Vichada",
+   "municipio": "Cumaribo",
+   "lat": 4.5539,
+   "lon": -70.9302,
+   "elev_m": 174,
+   "horas_dia_ref": {
+    "temperatura": 21,
+    "viento": 21,
+    "lluvia": 21
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35025060",
+   "codigo": "0035025060",
+   "nombre": "La Bolsa",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Choachí",
+   "lat": 4.5871,
+   "lon": -73.9959,
+   "elev_m": 3320,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35025110",
+   "codigo": "0035025110",
+   "nombre": "La Libertad",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Villavicencio",
+   "lat": 4.0574,
+   "lon": -73.4679,
+   "elev_m": 337,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35035110",
+   "codigo": "0035035110",
+   "nombre": "Salinas De Upin",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Restrepo",
+   "lat": 4.2733,
+   "lon": -73.5879,
+   "elev_m": 686,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35045020",
+   "codigo": "0035045020",
+   "nombre": "Hacienda La Cabaña",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Cumaral",
+   "lat": 4.3004,
+   "lon": -73.3575,
+   "elev_m": 310,
+   "horas_dia_ref": {
+    "temperatura": 22,
+    "viento": 22,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3505500061",
+   "codigo": "3505500061",
+   "nombre": "Medina",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Medina",
+   "lat": 4.5065,
+   "lon": -73.3471,
+   "elev_m": 529,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35060210",
+   "codigo": "0035060210",
+   "nombre": "Claraval",
+   "pais": "CO",
+   "departamento": "Cundinamarca",
+   "municipio": "Junín",
+   "lat": 4.6489,
+   "lon": -73.6408,
+   "elev_m": 2154,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35075030",
+   "codigo": "0035075030",
+   "nombre": "Villa Luisa",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Ramiriquí",
+   "lat": 5.4222,
+   "lon": -73.3494,
+   "elev_m": 2170,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35075040",
+   "codigo": "0035075040",
+   "nombre": "Institucion Agricola Macanal",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Macanal",
+   "lat": 4.9744,
+   "lon": -73.3162,
+   "elev_m": 1744,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35075070",
+   "codigo": "0035075070",
+   "nombre": "Chinavita",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Chinavita",
+   "lat": 5.2164,
+   "lon": -73.347,
+   "elev_m": 1991,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35080050",
+   "codigo": "0035080050",
+   "nombre": "Paez",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Páez",
+   "lat": 5.0964,
+   "lon": -73.0532,
+   "elev_m": 1300,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 23
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35085060",
+   "codigo": "0035085060",
+   "nombre": "Zetaquira",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Zetaquirá",
+   "lat": 5.2949,
+   "lon": -73.1699,
+   "elev_m": 1417,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35095110",
+   "codigo": "0035095110",
+   "nombre": "Huerta La Grande",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Villanueva",
+   "lat": 4.6514,
+   "lon": -72.9155,
+   "elev_m": 345,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35095130",
+   "codigo": "0035095130",
+   "nombre": "Laguna La Plaza",
+   "pais": "CO",
+   "departamento": "Arauca",
+   "municipio": "Saravena",
+   "lat": 6.362,
+   "lon": -72.282,
+   "elev_m": 4371,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35125010",
+   "codigo": "0035125010",
+   "nombre": "Hacienda Las Margaritas",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Puerto López",
+   "lat": 4.3699,
+   "lon": -72.2271,
+   "elev_m": 179,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-3518500127",
+   "codigo": "3518500127",
+   "nombre": "Guadualito",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Monterrey",
+   "lat": 4.9871,
+   "lon": -72.8651,
+   "elev_m": 835,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 23
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35185010",
+   "codigo": "0035185010",
+   "nombre": "La Palomera",
+   "pais": "CO",
+   "departamento": "Meta",
+   "municipio": "Puerto López",
+   "lat": 4.2603,
+   "lon": -72.5645,
+   "elev_m": 180,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35190050",
+   "codigo": "0035190050",
+   "nombre": "Pajarito",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Pajarito",
+   "lat": 5.3029,
+   "lon": -72.7019,
+   "elev_m": 845,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35210010",
+   "codigo": "0035210010",
+   "nombre": "Morro El",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Yopal",
+   "lat": 5.4531,
+   "lon": -72.4562,
+   "elev_m": 618,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35210060",
+   "codigo": "0035210060",
+   "nombre": "Desecho El Hacienda",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Nunchía",
+   "lat": 5.6091,
+   "lon": -72.0678,
+   "elev_m": 246,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35215030",
+   "codigo": "0035215030",
+   "nombre": "Pisba",
+   "pais": "CO",
+   "departamento": "Boyacá",
+   "municipio": "Pisva",
+   "lat": 5.7206,
+   "lon": -72.4885,
+   "elev_m": 1459,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35225030",
+   "codigo": "0035225030",
+   "nombre": "Modulos",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Orocué",
+   "lat": 4.9105,
+   "lon": -71.4331,
+   "elev_m": 138,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-35250040",
+   "codigo": "0035250040",
+   "nombre": "Aceitico",
+   "pais": "CO",
+   "departamento": "Vichada",
+   "municipio": "Puerto Carreño",
+   "lat": 6.1832,
+   "lon": -68.4433,
+   "elev_m": 70,
+   "horas_dia_ref": {
+    "temperatura": 22,
+    "viento": 22,
+    "lluvia": 22
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-36015020",
+   "codigo": "0036015020",
+   "nombre": "El Diamante",
+   "pais": "CO",
+   "departamento": "Casanare",
+   "municipio": "Paz De Ariporo",
+   "lat": 5.8162,
+   "lon": -71.4198,
+   "elev_m": 159,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-44015060",
+   "codigo": "0044015060",
+   "nombre": "Acueducto Mocoa",
+   "pais": "CO",
+   "departamento": "Putumayo",
+   "municipio": "Mocoa",
+   "lat": 1.1573,
+   "lon": -76.6518,
+   "elev_m": 644,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-44035040",
+   "codigo": "0044035040",
+   "nombre": "Florencia",
+   "pais": "CO",
+   "departamento": "Caqueta",
+   "municipio": "Florencia",
+   "lat": 1.733,
+   "lon": -75.645,
+   "elev_m": 594,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-44045030",
+   "codigo": "0044045030",
+   "nombre": "Mono La",
+   "pais": "CO",
+   "departamento": "Caqueta",
+   "municipio": "Belén De Los Andaquíes",
+   "lat": 1.3034,
+   "lon": -75.8077,
+   "elev_m": 256,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-44055010",
+   "codigo": "0044055010",
+   "nombre": "Tres Esquinas",
+   "pais": "CO",
+   "departamento": "Caqueta",
+   "municipio": "Solano",
+   "lat": 0.7375,
+   "lon": -75.2361,
+   "elev_m": 193,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 22,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-47015100",
+   "codigo": "0047015100",
+   "nombre": "El Encano",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Pasto",
+   "lat": 1.1599,
+   "lon": -77.1615,
+   "elev_m": 2801,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-48015040",
+   "codigo": "0048015040",
+   "nombre": "Puerto Nariño",
+   "pais": "CO",
+   "departamento": "Amazonas",
+   "municipio": "Puerto Nariño",
+   "lat": -3.7802,
+   "lon": -70.3624,
+   "elev_m": 97,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-5102500128",
+   "codigo": "5102500128",
+   "nombre": "Reserva Natural La Planada",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Ricaurte",
+   "lat": 1.1578,
+   "lon": -77.9765,
+   "elev_m": 1832,
+   "horas_dia_ref": {
+    "temperatura": 23,
+    "viento": 23,
+    "lluvia": 23
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-51025080",
+   "codigo": "0051025080",
+   "nombre": "Altaquer",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Barbacoas",
+   "lat": 1.2708,
+   "lon": -78.0928,
+   "elev_m": 1088,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-51025090",
+   "codigo": "0051025090",
+   "nombre": "Granja El Mira",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Tumaco",
+   "lat": 1.5502,
+   "lon": -78.6956,
+   "elev_m": 15,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-51035020",
+   "codigo": "0051035020",
+   "nombre": "Cccp Dl Pacifico",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Tumaco",
+   "lat": 1.8192,
+   "lon": -78.73,
+   "elev_m": 7,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52010020",
+   "codigo": "0052010020",
+   "nombre": "Balboa",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Balboa",
+   "lat": 2.0328,
+   "lon": -77.2217,
+   "elev_m": 1637,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52020070",
+   "codigo": "0052020070",
+   "nombre": "Santiago",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "San Sebastián",
+   "lat": 1.8142,
+   "lon": -76.7829,
+   "elev_m": 2408,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52025080",
+   "codigo": "0052025080",
+   "nombre": "Estrecho Patia",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Patía (El Bordo)",
+   "lat": 1.96,
+   "lon": -77.12,
+   "elev_m": 591,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52025090",
+   "codigo": "0052025090",
+   "nombre": "La Sierra",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "La Sierra",
+   "lat": 2.1938,
+   "lon": -76.7503,
+   "elev_m": 1904,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52035040",
+   "codigo": "0052035040",
+   "nombre": "Viento Libre",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Taminango",
+   "lat": 1.62,
+   "lon": -77.34,
+   "elev_m": 950,
+   "horas_dia_ref": {
+    "temperatura": 24,
+    "viento": 24,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52040050",
+   "codigo": "0052040050",
+   "nombre": "Aponte",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "El Tablón",
+   "lat": 1.3973,
+   "lon": -77.0305,
+   "elev_m": 2078,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52045080",
+   "codigo": "0052045080",
+   "nombre": "Universidad De Narino",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Pasto",
+   "lat": 1.23,
+   "lon": -77.28,
+   "elev_m": 2514,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52055160",
+   "codigo": "0052055160",
+   "nombre": "Volcan Chiles",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Cumbal",
+   "lat": 0.8466,
+   "lon": -77.9212,
+   "elev_m": 4021,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52055170",
+   "codigo": "0052055170",
+   "nombre": "La Josefina",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Contadero",
+   "lat": 0.9303,
+   "lon": -77.4912,
+   "elev_m": 2438,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52055220",
+   "codigo": "0052055220",
+   "nombre": "El Paraiso",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Túquerres",
+   "lat": 1.0707,
+   "lon": -77.6369,
+   "elev_m": 3028,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-52065020",
+   "codigo": "0052065020",
+   "nombre": "Barbacoas",
+   "pais": "CO",
+   "departamento": "Nariño",
+   "municipio": "Barbacoas",
+   "lat": 1.67,
+   "lon": -78.14,
+   "elev_m": 39,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-53075020",
+   "codigo": "0053075020",
+   "nombre": "El Diviso",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Argelia",
+   "lat": 2.3114,
+   "lon": -77.2588,
+   "elev_m": 1561,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-5311500121",
+   "codigo": "5311500121",
+   "nombre": "La Cumbre",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "La Cumbre",
+   "lat": 3.6452,
+   "lon": -76.5648,
+   "elev_m": 1624,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-54020090",
+   "codigo": "0054020090",
+   "nombre": "Aeropuerto Condoto",
+   "pais": "CO",
+   "departamento": "Choco",
+   "municipio": "Condoto",
+   "lat": 5.0735,
+   "lon": -76.6767,
+   "elev_m": 54,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-54025010",
+   "codigo": "0054025010",
+   "nombre": "San Jose Palmar",
+   "pais": "CO",
+   "departamento": "Choco",
+   "municipio": "Nóvita",
+   "lat": 4.8981,
+   "lon": -76.6767,
+   "elev_m": 43,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-54077210",
+   "codigo": "0054077210",
+   "nombre": "Juanchaco",
+   "pais": "CO",
+   "departamento": "Valle Del Cauca",
+   "municipio": "Buenaventura",
+   "lat": 3.9251,
+   "lon": -77.349,
+   "elev_m": 0,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  },
+  {
+   "icao": "IDEAM-57025020",
+   "codigo": "0057025020",
+   "nombre": "Gorgona Guapi",
+   "pais": "CO",
+   "departamento": "Cauca",
+   "municipio": "Guapi",
+   "lat": 2.9629,
+   "lon": -78.1744,
+   "elev_m": 13,
+   "horas_dia_ref": {
+    "temperatura": 25,
+    "viento": 25,
+    "lluvia": 24
+   },
+   "red": "IDEAM"
+  }
+ ]
+}

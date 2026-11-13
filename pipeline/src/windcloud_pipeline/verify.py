@@ -11,7 +11,7 @@ Para cada estación de `data/stations.json` y cada hora del día:
 Salida: `out/verify/pares/AAAA-MM-DD.csv.gz` (largo por variable; una columna por modelo×lead).
 Las métricas (MAE, sesgo, POD, FAR…) son T-42; el histórico y la automatización, T-43.
 
-Uso: uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]   (por defecto, ayer UTC)
+Uso: uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD] [--red METAR|IDEAM|todas]
 """
 
 from __future__ import annotations
@@ -31,6 +31,10 @@ from . import grids, metar
 
 ROOT = Path(__file__).resolve().parents[3]
 STATIONS = ROOT / "pipeline/data/stations.json"
+#: listas de estaciones por red (T-40 METAR, T-47 IDEAM)
+STATION_FILES = {"METAR": STATIONS, "IDEAM": ROOT / "pipeline/data/stations-ideam.json"}
+#: días de retraso con que cada red tiene completo el día UTC (IDEAM publica el día local siguiente)
+NETWORK_LAG_DAYS = {"METAR": 1, "IDEAM": 2}
 OUT = ROOT / "pipeline/out/verify/pares"
 PREVIOUS_RUNS = "https://previous-runs-api.open-meteo.com/v1/forecast"
 FORECAST_SOURCE = "Open-Meteo Previous Runs API (CC BY 4.0)"
@@ -53,6 +57,16 @@ VARIABLES = {"temperatura": "temperature_2m", "viento": "wind_speed_10m", "lluvi
 QC_RANGE = {"temperatura": (-30.0, 50.0), "viento": (0.0, 200.0)}
 MATCH_MIN = 20
 LOCATIONS_PER_CALL = 10
+#: Open-Meteo gratis: 600/min, 5 000/h y 10 000/día en llamadas PONDERADAS (cada ubicación cuenta
+#: (variables × modelos) / 10). Medido el 13/11/2026: sin pausa suficiente responde 429.
+OPEN_METEO_PER_MINUTE = 500  # margen bajo 600
+
+
+def call_weight(n_locations: int) -> float:
+    """Llamadas que cuenta Open-Meteo por una petición de Previous Runs con `n_locations`."""
+    per_location = len(VARIABLES) * len(LEADS) * len(MODELS) / 10
+    return n_locations * max(1.0, per_location)
+
 
 Getter = Callable[[str], bytes]
 
@@ -148,7 +162,7 @@ def fetch_forecasts(
             docs = [docs]
         for s, doc in zip(group, docs, strict=True):
             out[s["icao"]] = parse_forecast(doc)
-        sleep(1.0)
+        sleep(call_weight(len(group)) * 60 / OPEN_METEO_PER_MINUTE)  # ritmo bajo el límite/min
     return out
 
 
@@ -194,8 +208,39 @@ def read_pairs(path: Path) -> list[dict]:
         return list(csv.DictReader(f))
 
 
-def pairs_path(out_dir: Path, day: date) -> Path:
-    return out_dir / f"{day}.csv.gz"
+def load_stations(files: dict[str, Path] = STATION_FILES) -> list[dict]:
+    """Estaciones de todas las redes con lista generada (cada una con su campo `red`)."""
+    out: list[dict] = []
+    for network, path in files.items():
+        if path.exists():
+            for s in json.loads(path.read_text(encoding="utf-8"))["stations"]:
+                out.append({**s, "red": s.get("red", network)})
+    return out
+
+
+def pairs_path(out_dir: Path, day: date, network: str = "METAR") -> Path:
+    return out_dir / network.lower() / f"{day}.csv.gz"
+
+
+def observe(
+    network: str, day: date, stations: list[dict], get: Getter, sleep
+) -> dict[str, dict[datetime, dict]]:
+    """Observaciones horarias de una red para el día UTC `day`."""
+    if network == "METAR":
+        # 25 h: incluye la hora previa a las 00Z para la lluvia de esa primera hora
+        reports = metar.fetch_metars(
+            [s["icao"] for s in stations],
+            hours=25,
+            date=f"{day:%Y%m%d}_2359",
+            get=get,
+            sleep=sleep,
+        )
+        return hourly_observations(reports, day)
+    if network == "IDEAM":
+        from .sources import ideam
+
+        return ideam.hourly_observations(day, stations, get=get, sleep=sleep)
+    raise ValueError(f"Red desconocida: {network}")
 
 
 def verify_day(
@@ -204,19 +249,13 @@ def verify_day(
     out_dir: Path = OUT,
     get: Getter = grids.http_get,
     sleep=time.sleep,
+    network: str = "METAR",
 ) -> Path:
-    # 25 h: incluye la hora previa a las 00Z para la lluvia de esa primera hora
-    reports = metar.fetch_metars(
-        [s["icao"] for s in stations],
-        hours=25,
-        date=f"{day:%Y%m%d}_2359",
-        get=get,
-        sleep=sleep,
-    )
-    obs = hourly_observations(reports, day)
+    stations = [s for s in stations if s.get("red", "METAR") == network]
+    obs = observe(network, day, stations, get, sleep)
     fc = fetch_forecasts(stations, day, get=get, sleep=sleep)
     rows = build_pairs(stations, obs, fc)
-    path = pairs_path(out_dir, day)
+    path = pairs_path(out_dir, day, network)
     write_pairs(rows, path)
     return path
 
@@ -225,12 +264,17 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--fecha", type=date.fromisoformat)
     parser.add_argument("--salida", type=Path, default=OUT)
+    parser.add_argument("--red", choices=[*NETWORK_LAG_DAYS, "todas"], default="METAR")
     args = parser.parse_args(argv)
-    day = args.fecha or (datetime.now(UTC).date() - timedelta(days=1))
-    stations = json.loads(STATIONS.read_text(encoding="utf-8"))["stations"]
-    path = verify_day(day, stations, args.salida)
-    n = len(read_pairs(path))
-    print(f"✓ {day}: {n} pares de {len(stations)} estaciones → {path}")
+    stations = load_stations()
+    networks = list(NETWORK_LAG_DAYS) if args.red == "todas" else [args.red]
+    for network in networks:
+        lag = NETWORK_LAG_DAYS[network]
+        day = args.fecha or (datetime.now(UTC).date() - timedelta(days=lag))
+        path = verify_day(day, stations, args.salida, network=network)
+        n = len(read_pairs(path))
+        n_st = sum(1 for s in stations if s["red"] == network)
+        print(f"✓ {network} {day}: {n} pares de {n_st} estaciones → {path}")
     return 0
 
 

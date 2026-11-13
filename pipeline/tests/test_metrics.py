@@ -126,3 +126,24 @@ def test_resumen_y_detalle_para_la_web(tmp_path):
     detail = json.loads((web / "precision" / "SKBO.json").read_text())
     assert detail["icao"] == "SKBO" and set(detail["ventanas"]) == {"7", "30"}
     assert detail["ventanas"]["7"]["metricas"]["temperatura"][f"{M[0]}_d1"]["sesgo"] == 1.0
+
+
+def test_dos_redes_por_separado(tmp_path):
+    verify.write_pairs(
+        [row("SKBO", "temperatura", 14, 15)],
+        verify.pairs_path(tmp_path, date(2026, 11, 12), "METAR"),
+    )
+    verify.write_pairs(
+        [row("IDEAM-1", "temperatura", 14, 18, red="IDEAM")],
+        verify.pairs_path(tmp_path, date(2026, 11, 11), "IDEAM"),
+    )
+    stations = [{"icao": "SKBO", "red": "METAR"}, {"icao": "IDEAM-1", "red": "IDEAM"}]
+    doc = metrics.build_precision(tmp_path, date(2026, 11, 12), stations)
+    w = doc["ventanas"]["7"]
+    assert w["dias"] == ["2026-11-11", "2026-11-12"]
+    assert w["dias_por_red"] == {"IDEAM": 1, "METAR": 1}
+    assert w["redes"]["METAR"]["temperatura"][f"{M[0]}_d1"]["mae"] == 1.0
+    assert w["redes"]["IDEAM"]["temperatura"][f"{M[0]}_d1"]["mae"] == 4.0
+    assert w["region"]["metricas"]["temperatura"][f"{M[0]}_d1"]["mae"] == 2.5  # ambas juntas
+    assert set(doc["fuentes"]["redes"]) == {"METAR", "IDEAM"}
+    assert "IDEAM" in doc["fuentes"]["observacion"]

@@ -100,3 +100,9 @@ def test_una_sola_ubicacion_devuelve_objeto():
         STATIONS[:1], DAY, get=lambda u: json.dumps(fake_doc(0)).encode(), sleep=lambda s: None
     )
     assert set(fc) == {"SKBO"}
+
+
+def test_peso_de_las_llamadas_a_open_meteo():
+    # 3 variables × 2 leads × 8 modelos = 48 → 4,8 llamadas por ubicación
+    assert verify.call_weight(1) == 4.8
+    assert verify.call_weight(10) == 48.0

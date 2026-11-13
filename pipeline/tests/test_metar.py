@@ -94,3 +94,16 @@ def test_fetch_json_falla_tras_reintentos():
 
     with pytest.raises(RuntimeError, match="reintentos"):
         metar.fetch_json("u", get=get, sleep=lambda s: None)
+
+
+def test_tras_429_espera_a_que_se_reponga_el_limite():
+    waits, calls = [], []
+
+    def get(url):
+        calls.append(url)
+        if len(calls) == 1:
+            raise urllib.error.HTTPError(url, 429, "Too Many Requests", {}, None)
+        return b"[]"
+
+    assert metar.fetch_json("u", get=get, sleep=waits.append) == []
+    assert waits == [metar.RATE_LIMIT_WAIT_S]

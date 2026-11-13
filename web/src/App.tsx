@@ -58,6 +58,7 @@ export default function App() {
     win: '7',
     variable: 'temperatura',
     lead: 1,
+    red: 'todas',
   })
   const [station, setStation] = useState<string | null>(null)
   const precision = usePrecision(tab === 'precision')
@@ -65,7 +66,11 @@ export default function App() {
   const mapStations = useMemo<MapStation[] | null>(() => {
     if (!precisionData) return null
     const best = bestByStation(precisionData, precisionSel.win, precisionSel.variable)
-    return precisionData.estaciones.map((s) => {
+    const shown =
+      precisionSel.red === 'todas'
+        ? precisionData.estaciones
+        : precisionData.estaciones.filter((s) => s.red === precisionSel.red)
+    return shown.map((s) => {
       const m = best.get(s.icao) ?? null
       return {
         icao: s.icao,
@@ -76,7 +81,7 @@ export default function App() {
         best: m ? modelLabel(m) : 'sin muestra suficiente',
       }
     })
-  }, [precisionData, precisionSel.win, precisionSel.variable])
+  }, [precisionData, precisionSel.win, precisionSel.variable, precisionSel.red])
   const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn, gridModel)
   const gridReady = grid.status === 'ready' ? grid : null
   const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null

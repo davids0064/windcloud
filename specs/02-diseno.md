@@ -335,9 +335,28 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
    `web/` a `/data` del sitio; en local, `daily.py` escribe en `pipeline/out/web/data` (lo sirve Vite).
    Se eligió CSV.gz y no parquet: sin dependencias pesadas y suficiente para ~3 000 filas/día.
    Crecimiento de la rama: ~57 KB/día de pares + ~60 KB/día de JSON reescritos ≈ 40 MB/año.
-6. Presupuesto de llamadas: 40 estaciones × 1 llamada multi-modelo/día ≈ 40×9 = 360 llamadas → dentro de RNF-6.
+6. Presupuesto de llamadas (medido en T-47): METAR 43 × 4,8 ≈ 210/día + IDEAM 211 × 4,8 ≈ 1 010/día ≈ 1 220/día.
    Las redes locales pueden sumar ~100 estaciones más: agrupar por celda de 0,1° (≈ 11 km), porque los modelos no
    distinguen estaciones más cercanas entre sí, y así se mantiene ≤ ~1 500 llamadas/día.
+
+### 6.0.1 Red IDEAM y varias redes (T-47)
+- `pipeline/src/windcloud_pipeline/sources/ideam.py`: SoQL a datos.gov.co (`sbwg-7ju4`, `sgfv-3yp8`, `s54a-sgyg`).
+  Temperatura y viento: valor de la hora en punto (`date_extract_mm = 0`, duplicados promediados con `avg`); lluvia:
+  `max` de las lecturas de [h, h+1) local → «llovió» en la hora que acaba en h+1. Hora local (UTC−5) → UTC
+  (comprobado: sin convertir, el MAE de ICON sería 3,2 °C en vez de 1,6). Viento × 3,6. QC: rango (−10…45 °C,
+  0…150 km/h), sensor pegado (todo el día igual), salto > 12 °C / 60 km/h frente a la mediana del día, lectura de
+  lluvia > 25 mm.
+- Estaciones (`--estaciones` → `pipeline/data/stations-ideam.json`, en git): temperatura, viento y lluvia en ≥ 20 h
+  del día de referencia; una por celda de 0,25°; a ≥ 10 km de un METAR; altitud del DEM de Open-Meteo (Elevation
+  API). 13/11/2026: **211** de 328 candidatas. Id `IDEAM-<código sin ceros>`.
+- `verify.py --red METAR|IDEAM|todas`; pares en `pares/<red>/AAAA-MM-DD.csv.gz`; `NETWORK_LAG_DAYS` = METAR 1,
+  IDEAM 2 (IDEAM publica el día local completo al día siguiente). `metrics` suma todas las redes en «región» y las
+  separa en `redes`; `dias_por_red` y `fuentes.redes` en `precision.json`.
+- **Límites de Open-Meteo (medido: HTTP 429):** 600/min, 5 000/h, 10 000/día en llamadas ponderadas; una ubicación
+  de Previous Runs con 3 variables × 2 leads × 8 modelos = 4,8 llamadas. Día METAR ≈ 210, día IDEAM ≈ 1 010.
+  `fetch_forecasts` espera `peso × 60 / 500` s tras cada petición; un 429 espera 65 s; `daily.py` gasta ≤ 4 000
+  por corrida (lo más reciente primero; el resto queda «aplazado» en `verificacion-status.json`).
+- Web: selector «Red» (Todas/METAR/IDEAM) que filtra ranking, aviso de días, fuente, lista y mapa.
 
 ### 6.0 Página Precisión (T-44)
 - `web/src/precision/data.ts` (tipos, carga con caché sin AbortSignal, `rankModels`, `bestByStation`, formato),

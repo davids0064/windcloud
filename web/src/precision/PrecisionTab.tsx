@@ -5,15 +5,21 @@ import {
   UNIT,
   VARIABLES,
   WINDOWS,
+  NETWORK_LABEL,
   bestByStation,
+  daysFor,
   fmt,
   generatedLabel,
   modelColorOf,
   modelLabel,
+  networksOf,
   rankModels,
+  scoresFor,
+  stationsOf,
   windowRange,
   type ContinuousScore,
   type Lead,
+  type NetworkFilter,
   type PrecisionSummary,
   type RainScore,
   type RankRow,
@@ -28,6 +34,7 @@ export interface PrecisionSelection {
   win: WindowId
   variable: VerifVariable
   lead: Lead
+  red: NetworkFilter
 }
 
 interface Props {
@@ -54,14 +61,24 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
     )
   }
   const summary = state.data
-  const { win, variable, lead } = selection
+  const { win, variable, lead, red } = selection
   const w = summary.ventanas[win]
   const set = (patch: Partial<PrecisionSelection>) => onSelection({ ...selection, ...patch })
   const minPairs = summary.umbrales.min_pares_ranking
-  const rows = rankModels(w.region.metricas, variable, lead, summary.modelos, minPairs)
+  const rows = rankModels(scoresFor(summary, win, red), variable, lead, summary.modelos, minPairs)
   const best = bestByStation(summary, win, variable)
   const info = summary.estaciones.find((s) => s.icao === station)
-  const networks = Object.keys(w.redes)
+  const networks = networksOf(summary)
+  const listed = stationsOf(summary, red)
+  const days = daysFor(summary, win, red)
+  const source =
+    red === 'todas'
+      ? summary.fuentes.observacion
+      : (summary.fuentes.redes?.[red] ?? summary.fuentes.observacion)
+  const counts = networks.map((n) => {
+    const k = summary.estaciones.filter((s) => s.red === n).length
+    return `${k} ${NETWORK_LABEL[n] ?? n}`
+  })
 
   return (
     <section className="tab-section precision">
@@ -70,11 +87,23 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
         <DataChip kind="estimado" />
       </header>
       <p>
-        Cada día se compara lo que cada modelo pronosticó con lo que midieron{' '}
-        {summary.estaciones.length} aeropuertos (METAR). Menor error = mejor.
+        Cada día se compara lo que cada modelo pronosticó con lo que midieron {counts.join(' y ')}.
+        Menor error = mejor. Las redes se pueden ver por separado: no tienen la misma calidad (los
+        datos del IDEAM son preliminares).
       </p>
 
       <div className="precision__controls">
+        {networks.length > 1 && (
+          <Segmented
+            label="Red"
+            value={red}
+            options={[
+              { id: 'todas', label: 'Todas' },
+              ...networks.map((n) => ({ id: n, label: n })),
+            ]}
+            onChange={(v) => set({ red: v })}
+          />
+        )}
         <Segmented
           label="Ventana"
           value={win}
@@ -98,10 +127,10 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
         />
       </div>
 
-      {w.dias.length < PRELIMINARY_DAYS && (
+      {days < PRELIMINARY_DAYS && (
         <p className="precision__notice" role="note">
-          Preliminar: {w.dias.length} {w.dias.length === 1 ? 'día' : 'días'} con datos
-          {Number(win) > w.dias.length ? ` de ${win}` : ''}. El ranking se estabiliza con al menos{' '}
+          Preliminar: {days} {days === 1 ? 'día' : 'días'} con datos
+          {Number(win) > days ? ` de ${win}` : ''}. El ranking se estabiliza con al menos{' '}
           {PRELIMINARY_DAYS} días.
         </p>
       )}
@@ -115,16 +144,19 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
         />
       ) : (
         <>
-          <h3>Ranking en toda la región</h3>
+          <h3>
+            Ranking en toda la región
+            {red === 'todas' ? (networks.length > 1 ? ' (todas las redes)' : '') : ` · ${red}`}
+          </h3>
           <ScoreTable variable={variable} rows={rows} />
           <MetricHelp variable={variable} summary={summary} />
         </>
       )}
 
       <SourceLine
-        source={`${summary.fuentes.observacion} (red: ${networks.join(', ') || '—'}) · pronósticos: ${summary.fuentes.pronostico}`}
+        source={`${source} (red: ${red === 'todas' ? networks.join(' + ') || '—' : red}) · pronósticos: ${summary.fuentes.pronostico}`}
         time={{
-          label: `ventana ${windowRange(w.dias)} UTC (${w.dias.length} días) · calculado ${generatedLabel(summary.generatedAt)}`,
+          label: `ventana ${windowRange(w.dias)} UTC (${days} días) · calculado ${generatedLabel(summary.generatedAt)}`,
           dateTime: summary.generatedAt,
         }}
       />
@@ -137,7 +169,7 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
       </p>
       <Legend models={[...new Set([...best.values()].filter((m): m is string => !!m))]} />
       <ul className="precision__stations">
-        {summary.estaciones.map((s) => {
+        {listed.map((s) => {
           const m = best.get(s.icao) ?? null
           return (
             <li key={s.icao}>
@@ -147,7 +179,9 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
                 onClick={() => onStation(station === s.icao ? null : s.icao)}
               >
                 <Dot model={m} />
-                <span className="precision__icao">{s.icao}</span>
+                <span className="precision__icao" title={s.icao}>
+                  {s.red === 'METAR' ? s.icao : s.red}
+                </span>
                 <span className="precision__name">
                   {s.nombre}
                   {s.departamento ? ` · ${s.departamento}` : ` · ${s.pais}`}

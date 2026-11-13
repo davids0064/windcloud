@@ -35,16 +35,22 @@ _RECENT = re.compile(r"^RE(?:SH|TS|FZ)?(?:DZ|RA|SN|SG|PL|GR|GS|UP)+$")
 Getter = Callable[[str], bytes]
 
 
+#: espera tras un HTTP 429: los límites por minuto se reponen en ese plazo
+RATE_LIMIT_WAIT_S = 65.0
+
+
 def fetch_json(url: str, get: Getter = grids.http_get, sleep=time.sleep) -> object:
-    """GET JSON con 3 intentos (la API a veces responde 504)."""
+    """GET JSON con 3 intentos (504 ocasionales); tras un 429 espera a que se reponga el límite."""
     last: Exception | None = None
+    limited = False
     for wait in (0.0, 3.0, 10.0):
-        if wait:
-            sleep(wait)
+        if wait or limited:
+            sleep(max(wait, RATE_LIMIT_WAIT_S) if limited else wait)
         try:
             return json.loads(get(url))
         except (urllib.error.URLError, TimeoutError, ConnectionError, json.JSONDecodeError) as e:
             last = e
+            limited = isinstance(e, urllib.error.HTTPError) and e.code == 429
     raise RuntimeError(f"Falló tras reintentos: {url}") from last
 
 

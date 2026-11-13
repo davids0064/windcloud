@@ -25,11 +25,18 @@ from pathlib import Path
 from . import metrics, verify
 
 LOOKBACK_DAYS = 10
+#: llamadas ponderadas de Open-Meteo por corrida (límite gratuito: 5 000/h, 10 000/día); lo que no
+#: quepa se verifica en la corrida siguiente
+CALL_BUDGET = 4000
 
 
-def pending_days(history: Path, today: date, lookback: int = LOOKBACK_DAYS) -> list[date]:
-    days = [today - timedelta(days=i) for i in range(lookback, 0, -1)]
-    return [d for d in days if not verify.pairs_path(history, d).exists()]
+def pending_days(
+    history: Path, today: date, lookback: int = LOOKBACK_DAYS, network: str = "METAR"
+) -> list[date]:
+    """Días sin pares de esa red, desde `lookback` atrás hasta el último que la red ya publicó."""
+    lag = verify.NETWORK_LAG_DAYS[network]
+    days = [today - timedelta(days=i) for i in range(lookback, lag - 1, -1)]
+    return [d for d in days if not verify.pairs_path(history, d, network).exists()]
 
 
 def run(
@@ -39,19 +46,31 @@ def run(
     *,
     today: date,
     lookback: int = LOOKBACK_DAYS,
-    verify_day: Callable[[date, list[dict], Path], Path] = verify.verify_day,
+    budget: float = CALL_BUDGET,
+    verify_day: Callable[..., Path] = verify.verify_day,
     now: datetime | None = None,
     log: Callable[[str], None] = print,
 ) -> dict:
-    done, failed = [], []
-    for d in pending_days(history, today, lookback):
-        try:
-            verify_day(d, stations, history)
-            done.append(d.isoformat())
-            log(f"✓ verificado {d}")
-        except Exception as e:  # noqa: BLE001 — un día malo no detiene a los demás
-            failed.append({"dia": d.isoformat(), "error": f"{type(e).__name__}: {e}"})
-            log(f"✗ {d}: {e}")
+    done, failed, deferred = [], [], []
+    spent = 0.0
+    networks = [n for n in verify.NETWORK_LAG_DAYS if any(s.get("red") == n for s in stations)]
+    for net in networks:
+        cost = verify.call_weight(sum(1 for s in stations if s.get("red") == net))
+        # lo más reciente primero: si el presupuesto no alcanza, quedan pendientes los más viejos
+        for d in reversed(pending_days(history, today, lookback, net)):
+            if spent + cost > budget:
+                deferred.append({"red": net, "dia": d.isoformat()})
+                continue
+            spent += cost
+            try:
+                verify_day(d, stations, history, network=net)
+                done.append({"red": net, "dia": d.isoformat()})
+                log(f"✓ {net} {d}")
+            except Exception as e:  # noqa: BLE001 — un día malo no detiene a los demás
+                failed.append(
+                    {"red": net, "dia": d.isoformat(), "error": f"{type(e).__name__}: {e}"}
+                )
+                log(f"✗ {net} {d}: {e}")
     until = today - timedelta(days=1)
     doc = metrics.build_precision(history, until, stations, now=now)
     metrics.write_web(doc, web)
@@ -60,6 +79,8 @@ def run(
         "hasta": until.isoformat(),
         "verificados": done,
         "fallidos": failed,
+        "aplazados": deferred,
+        "llamadas_open_meteo": round(spent),
         "dias_ventana": {w: len(v["dias"]) for w, v in doc["ventanas"].items()},
     }
     (web / "verificacion-status.json").write_text(
@@ -74,7 +95,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--web", type=Path, default=metrics.WEB)
     parser.add_argument("--dias-atras", type=int, default=LOOKBACK_DAYS)
     args = parser.parse_args(argv)
-    stations = json.loads(verify.STATIONS.read_text(encoding="utf-8"))["stations"]
+    stations = verify.load_stations()
     status = run(
         args.historico,
         args.web,
@@ -84,7 +105,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(
         f"Ventanas: {status['dias_ventana']} días con datos · "
-        f"nuevos {len(status['verificados'])} · fallidos {len(status['fallidos'])}"
+        f"nuevos {len(status['verificados'])} · fallidos {len(status['fallidos'])} · "
+        f"aplazados {len(status['aplazados'])} · ~{status['llamadas_open_meteo']} llamadas"
     )
     return 1 if status["fallidos"] else 0
 
