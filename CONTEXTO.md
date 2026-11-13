@@ -81,6 +81,7 @@
 | 2026-11-13 | Controles de capas (mapa base, nubes) dentro del menú lateral, no flotando | Diseño §9; libera el mapa | 02 §9.0 |
 | 2026-11-13 | Precisión y Riesgo como «en construcción» con fase, sin datos de relleno | Honestidad (P3) | 02 §9.0 |
 | 2026-11-13 | Metodología preliminar ya publicada, con umbrales leídos del código | RF-13 y explicar la transparencia de nubes (pendiente de T-12) | 02 §9.0 |
+| 2026-11-13 | Presupuesto de JS inicial ≤ 150 KB gzip verificado en CI (`npm run check:bundle`, cuenta entrada + modulepreload) | Una importación de `cloudAlpha` desde Metodología coló MapLibre y subió la carga inicial de 74 a 376 KB | 03 T-62 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -154,6 +155,10 @@
 - **Probar móvil sin redimensionar Chrome** (la ventana maximizada ignora `resize_window`): reemplazar el body por un
   `<iframe src="/" style="width:390px">` del mismo origen; dentro, `matchMedia` y el CSS responden como en un teléfono.
 - Simular «Usar mi ubicación» sin diálogo de permisos: `Object.defineProperty(navigator, 'geolocation', …)` en la página.
+- **Una sola importación puede arrastrar MapLibre al bundle inicial** (MapLibre tiene efectos secundarios y no se
+  elimina por tree-shaking): constantes compartidas en módulos sin dependencias (`clouds/alphaRamp.ts`).
+  Medir solo el archivo de entrada no basta: sumar los chunks `modulepreload` de `index.html`. Verificado que el
+  chequeo falla (363 KB, código 1) al importar MapLibre en `App.tsx`.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -183,6 +188,8 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
   la vez, pestañas sin desbordar, plegar/desplegar, ubicación simulada (Cali) → panel en 2,8 s. Móvil 390 px (iframe):
   menú cerrado al inicio, cajón de 340 px sin desborde horizontal, créditos plegados, al ubicar (Medellín) se cierra
   el menú y aparece la hoja del pronóstico.
+- **Regresión detectada al cerrar:** bundle inicial 74 → 376 KB gzip (Metodología importaba de `cloudAlpha`, que
+  importa MapLibre). Corregido con `clouds/alphaRamp.ts` (78,7 KB) y blindado con `scripts/check-bundle.mjs` en CI.
 - **Pendiente:** en móvil el marcador queda tras el borde de la hoja (centrar con `padding` en `flyTo`) → T-61.
   Siguiente fase: T-30 (pipeline de rejillas GFS).
 

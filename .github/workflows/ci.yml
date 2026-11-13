@@ -30,6 +30,8 @@ jobs:
       - run: npm run format:check
       - run: npm test
       - run: npm run build
+      - run: npm run check:bundle
+      - run: npm run test:coverage
 
   pipeline:
     runs-on: ubuntu-latest

@@ -7,14 +7,9 @@
  */
 import { addProtocol, removeProtocol } from 'maplibre-gl'
 import { CLOUD_PROTOCOL, parseProtocolUrl, type CloudKind } from '../api/gibs'
+import { ALPHA_RAMP, COLOR_SATURATION } from '../clouds/alphaRamp'
 
-/** Umbrales de brillo (0–255) entre los que la opacidad pasa de 0 a 1. Ajustados con teselas reales. */
-export const ALPHA_RAMP: Record<CloudKind, { lo: number; hi: number }> = {
-  visible: { lo: 55, hi: 165 },
-  infrarrojo: { lo: 105, hi: 200 },
-}
-/** Diferencia entre canales a partir de la cual un píxel IR se considera "coloreado" (tope muy frío). */
-export const COLOR_SATURATION = 40
+export { ALPHA_RAMP, COLOR_SATURATION }
 
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 

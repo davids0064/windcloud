@@ -3,7 +3,7 @@ import { RAIN_AGREEMENT, SPREAD_THRESHOLDS } from '../../core/agreement'
 import { MODELS } from '../../core/models'
 import { PROB_AGREEMENT_PTS, RAIN_DAY_MM } from '../../core/probability'
 import { STALE_RUN_HOURS } from '../../core/runs'
-import { ALPHA_RAMP } from '../../map/cloudAlpha'
+import { ALPHA_RAMP } from '../../clouds/alphaRamp'
 
 /**
  * Metodología (RF-13), versión preliminar con lo ya construido. Los números salen del mismo código que los

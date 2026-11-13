@@ -67,5 +67,6 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [ ] **T-60** Página **Metodología** completa con fórmulas y referencias. → RF-13, P3
 - [ ] **T-61** Accesibilidad AA, paletas aptas para daltonismo, prueba en móvil 360 px. → RNF-4, RNF-7
 - [ ] **T-62** Presupuesto de rendimiento (bundle, fps) y de llamadas a APIs (≤ 10 000/día). → RNF-2, RNF-3, RNF-6
+      🟡 Adelantado: JS inicial ≤ 150 KB gzip en CI (`npm run check:bundle`); faltan fps y llamadas.
 - [ ] **T-63** E2E Playwright y verificación manual SKBO 14 días. → Diseño §11
 - [ ] **T-64** Atribuciones y licencias de todas las fuentes en el pie de página. → P1, P7
