@@ -50,7 +50,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad. ✅ **Fase 2 completa (2026-11-13): 60 fps (48 reproduciendo); GFS 12Z con 5 h.** ECMWF llega con ~7,5 h de latencia (aviso a 14 h).
 
 ## Fase 3 · Precisión verificada
-- [ ] **T-40** `stations.json`: aeropuertos METAR de Colombia y vecinos (código ICAO, lat, lon, altitud). → RF-9
+- [x] **T-40** `stations.json`: aeropuertos METAR de Colombia y vecinos (código ICAO, lat, lon, altitud). → RF-9
+  _Hecho: `pipeline/data/stations.json` (43: 37 CO + 6 vecinos ≤ 100 km), generado con `windcloud_pipeline.stations`._
 - [ ] **T-41** `pipeline/verify.py`: observaciones METAR (aviationweather.gov) + Previous Runs API de Open-Meteo. → RF-9
 - [ ] **T-46** Investigar acceso a datos de cada red local (SAB, SIATA, CDIAC, CVC): ¿API o descarga abierta? ¿términos de uso? ¿licencia?
       Registrar resultado en `04-fuentes-de-datos.md`. Si no hay acceso permitido → solo enlace. → RF-9, RF-14

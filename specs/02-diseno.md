@@ -269,7 +269,13 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
 - Caso real Bogotá 13/11: ECMWF 51–82 % vs GEFS 97–100 % los primeros días → acuerdo bajo, se muestra el aviso.
 
 ## 6. Verificación (RF-9) — `pipeline/verify.py`
-1. **Estaciones:** lista de aeropuertos METAR de Colombia (y región) en `stations.json` (~40 estaciones).
+1. **Estaciones:** `pipeline/data/stations.json`, generado con `python -m windcloud_pipeline.stations`
+   (se regenera a mano cuando cambie la red; no en cada corrida). Criterio: estaciones del catálogo
+   `stationinfo` con METAR que dieron **≥ 6 reportes en las últimas 24 h**, en Colombia o a **≤ 100 km**
+   de su frontera (unión de departamentos). Resultado 13/11/2026: **43** (37 CO en 27 departamentos,
+   4 EC, 1 VE, 1 BR); fuera quedó SKSV (sin reportes). Campos: `icao, nombre, pais, departamento, lat,
+   lon, elev_m, km_a_colombia, reportes_24h, red`. Muchos aeropuertos solo reportan de día (7–26/día),
+   así que la verificación debe tolerar huecos nocturnos (afecta el umbral de 80 % de datos).
 2. **Observaciones**, por prioridad de precisión:
    1. **Redes locales de ciudad** (SAB Bogotá, SIATA Medellín, CDIAC Manizales, CVC Cali) — ver
       `04-fuentes-de-datos.md`. Solo si ofrecen acceso programático permitido por sus términos.

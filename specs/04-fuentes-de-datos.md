@@ -25,7 +25,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | Fuente | Qué da | Clave | Licencia | Uso | Verificar |
 |---|---|---|---|---|---|
 | **NASA GIBS (WMTS)** | Imágenes GOES-East/West, Himawari, Meteosat; ~10 min | No | Abierta (atribuir NASA) | Capa de nubes observadas ✅ en uso (GOES-East banda 2 y 13) | ✅ IDs verificados 2026-11-13; latencia real 30–50 min; DescribeDomains adelanta horas aún no publicadas; a veces 503 puntual (el reintento lo resuelve) |
-| **aviationweather.gov Data API** | METAR de aeropuertos en JSON | No | Dominio público (NOAA) | Verificación de modelos | Límite de peticiones |
+| **aviationweather.gov Data API** | METAR de aeropuertos en JSON | No | Dominio público (NOAA) | Verificación de modelos | Límite de peticiones; lotes de 40 ids dieron 504 → lotes de 20 con reintentos. Viento en nudos, sin campo de lluvia (sale del tiempo presente del `rawOb`). Verificado 13/11/2026: 37/38 METAR de Colombia activos |
 | **IDEAM / datos.gov.co (Socrata)** | Estaciones hidrometeorológicas de Colombia | No (token opcional) | Datos abiertos Colombia | Verificación local extra | Latencia y frecuencia de los datasets |
 | **RainViewer** | Tiles de radar mundial | No | Gratis solo uso personal/educativo, atribución con enlace | ❌ **No se usa** (T-37) | ✅ 2026-11-13: zoom máx. 7, 2 h, sin nowcast/satélite, 100 pet./min/IP; **sin cobertura en ciudades colombianas** (máscara: solo Leticia). Reevaluar |
 | **NOAA GOES GLM (AWS Open Data)** | Rayos | No | Dominio público | Capa de rayos | Volumen de datos |
