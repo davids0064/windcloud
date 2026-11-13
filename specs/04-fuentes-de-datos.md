@@ -54,9 +54,9 @@ si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer d
 |---|---|---|
 | **MapLibre GL JS** | Motor de mapa | BSD-3 |
 | **OpenFreeMap** (estilo `dark`, vector OpenMapTiles) | Mapa base oscuro, fronteras, nombres | Libre, sin clave; datos © OpenStreetMap (ODbL) |
-| **EOX Sentinel-2 cloudless 2020** (`tiles.maps.eox.at`) | Mapa base satélite | CC BY-NC-SA 4.0 (no comercial, igual que Open-Meteo); atribución EOX + Copernicus |
+| **EOX Sentinel-2 cloudless 2020** (`tiles.maps.eox.at`) | Mapas base satélite y relieve 3D | CC BY-NC-SA 4.0 (no comercial, igual que Open-Meteo); atribución EOX + Copernicus |
 | ~~Esri World Imagery~~ | Descartado | Sus términos exigen cuenta de ArcGIS |
-| **AWS Terrain Tiles (Terrarium)** | Relieve 3D (terreno + sombreado) | Abierta (Mapzen / AWS Open Data) |
+| **AWS Terrain Tiles (Terrarium)** | Relieve 3D (elevación del terreno) | Abierta (Mapzen / AWS Open Data) |
 | **geoBoundaries** | Límites departamentales | CC BY 4.0 |
 | **deck.gl** | Capas de datos | MIT |
 | **webgl-wind** (técnica / código) | Partículas de viento | ISC |

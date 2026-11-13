@@ -3,13 +3,12 @@ import { describe, expect, it, vi } from 'vitest'
 import {
   applyBasemap,
   BASEMAPS,
-  basemapLayerVisibility,
   DEM_TERRAIN_SOURCE,
-  HILLSHADE_LAYER,
   INITIAL_VIEW,
   installBasemapSources,
   RELIEF_PITCH,
   SATELLITE_LAYER,
+  usesSatellite,
 } from './basemaps'
 
 /** Mapa falso con lo mínimo que usan installBasemapSources/applyBasemap. */
@@ -58,25 +57,21 @@ describe('basemaps', () => {
     expect(INITIAL_VIEW).toEqual({ center: [-74.0, 4.5], zoom: 5 })
   })
 
-  it('cada base muestra solo su capa propia', () => {
-    expect(basemapLayerVisibility('oscuro')).toEqual({
-      [SATELLITE_LAYER]: 'none',
-      [HILLSHADE_LAYER]: 'none',
-    })
-    expect(basemapLayerVisibility('satelite')[SATELLITE_LAYER]).toBe('visible')
-    expect(basemapLayerVisibility('relieve')[HILLSHADE_LAYER]).toBe('visible')
+  it('satélite y relieve usan la imagen satelital; oscuro no', () => {
+    expect(usesSatellite('oscuro')).toBe(false)
+    expect(usesSatellite('satelite')).toBe(true)
+    expect(usesSatellite('relieve')).toBe(true)
   })
 
-  it('instala satélite y sombreado sobre el fondo y bajo el agua, una sola vez', () => {
+  it('instala la imagen sobre el fondo y bajo el agua, una sola vez', () => {
     const f = fakeMap()
     installBasemapSources(f.asMap)
     installBasemapSources(f.asMap)
-    expect(f.map.addSource).toHaveBeenCalledTimes(3)
-    expect(f.map.addLayer).toHaveBeenCalledTimes(2)
+    expect(f.map.addSource).toHaveBeenCalledTimes(2) // satélite + terreno
+    expect(f.map.addLayer).toHaveBeenCalledTimes(1)
     expect(f.order()).toEqual([
       'background',
       SATELLITE_LAYER,
-      HILLSHADE_LAYER,
       'water',
       'landcover_wood',
       'waterway',
@@ -85,7 +80,7 @@ describe('basemaps', () => {
     ])
   })
 
-  it('satélite oculta rellenos pero conserva fronteras y nombres', () => {
+  it('satélite oculta rellenos pero conserva fronteras y nombres, sin terreno 3D', () => {
     const f = fakeMap()
     installBasemapSources(f.asMap)
     applyBasemap(f.asMap, 'satelite')
@@ -96,20 +91,27 @@ describe('basemaps', () => {
     expect(f.map.setTerrain).toHaveBeenLastCalledWith(null)
   })
 
-  it('relieve activa terreno 3D e inclina la cámara; volver a oscuro lo deshace', () => {
+  it('relieve muestra la imagen satelital sobre terreno 3D e inclina la cámara', () => {
     const f = fakeMap()
     installBasemapSources(f.asMap)
     applyBasemap(f.asMap, 'relieve')
+    expect(f.visibility(SATELLITE_LAYER)).toBe('visible')
+    expect(f.visibility('water')).toBe('none')
+    expect(f.visibility('place_city')).toBe('visible')
     expect(f.map.setTerrain).toHaveBeenLastCalledWith(
       expect.objectContaining({ source: DEM_TERRAIN_SOURCE }),
     )
     expect(f.map.getPitch()).toBe(RELIEF_PITCH)
-    expect(f.visibility(HILLSHADE_LAYER)).toBe('visible')
+  })
 
+  it('volver a oscuro quita la imagen, el terreno y la inclinación', () => {
+    const f = fakeMap()
+    installBasemapSources(f.asMap)
+    applyBasemap(f.asMap, 'relieve')
     applyBasemap(f.asMap, 'oscuro')
+    expect(f.visibility(SATELLITE_LAYER)).toBe('none')
+    expect(f.visibility('water')).toBe('visible')
     expect(f.map.setTerrain).toHaveBeenLastCalledWith(null)
     expect(f.map.getPitch()).toBe(0)
-    expect(f.visibility(HILLSHADE_LAYER)).toBe('none')
-    expect(f.visibility('water')).toBe('visible')
   })
 })

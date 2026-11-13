@@ -4,9 +4,11 @@
  * Los tres comparten el estilo vectorial oscuro de OpenFreeMap (fronteras, ríos, nombres) y se alternan
  * cambiando visibilidad y añadiendo fuentes raster, sin `setStyle`: así las capas de deck.gl y de datos
  * no se pierden al cambiar de base.
+ *
+ * Relieve 3D = imagen satelital sobre el terreno 3D (a pedido del usuario: conservar los colores reales del
+ * satélite). No se añade sombreado artificial: la imagen ya trae la luz y sombra naturales de las montañas.
  */
 import type { Map as MapLibreMap } from 'maplibre-gl'
-import { HILLSHADE_PAINT } from './palette'
 
 export type BasemapId = 'oscuro' | 'satelite' | 'relieve'
 
@@ -19,7 +21,11 @@ export interface Basemap {
 export const BASEMAPS: readonly Basemap[] = [
   { id: 'oscuro', label: 'Oscuro', description: 'Mapa vectorial oscuro (OpenFreeMap)' },
   { id: 'satelite', label: 'Satélite', description: 'Mosaico Sentinel-2 sin nubes 2020 (EOX)' },
-  { id: 'relieve', label: 'Relieve 3D', description: 'Terreno 3D y sombreado (AWS Terrain Tiles)' },
+  {
+    id: 'relieve',
+    label: 'Relieve 3D',
+    description: 'Satélite Sentinel-2 sobre terreno 3D (EOX + AWS Terrain Tiles)',
+  },
 ]
 
 export const DARK_STYLE_URL = 'https://tiles.openfreemap.org/styles/dark'
@@ -30,8 +36,6 @@ export const INITIAL_VIEW = { center: [-74.0, 4.5] as [number, number], zoom: 5 
 export const SATELLITE_SOURCE = 'wc-satelite'
 export const SATELLITE_LAYER = 'wc-satelite'
 export const DEM_TERRAIN_SOURCE = 'wc-dem-terreno'
-export const DEM_HILLSHADE_SOURCE = 'wc-dem-sombra'
-export const HILLSHADE_LAYER = 'wc-sombreado'
 
 const TERRARIUM_TILES = ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png']
 const TERRARIUM_ATTRIBUTION =
@@ -42,18 +46,15 @@ export const RELIEF_PITCH = 45
 
 /**
  * Capas del estilo oscuro que tapan la imagen satelital (rellenos de agua, bosque, edificios…).
- * Se ocultan solo en modo satélite; líneas y nombres se conservan.
+ * Se ocultan en los modos con satélite; líneas y nombres se conservan.
  */
 export function isFillThatHidesSatellite(layer: { id: string; type: string }): boolean {
   return layer.type === 'fill'
 }
 
-/** Visibilidad que debe tener cada capa propia de WindCloud para un mapa base dado. */
-export function basemapLayerVisibility(id: BasemapId): Record<string, 'visible' | 'none'> {
-  return {
-    [SATELLITE_LAYER]: id === 'satelite' ? 'visible' : 'none',
-    [HILLSHADE_LAYER]: id === 'relieve' ? 'visible' : 'none',
-  }
+/** Satélite y Relieve 3D muestran la imagen Sentinel-2; Oscuro, el estilo vectorial. */
+export function usesSatellite(id: BasemapId): boolean {
+  return id !== 'oscuro'
 }
 
 /** Añade (una sola vez) las fuentes y capas raster propias sobre el estilo oscuro ya cargado. */
@@ -80,18 +81,8 @@ export function installBasemapSources(map: MapLibreMap): void {
       attribution: TERRARIUM_ATTRIBUTION,
     })
   }
-  if (!map.getSource(DEM_HILLSHADE_SOURCE)) {
-    // Fuente separada para el sombreado: MapLibre recomienda no compartirla con el terreno.
-    map.addSource(DEM_HILLSHADE_SOURCE, {
-      type: 'raster-dem',
-      tiles: TERRARIUM_TILES,
-      encoding: 'terrarium',
-      tileSize: 256,
-      maxzoom: 15,
-    })
-  }
 
-  // Ambas capas van justo encima del fondo, debajo del agua, ríos, vías, fronteras y nombres.
+  // La imagen va justo encima del fondo, debajo del agua, ríos, vías, fronteras y nombres.
   const firstStyleLayer = map.getStyle().layers.find((l) => l.type !== 'background')?.id
   if (!map.getLayer(SATELLITE_LAYER)) {
     map.addLayer(
@@ -104,30 +95,17 @@ export function installBasemapSources(map: MapLibreMap): void {
       firstStyleLayer,
     )
   }
-  if (!map.getLayer(HILLSHADE_LAYER)) {
-    map.addLayer(
-      {
-        id: HILLSHADE_LAYER,
-        type: 'hillshade',
-        source: DEM_HILLSHADE_SOURCE,
-        layout: { visibility: 'none' },
-        paint: { ...HILLSHADE_PAINT },
-      },
-      // Debajo del agua: los datos Terrarium incluyen el fondo marino y su sombreado oscurecía el océano.
-      // Así el relieve solo se ve en tierra firme.
-      map.getStyle().layers.find((l) => l.type !== 'background' && l.id !== SATELLITE_LAYER)?.id,
-    )
-  }
 }
 
 /** Cambia el mapa base. Requiere `installBasemapSources` previo. */
 export function applyBasemap(map: MapLibreMap, id: BasemapId): void {
-  for (const [layerId, visibility] of Object.entries(basemapLayerVisibility(id))) {
-    if (map.getLayer(layerId)) map.setLayoutProperty(layerId, 'visibility', visibility)
+  const satellite = usesSatellite(id)
+  if (map.getLayer(SATELLITE_LAYER)) {
+    map.setLayoutProperty(SATELLITE_LAYER, 'visibility', satellite ? 'visible' : 'none')
   }
   for (const layer of map.getStyle().layers) {
     if (isFillThatHidesSatellite(layer)) {
-      map.setLayoutProperty(layer.id, 'visibility', id === 'satelite' ? 'none' : 'visible')
+      map.setLayoutProperty(layer.id, 'visibility', satellite ? 'none' : 'visible')
     }
   }
 

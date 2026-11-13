@@ -57,6 +57,7 @@
 | 2026-11-13 | Buscador adelantado de T-13 con Open-Meteo Geocoding; países solo centran, ciudades marcan punto | Pedido del usuario | 02 §4.0.1 |
 | 2026-11-13 | Sombreado del relieve con tonos de la paleta (`HILLSHADE_PAINT`), no negro | Usuario: "en relieve se ve oscuro, mantén los colores" | 02 §4.0 |
 | 2026-11-13 | Paleta 2.ª iteración más clara (tierra `#36424f`); sombreado bajo el agua; cámara del relieve a 45° | Usuario: "aún se ve oscuro". Medido: brillo medio 53→65 (oscuro) y 51→63 (relieve) | 02 §4.0 |
+| 2026-11-13 | **Relieve 3D = imagen satelital sobre terreno 3D**, sin sombreado artificial (se elimina la capa `hillshade`) | Usuario: "mejor los colores de satélite, mantenlos en relieve 3D" | 02 §4.0 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -109,6 +110,14 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · Relieve 3D con colores del satélite
+- **Tareas:** ajuste de T-10 pedido por el usuario.
+- **Hecho:** `basemaps.ts`: `usesSatellite()` (satélite y relieve muestran la imagen EOX y ocultan rellenos); se
+  eliminan capa/fuente de sombreado y `HILLSHADE_PAINT`. Relieve = satélite + `setTerrain` + cámara 45°.
+- **Verificado:** 32/32 pruebas ✓, typecheck, lint, build ✓. En Chrome: Andes en 3D con bosques verdes, nevados y
+  mar azul; fronteras y nombres en español visibles; consola sin errores.
+- **Pendiente / siguiente paso:** T-11 límites departamentales; completar T-13.
 
 ### 2026-11-13 · Relieve aún oscuro → medición y corrección
 - **Tareas:** ajuste de T-10 pedido por el usuario.
