@@ -178,9 +178,17 @@ Dispersión `s` = desviación estándar entre modelos (para viento: de la veloci
 Ráfagas: mismos umbrales que viento. Resumen de un periodo: nivel más frecuente; empate → el más pesimista.
 Umbrales en `core/agreement.ts`, ajustables y documentados en Metodología.
 
-### 5.4 Probabilidad por ensamble
-Open-Meteo **Ensemble API** (`ecmwf_ifs025` 51 miembros, `gfs025` 31 miembros):
-`P(lluvia) = miembros con precip > 1 mm / total`. Mostrar como barra por día.
+### 5.4 Probabilidad por ensamble — `web/src/api/ensemble.ts`, `web/src/core/probability.ts`
+Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation`). Validado 2026-11-13: claves
+`precipitation[_memberNN]_<sufijo>` con sufijos `ecmwf_ifs025_ensemble` (control + 50 = 51) y `ncep_gefs025`
+(control + 30 = 31); se agrupan por patrón, no por nombre pedido. El sufijo es también el id de
+`ensemble-api.open-meteo.com/data/{sufijo}/static/meta.json` (hora del run). Coste: 8,2 por consulta.
+- `P(lluvia en el día) = miembros con acumulado diario > 1 mm / miembros con ≥ 90 % de horas con dato`, por día
+  **local** del punto. **Hoy cuenta solo desde la hora en curso** ("resto del día"; si no, sumaría lluvia ya caída).
+- Los ensambles **no se mezclan** (calibraciones distintas): una barra por ensamble y día.
+  Acuerdo entre ensambles por diferencia en puntos: ≤ 15 alto · ≤ 30 medio · > 30 bajo (+ aviso).
+- Consulta independiente del multi-modelo: si falla, el panel sigue y la sección dice "sin datos".
+- Caso real Bogotá 13/11: ECMWF 51–82 % vs GEFS 97–100 % los primeros días → acuerdo bajo, se muestra el aviso.
 
 ## 6. Verificación (RF-9) — `pipeline/verify.py`
 1. **Estaciones:** lista de aeropuertos METAR de Colombia (y región) en `stations.json` (~40 estaciones).

@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **6/9 tareas** (T-10, T-11, T-12, T-20, T-21, T-22 ✅; T-13 🟡 buscador; faltan T-23, T-24). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 · MVP — **7/9 tareas** (T-10, T-11, T-12, T-20…T-23 ✅; T-13 🟡 buscador; falta T-24). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-22 (panel de punto: tarjetas con acuerdo, gráfica 7 días uPlot, modelos con run) |
-| Siguiente tarea | **T-23** probabilidad de lluvia por ensamble (ECMWF 51 / GFS 31 miembros) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · 105 pruebas web (core 97,7 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-23 (probabilidad de lluvia por ensamble ECMWF 51 / GFS 31, barras por día) |
+| Siguiente tarea | **T-24** chips Observado/Pronóstico/Estimado y fuente + hora en todo dato; luego completar **T-13** |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/probability.ts` · 117 pruebas web (core 98,2 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -74,6 +74,8 @@
 | 2026-11-13 | Sin TanStack Query: hook propio sobre la caché de `api/openMeteo.ts` | Suficiente; una dependencia menos | 02 §2, §9.1 |
 | 2026-11-13 | Tarjeta de lluvia = acumulado próximas 24 h (las demás, hora en curso) | La lluvia horaria suele ser 0 y dice poco | 02 §9.1 |
 | 2026-11-13 | El punto clicado se muestra en el panel lateral (reemplaza el chip de coordenadas) | RF-6 | 02 §9.1 |
+| 2026-11-13 | Ensambles **sin mezclar**: una barra por ensamble y día + acuerdo entre ellos | Calibraciones distintas; en Bogotá ECMWF ~59 % vs GEFS 100 %: la discrepancia es información | 02 §5.4 |
+| 2026-11-13 | "Hoy" de la probabilidad = desde la hora en curso | Si no, contaría lluvia ya caída (88 % día completo vs 51 % resto del día) | 02 §5.4 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -137,6 +139,9 @@
 - **Mocks de `fetch` deben respetar `signal`** (tardar y rechazar con AbortError); si no, la prueba de regresión
   pasaba igual con el bug. Comprobar que la prueba falla con el bug reintroducido antes de darla por buena.
 - uPlot arma la leyenda como `<table><tbody><tr>`: la rejilla CSS va en el `tbody`, no en la tabla.
+- **Ensemble API:** las claves no usan el id pedido (`ecmwf_ifs025` → `…_ecmwf_ifs025_ensemble`, `gfs025` →
+  `…_ncep_gefs025`); agrupar por patrón. Esos sufijos sirven como id de `meta.json` en `ensemble-api.open-meteo.com`.
+- Coste real por punto abierto: 5,4 (multi-modelo) + 8,2 (ensambles) = 13,6 de 600/min.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -154,6 +159,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-23 Probabilidad de lluvia por ensamble
+- **Tareas:** T-23 ✅
+- **Validación previa (API real, Bogotá):** 51 + 31 miembros, 168 h completas, sufijos distintos a los pedidos;
+  cálculo a mano en Python: ECMWF 57–88 %/día vs GEFS 68–100 %.
+- **Hecho:** `api/ensemble.ts` (URL, parseo por patrón, caché, run), `core/probability.ts` (P diaria local,
+  cobertura ≥ 90 %, hoy desde ahora, acuerdo por puntos), `api/openMeteo.ts` (+`fetchRunTime`, `cachedForecast`),
+  `point/usePointEnsemble.ts`, `point/rain.ts`, `point/RainProbability.tsx`; tarjeta "Prob. de lluvia · resto de hoy".
+- **Verificado:** 117/117 pruebas ✓, cobertura core 98,2 %, typecheck, lint, build ✓. En Chrome: valores idénticos
+  al cálculo independiente (sáb 59/100, dom 57/100, lun 59/100, mar 82/97, mié 73/84, jue 65/68); hoy resto 51 %
+  (26/51) vs 100 %; aviso de discrepancia; runs 00Z/06Z; tarjetas en 896 ms y probabilidades en 1,1 s; sin errores.
+- **Pendiente / siguiente paso:** T-24; completar T-13; revisar móvil (T-61).
 
 ### 2026-11-13 · T-22 Panel de punto multi-modelo
 - **Tareas:** T-22 ✅ (+ nota MET Norway en `04-fuentes-de-datos.md`, que faltaba)

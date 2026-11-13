@@ -1,9 +1,29 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { clearOpenMeteoCache } from '../api/openMeteo'
 import { MODELS } from '../core/models'
 import PointPanel from './PointPanel'
+
+const ensembleBody = (wetEcmwf: number, wetGefs: number) => {
+  // 51 y 31 miembros con 48 h; los primeros `wet*` llueven 1 mm/h, el resto nada.
+  const hourly: Record<string, unknown> = { time }
+  for (let m = 0; m < 51; m++) {
+    const k =
+      m === 0
+        ? 'precipitation_ecmwf_ifs025_ensemble'
+        : `precipitation_member${String(m).padStart(2, '0')}_ecmwf_ifs025_ensemble`
+    hourly[k] = time.map(() => (m < wetEcmwf ? 1 : 0))
+  }
+  for (let m = 0; m < 31; m++) {
+    const k =
+      m === 0
+        ? 'precipitation_ncep_gefs025'
+        : `precipitation_member${String(m).padStart(2, '0')}_ncep_gefs025`
+    hourly[k] = time.map(() => (m < wetGefs ? 1 : 0))
+  }
+  return { timezone: 'America/Bogota', utc_offset_seconds: -18000, hourly }
+}
 
 // uPlot necesita canvas: se reemplaza la gráfica.
 vi.mock('./ModelChart', () => ({
@@ -58,7 +78,9 @@ describe('PointPanel', () => {
       realisticFetch((url) =>
         url.includes('/static/meta.json')
           ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
-          : { ok: true, json: async () => rawForecast() },
+          : url.includes('ensemble-api')
+            ? { ok: true, json: async () => ensembleBody(30, 31) }
+            : { ok: true, json: async () => rawForecast() },
       ),
     )
     vi.stubGlobal('fetch', fetchMock)
@@ -82,8 +104,12 @@ describe('PointPanel', () => {
   it('avisa cuando los modelos no coinciden (RF-8)', async () => {
     render(<PointPanel point={point} onClose={() => {}} />)
     await screen.findByText(/consenso de 8 modelos/)
-    expect(screen.getByText('Acuerdo bajo')).toBeInTheDocument() // ráfagas 26–66 km/h
-    expect(screen.getByText('Los modelos no coinciden: pronóstico incierto.')).toBeInTheDocument()
+    // Tarjeta de ráfagas (26–66 km/h): acuerdo bajo con su aviso.
+    const gusts = screen.getByRole('heading', { name: 'Ráfagas' }).closest('article')!
+    expect(within(gusts).getByText('Acuerdo bajo')).toBeInTheDocument()
+    expect(
+      within(gusts).getByText('Los modelos no coinciden: pronóstico incierto.'),
+    ).toBeInTheDocument()
     expect(screen.getByText('Modelos: 26–66 (6)')).toBeInTheDocument() // 2 modelos sin ráfagas
   })
 
@@ -128,6 +154,32 @@ describe('PointPanel', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
     const forecastCalls = fetchMock.mock.calls.filter(([u]) => String(u).includes('/v1/forecast'))
     expect(forecastCalls).toHaveLength(1) // la caché evita la petición duplicada
+  })
+
+  it('muestra la probabilidad de lluvia por ensamble y avisa si discrepan (T-23)', async () => {
+    render(<PointPanel point={point} onClose={() => {}} />)
+    expect(await screen.findByText('Probabilidad de lluvia (> 1 mm en el día)')).toBeInTheDocument()
+    expect(screen.getByText('59–100 %')).toBeInTheDocument() // 30/51 ECMWF, 31/31 GEFS
+    expect(screen.getByText('ECMWF 30/51 · GFS 31/31')).toBeInTheDocument()
+    expect(screen.getByText('Los ensambles no coinciden.')).toBeInTheDocument()
+    expect(screen.getByText(/ECMWF ENS: 51 miembros · run 13\/11, 06:00 UTC/)).toBeInTheDocument()
+    expect(screen.getByText('Hoy')).toBeInTheDocument()
+  })
+
+  it('si fallan los ensambles, el resto del panel sigue y lo dice', async () => {
+    fetchMock.mockImplementation(
+      realisticFetch((url) =>
+        url.includes('ensemble-api')
+          ? { ok: false, status: 503 }
+          : url.includes('/static/meta.json')
+            ? { ok: false, status: 404 }
+            : { ok: true, json: async () => rawForecast() },
+      ),
+    )
+    render(<PointPanel point={point} onClose={() => {}} />)
+    expect(await screen.findByText(/consenso de 8 modelos/)).toBeInTheDocument()
+    expect(await screen.findByText(/Sin datos de probabilidad de lluvia/)).toBeInTheDocument()
+    expect(screen.getByText('Sin datos de ensambles.')).toBeInTheDocument()
   })
 
   it('cerrar llama a onClose', () => {

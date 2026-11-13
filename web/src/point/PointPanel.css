@@ -287,3 +287,99 @@
     width: auto;
   }
 }
+
+.rain-prob {
+  display: grid;
+  gap: 6px;
+}
+
+.rain-prob__days,
+.rain-prob__legend {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rain-prob__day {
+  display: grid;
+  grid-template-columns: 58px 1fr 14px;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+
+.rain-prob__label {
+  color: var(--text-muted);
+  text-transform: capitalize;
+}
+
+.rain-prob__hint {
+  font-size: 0.68rem;
+  text-transform: none;
+}
+
+.rain-prob__bars {
+  display: grid;
+  gap: 2px;
+}
+
+.rain-prob__bar-row {
+  display: grid;
+  grid-template-columns: 1fr 40px;
+  align-items: center;
+  gap: 6px;
+}
+
+.rain-prob__bar {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.rain-prob__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: currentColor;
+}
+
+/* Colores de ensamble (Okabe-Ito): ECMWF azul cielo, GFS naranja. */
+.rain-prob__bar--0 {
+  color: #56b4e9;
+}
+.rain-prob__bar--1 {
+  color: #e69f00;
+}
+
+.rain-prob__value {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.rain-prob__warn {
+  color: var(--estimated);
+}
+
+.rain-prob__legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.rain-prob__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+.rain-prob__note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}

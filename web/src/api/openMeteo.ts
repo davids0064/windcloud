@@ -123,6 +123,7 @@ interface CacheEntry<T> {
 }
 const forecastCache = new Map<string, CacheEntry<MultiModelForecast>>()
 const runCache = new Map<string, CacheEntry<Date | null>>()
+const otherCache = new Map<string, CacheEntry<unknown>>()
 
 function cached<T>(
   cache: Map<string, CacheEntry<T>>,
@@ -168,18 +169,21 @@ export function fetchMultiModel(
   )
 }
 
-/** Hora de inicio del último run de un modelo (P2), o null si no se pudo saber. */
-export function fetchModelRun(model: ModelInfo, options: CachedFetchOptions = {}) {
+/** Hora de inicio del último run según un `meta.json` de Open-Meteo, o null si no se pudo saber (P2). */
+export function fetchRunTime(
+  metaUrl: string,
+  options: CachedFetchOptions = {},
+): Promise<Date | null> {
   const now = options.now ?? Date.now()
   return cached(
     runCache,
-    model.metaId,
+    metaUrl,
     async () => {
       try {
-        const meta = await fetchJson<{ last_run_initialisation_time?: number }>(
-          `${META_URL}/${model.metaId}/static/meta.json`,
-          { ...options, retries: 0 },
-        )
+        const meta = await fetchJson<{ last_run_initialisation_time?: number }>(metaUrl, {
+          ...options,
+          retries: 0,
+        })
         return meta.last_run_initialisation_time
           ? new Date(meta.last_run_initialisation_time * 1000)
           : null
@@ -191,8 +195,23 @@ export function fetchModelRun(model: ModelInfo, options: CachedFetchOptions = {}
   )
 }
 
+/** Hora de inicio del último run de un modelo determinista (P2), o null si no se pudo saber. */
+export function fetchModelRun(model: ModelInfo, options: CachedFetchOptions = {}) {
+  return fetchRunTime(`${META_URL}/${model.metaId}/static/meta.json`, options)
+}
+
+/** Para otros módulos (ensambles) que reutilizan la misma caché de 30 min. */
+export function cachedForecast<T>(
+  key: string,
+  load: () => Promise<T>,
+  now = Date.now(),
+): Promise<T> {
+  return cached(otherCache as Map<string, CacheEntry<T>>, key, load, now)
+}
+
 /** Solo para pruebas. */
 export function clearOpenMeteoCache(): void {
   forecastCache.clear()
   runCache.clear()
+  otherCache.clear()
 }

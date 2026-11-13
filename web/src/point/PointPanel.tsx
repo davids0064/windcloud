@@ -1,4 +1,5 @@
 import { lazy, Suspense, useMemo, useState } from 'react'
+import { ENSEMBLES } from '../api/ensemble'
 import { OPEN_METEO_SOURCE } from '../api/openMeteo'
 import { LOW_AGREEMENT_WARNING } from '../core/agreement'
 import { MODELS } from '../core/models'
@@ -7,6 +8,9 @@ import type { LatLon } from '../map/MapView'
 import { AgreementBadge } from './AgreementBadge'
 import { modelColor } from './colors'
 import { cardinal, cardNow, currentIndex, formatValue, rainNext24h, type CardData } from './summary'
+import { formatPct, rainDays } from './rain'
+import { RainProbability } from './RainProbability'
+import { usePointEnsemble } from './usePointEnsemble'
 import { usePointForecast } from './usePointForecast'
 import './PointPanel.css'
 
@@ -42,6 +46,7 @@ const runFmt = new Intl.DateTimeFormat('es-CO', {
 /** Panel de punto multi-modelo (RF-6, RF-7, RF-8). Datos rotulados como "Pronóstico" (P3). */
 export default function PointPanel({ point, onClose }: Props) {
   const { status, data, error, retry } = usePointForecast(point)
+  const ensemble = usePointEnsemble(point)
   const [variable, setVariable] = useState<VariableId>('temperature_2m')
   const [now] = useState(() => new Date())
 
@@ -68,6 +73,12 @@ export default function PointPanel({ point, onClose }: Props) {
       direction: consensus.wind_direction_10m[i],
     }
   }, [data, now])
+
+  const rain = useMemo(
+    () => (ensemble.data ? rainDays(ensemble.data, now) : null),
+    [ensemble.data, now],
+  )
+  const today = rain?.[0]
 
   return (
     <aside className="point-panel" aria-labelledby="point-panel-title">
@@ -150,6 +161,42 @@ export default function PointPanel({ point, onClose }: Props) {
                 {c.level === 'bajo' && <p className="card__warn">{LOW_AGREEMENT_WARNING}</p>}
               </article>
             ))}
+            <article className={`card card--${today?.agreement ?? 'na'}`}>
+              <h3 className="card__label">
+                Prob. de lluvia<span className="card__period"> · resto de hoy</span>
+              </h3>
+              {ensemble.status === 'loading' && (
+                <p className="card__range">Consultando ensambles…</p>
+              )}
+              {ensemble.status === 'error' && <p className="card__warn">Sin datos de ensambles.</p>}
+              {today && (
+                <>
+                  <p className="card__value">
+                    {(() => {
+                      const ps = today.byEnsemble
+                        .map((b) => b.prob?.p)
+                        .filter((p): p is number => p != null)
+                      if (!ps.length) return '—'
+                      const lo = Math.min(...ps)
+                      const hi = Math.max(...ps)
+                      return lo === hi ? formatPct(lo) : `${Math.round(lo * 100)}–${formatPct(hi)}`
+                    })()}
+                  </p>
+                  <p className="card__range">
+                    {today.byEnsemble
+                      .map(
+                        (b) =>
+                          `${b.ensemble.label.split(' ')[0]} ${b.prob ? `${b.prob.wet}/${b.prob.total}` : '—'}`,
+                      )
+                      .join(' · ')}
+                  </p>
+                  <AgreementBadge level={today.agreement} />
+                  {today.agreement === 'bajo' && (
+                    <p className="card__warn">Los ensambles no coinciden.</p>
+                  )}
+                </>
+              )}
+            </article>
           </div>
 
           <section className="point-panel__chart">
@@ -182,6 +229,20 @@ export default function PointPanel({ point, onClose }: Props) {
               modelo en la leyenda para ocultarlo.
             </p>
           </section>
+
+          {rain && ensemble.data && (
+            <RainProbability
+              days={rain}
+              timezone={ensemble.data.timezone}
+              runs={ensemble.runs}
+              ensembles={ensemble.data.ensembles.map((e) => e.ensemble)}
+            />
+          )}
+          {ensemble.status === 'error' && (
+            <p className="point-panel__msg point-panel__msg--warn">
+              Sin datos de probabilidad de lluvia: Open-Meteo Ensemble no respondió.
+            </p>
+          )}
 
           <section className="point-panel__models">
             <h3>Modelos y hora de su run</h3>
@@ -231,7 +292,8 @@ export default function PointPanel({ point, onClose }: Props) {
           </details>
 
           <p className="point-panel__source">
-            Fuente: {OPEN_METEO_SOURCE} · consultado{' '}
+            Fuente: {OPEN_METEO_SOURCE} (Forecast y Ensemble API, {ENSEMBLES.length} ensambles) ·
+            consultado{' '}
             {data.forecast.fetchedAt.toLocaleTimeString('es-CO', {
               hour: 'numeric',
               minute: '2-digit',

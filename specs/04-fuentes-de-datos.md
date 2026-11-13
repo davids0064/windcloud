@@ -7,7 +7,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | Fuente | Qué da | Clave | Límite / licencia | Uso en WindCloud | Verificar |
 |---|---|---|---|---|---|
 | **Open-Meteo Forecast API** | ECMWF IFS, AIFS, GFS, ICON, GEM, JMA, Météo-France, UKMO, MET Norway, KMA y más; `best_match`. *MET Norway solo es independiente en Escandinavia: en Colombia repite a ECMWF y WindCloud no lo usa (diseño §5.1)* | No | ~10 000 llamadas/día, **solo no comercial**; datos CC BY 4.0 | Panel de punto multi-modelo | Lista de modelos y nombres |
-| **Open-Meteo Ensemble API** | ECMWF ENS (51), GFS ENS (31), ICON-EPS | No | Igual | Probabilidad de lluvia | Miembros disponibles |
+| **Open-Meteo Ensemble API** | ECMWF ENS (51), GFS ENS (31), ICON-EPS | No | Igual | Probabilidad de lluvia ✅ en uso | ✅ 51 y 31 miembros verificados 2026-11-13; coste 8,2/consulta |
 | **Open-Meteo Previous Runs API** | Pronósticos pasados por lead time | No | Igual | Verificación sin archivar runs | Variables `_previous_dayN` |
 | **Open-Meteo Geocoding** | Buscar lugares (ciudades, regiones, países; datos GeoNames) | No | Igual | Buscador ✅ en uso | — |
 | **Open-Meteo Air Quality** | PM2.5, PM10, O₃ (CAMS) | No | Igual | Panel de punto | — |
@@ -73,7 +73,7 @@ si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer d
 | Consumidor | Estimado |
 |---|---|
 | Verificación (40 estaciones × ~9 modelos) | ~360 |
-| Usuarios (caché 30 min; una consulta de 8 modelos × 6 variables × 7 días **cuesta 5,4** según `X-RateLimit-Cost`) | ~1 000 consultas ≈ 5 400 |
+| Usuarios (caché 30 min; por punto: multi-modelo **5,4** + ensambles **8,2** = **13,6** según `X-RateLimit-Cost`) | ~700 consultas ≈ 9 500 |
 | **Total** | **≤ 10 000** → si se supera: proxy con caché en Cloudflare Worker o self-host |
 
 > **Medido 2026-11-13:** cabeceras `X-RateLimit-Limit: 600` por ventana de 60 s y `X-RateLimit-Cost: 5.4` por consulta.
