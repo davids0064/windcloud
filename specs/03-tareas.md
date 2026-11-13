@@ -36,7 +36,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [ ] **T-31** Añadir ECMWF Open Data (u/v) al mismo pipeline. → RF-2
 - [x] **T-32** Codificar PNG (R=u, G=v) + `meta.json`; escalares (ráfaga, nubes, lluvia) como PNG coloreable. → RF-2, RF-3, RF-4
       `pipeline/…/encode.py`: filas remuestreadas a Mercator; run real = 150 PNG, 5,7 MB, 2,7 s; verificado contra el GRIB.
-- [ ] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5
+- [x] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5
+      `pipeline/…/update.py` + rama `grids` (commit único, 2 últimos runs). Verificado en local; **primera ejecución real en GitHub al subir el código**.
 - [x] **T-34** `WindLayer` WebGL de partículas (técnica webgl-wind), color por velocidad, ajuste por dispositivo. → RF-2, RNF-3
       `web/src/wind/`: 60 fps con 40 000 partículas (WebGL2, retina); 8 000 en móvil y reducción automática si < 30 fps.
 - [x] **T-35** Línea de tiempo 0–72 h y selector de modelo/nivel. → RF-2

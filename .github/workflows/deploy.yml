@@ -37,6 +37,18 @@ jobs:
       - run: npm test
       - run: npm run build
 
+      # Rejillas de pronóstico publicadas por grids.yml (rama `grids`) → /data del sitio.
+      - name: Incluir rejillas de pronóstico
+        working-directory: .
+        run: |
+          if git clone --quiet --depth 1 --branch grids --single-branch \
+            "https://github.com/${GITHUB_REPOSITORY}.git" grids-data; then
+            cp -r grids-data/data web/dist/data
+            echo "Rejillas: $(jq -r .run web/dist/data/gfs/latest.json)"
+          else
+            echo "::warning::Aún no hay rama grids: el sitio mostrará «Sin datos de pronóstico»."
+          fi
+
       # Crea el proyecto de Pages la primera vez; si ya existe, el error se ignora.
       - name: Asegurar proyecto en Cloudflare Pages
         uses: cloudflare/wrangler-action@v4

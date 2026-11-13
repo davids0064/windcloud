@@ -11,15 +11,16 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 5/8** (T-30, T-32, T-34, T-35, T-36 ✅). Faltan T-31 (ECMWF), T-33 (publicación cada 6 h), T-37 (radar). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 6/8** (T-30, T-32…T-36 ✅; T-33 verificado en local, falta 1.ª corrida en GitHub). Faltan T-31 (ECMWF), T-37 (radar). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-36 (capas de color ráfagas/nubes/lluvia/temperatura + isobaras, línea de tiempo común) |
-| Siguiente tarea | **T-33** workflow `grids.yml` (publicar rejillas cada 6 h) — o T-37 radar / T-31 ECMWF |
+| Última tarea cerrada | T-33 (actualización programada: `update.py` + workflow `grids.yml` + rama `grids`) |
+| Siguiente tarea | **T-37** radar (evaluar RainViewer) o **T-31** ECMWF Open Data; o subir el código para que `grids.yml` corra |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
+| Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (no hace nada si el run ya está publicado) |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
 | Bloqueos | Ninguno para trabajo local |
@@ -92,6 +93,8 @@
 | 2026-11-13 | Capas de color coloreadas en el navegador con protocolo propio | MapLibre 6 no tiene `raster-color` | 02 §4.1.1 |
 | 2026-11-13 | Isobaras con presión suavizada antes de trazar | Reducción al nivel del mar sobre los Andes crea líneas falsas (visto en Chrome) | 02 §4.1.1 |
 | 2026-11-13 | Una sola línea de tiempo para todas las capas de pronóstico | Viento, color e isobaras siempre de la misma hora | 02 §4.1.1 |
+| 2026-11-13 | Rejillas publicadas en rama `grids` con un único commit reemplazado (no en main, no artefactos) | Sin historial que crezca (~26 MB/día); accesible para deploy; si falla no se toca | 02 §1 |
+| 2026-11-13 | Cron +4 h 45 min tras cada run + reintento +1,5 h | Medido: 12Z completo ~17:00 UTC (≈ 5 h) | 02 §1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -202,6 +205,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-33 Actualización programada de rejillas
+- **Tareas:** T-33 ✅ (en código y en local; la primera corrida real en GitHub ocurrirá al subir el código).
+- **Hecho:** `pipeline/src/windcloud_pipeline/update.py` (run más reciente → omitir si ya publicado → descargar →
+  codificar sin tocar `latest.json` → validar → publicar → podar conservando 2 y nunca el vigente → `status.json`);
+  `encode_run(update_latest=False)`; `.github/workflows/grids.yml` (cron, clon de la rama `grids`, update, commit único
+  y `push --force` solo si «actualizado»); `deploy.yml` copia la rama `grids` a `web/dist/data`. 7 pruebas nuevas.
+- **Verificado:** pipeline 38/38 ✓ + ruff; web 175 ✓. `update` real contra carpeta vacía: run 12Z publicado en 64 s
+  (6,7 MB); segunda corrida «sin-cambios» sin descargar. YAML de los 3 workflows válido. Paso de publicación simulado
+  en local (sin push): 1 commit, 203 archivos, 6,6 MB.
+- **Pendiente:** primera corrida en GitHub (requiere push y, si se quiere ya, `workflow_dispatch`).
 
 ### 2026-11-13 · T-36 Capas de color e isobaras
 - **Tareas:** T-36 ✅

@@ -27,6 +27,13 @@ Referencias: requisitos en `01-requisitos.md`, fuentes en `04-fuentes-de-datos.m
  └───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+**Publicación de rejillas (T-33):** `grids.yml` (cron +4 h 45 min tras cada run y reintento +1,5 h) ejecuta
+`uv run python -m windcloud_pipeline.update`: busca el run más reciente completo; si ya está publicado no hace nada;
+si no, descarga, codifica en carpeta nueva, **valida** (todos los PNG/GeoJSON) y solo entonces cambia `latest.json` y
+borra runs viejos (conserva 2, nunca el vigente). `status.json` registra cada intento. El resultado vive en la rama
+**`grids` con un solo commit** reemplazado con `push --force` (sin historial que crezca: ~6,6 MB). Si falla, el
+workflow queda en rojo y la rama no se toca. `deploy.yml` copia esa rama a `/data` del sitio.
+
 **Decisión clave:** no hay servidor siempre encendido. Todo lo pesado se pre-calcula en Actions y se
 sirve como archivos estáticos. Lo específico del usuario (su punto) se consulta desde el navegador.
 

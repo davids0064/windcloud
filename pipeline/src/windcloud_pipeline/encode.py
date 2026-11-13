@@ -214,7 +214,9 @@ def iso(dt: datetime) -> str:
     return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
 
 
-def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
+def encode_run(
+    run_dir: Path, out_root: Path, model: str = "gfs", update_latest: bool = True
+) -> Path:
     """Codifica los fHHH.grib2 de `run_dir` en `out_root/<model>/<run>/` (escritura atómica)."""
     paths = sorted(run_dir.glob("f*.grib2"), key=lambda p: int(p.stem[1:]))
     if not paths:
@@ -300,7 +302,8 @@ def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
     if final.exists():
         shutil.rmtree(final)
     tmp.replace(final)
-    write_latest(out_root / model, first.run)
+    if update_latest:
+        write_latest(out_root / model, first.run)
     return final
 
 
