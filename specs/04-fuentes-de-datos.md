@@ -63,7 +63,7 @@ los sitios de cada red. Resumen:
 
 Notas para el adaptador IDEAM (T-47):
 - `fechaobservacion` está en **hora local de Colombia (UTC−5)**, sin zona: El Dorado CATAM marca 18,6 °C a las «13:00» y el
-  METAR SKBO 19 °C a las 18Z (= 13:00 local); a las 18Z, en cambio, IDEAM «18:00» = 16,7 °C y METAR 23Z ≈ 15 °C.
+  METAR SKBO 19 °C a las 18Z (= 13:00 local), mientras que el METAR de las 13Z marcaba 15 °C.
 - Hay **filas duplicadas** (misma estación y hora dos veces) → deduplicar.
 - IDEAM advierte que los datos de estaciones automáticas son **preliminares, sin validación técnica** → control de calidad
   propio y publicarlo como red aparte (RF-9: métricas por red).
