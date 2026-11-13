@@ -4,6 +4,7 @@ import { buildRamp, rampGradient, WIND_STOPS } from './colorRamp'
 import {
   nearestStepIndex,
   runAgeHours,
+  staleHours,
   windFileUrl,
   windFrame,
   type GridMeta,
@@ -146,6 +147,12 @@ describe('meta.json', () => {
     expect(windFileUrl(loaded, '10m', 3)).toBe('/data/gfs/2026111306/wind_10m_003.png')
     expect(windFrame(meta, '10m', 3)).toMatchObject({ uMin: -1, vMax: 4 })
     expect(() => windFrame(meta, '10m', 99)).toThrow('Sin cuadro')
+  })
+
+  it('umbral de aviso por modelo según su latencia real', () => {
+    expect(staleHours('gfs')).toBe(9)
+    expect(staleHours('ecmwf')).toBe(14)
+    expect(staleHours('otro')).toBe(9)
   })
 
   it('antigüedad del run en horas (fase 2: < 9 h)', () => {

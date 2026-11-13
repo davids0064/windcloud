@@ -8,7 +8,8 @@
    Si algo falla antes, `latest.json` sigue apuntando al run anterior: nunca queda la web sin datos.
 5. Escribe `status.json` con la hora y el resultado del intento (para vigilar que no se atasque).
 
-Uso:  uv run python -m windcloud_pipeline.update --salida DIR [--keep 2] [--trabajo DIR]
+Uso:  uv run python -m windcloud_pipeline.update --salida DIR [--modelo gfs|ecmwf|todos]
+          [--keep 2] [--trabajo DIR]
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from . import encode, grids
+from . import ecmwf, encode, grids
 
 EXPECTED_WIND_LEVELS = len(encode.WIND_LEVELS)
 
@@ -42,7 +43,11 @@ def current_run(model_dir: Path) -> str | None:
 
 
 def validate_run(run_dir: Path, steps: list[int]) -> list[str]:
-    """Problemas encontrados en un run codificado (lista vacía = válido)."""
+    """Problemas encontrados en un run codificado (lista vacía = válido).
+
+    Viento: todos los niveles en todos los pasos. Escalares e isobaras: los pasos que declara
+    `meta.json` (ECMWF no trae ráfaga en f000); nubosidad, temperatura e isobaras, todos los pasos.
+    """
     problems: list[str] = []
     meta_path = run_dir / "meta.json"
     if not meta_path.exists():
@@ -54,11 +59,18 @@ def validate_run(run_dir: Path, steps: list[int]) -> list[str]:
         for lvl in encode.WIND_LEVELS:
             if not (run_dir / f"wind_{lvl}_{step:03d}.png").exists():
                 problems.append(f"falta wind_{lvl}_{step:03d}.png")
-        for name in encode.SCALARS:
+    for name, info in meta.get("scalars", {}).items():
+        for step in info.get("steps", []):
             if not (run_dir / f"{name}_{step:03d}.png").exists():
                 problems.append(f"falta {name}_{step:03d}.png")
+    for name in ("tcc", "t2m"):
+        if meta.get("scalars", {}).get(name, {}).get("steps") != steps:
+            problems.append(f"{name} no cubre todos los pasos")
+    for step in meta.get("isobars", {}).get("steps", []):
         if not (run_dir / f"isobars_{step:03d}.geojson").exists():
             problems.append(f"falta isobars_{step:03d}.geojson")
+    if meta.get("isobars", {}).get("steps") != steps:
+        problems.append("isobaras no cubren todos los pasos")
     return problems
 
 
@@ -108,14 +120,23 @@ def update(
     region: str = "colombia",
     now: datetime | None = None,
     find_run: Callable[[datetime, int], datetime | None] | None = None,
-    download: Callable[..., grids.DownloadResult] = grids.download_run,
+    download: Callable[..., grids.DownloadResult] | None = None,
+    reader: Callable[[Path], grids.GridStep] | None = None,
+    keep_raw: bool = False,
     log: Callable[[str], None] = print,
 ) -> UpdateResult:
     now = now or datetime.now(UTC)
     steps = list(steps or grids.DEFAULT_STEPS)
     model_dir = out_root / model
     model_dir.mkdir(parents=True, exist_ok=True)
-    find = find_run or (lambda t, last: grids.latest_complete_run(t, last, grids.http_exists))
+    if model == "ecmwf":
+        find = find_run or (lambda t, last: ecmwf.latest_complete_run(t, last, grids.http_exists))
+        download = download or ecmwf.download_run
+        reader = reader or ecmwf.make_reader(region)
+    else:
+        find = find_run or (lambda t, last: grids.latest_complete_run(t, last, grids.http_exists))
+        download = download or grids.download_run
+        reader = reader or grids.read_step
 
     try:
         run = find(now, steps[-1])
@@ -128,9 +149,8 @@ def update(
         else:
             log(f"Run nuevo {grids.run_id(run)}: descargando {len(steps)} pasos")
             dl = download(run, work_dir, steps, region)
-            out = encode.encode_run(
-                work_dir / grids.run_id(run), out_root, model, update_latest=False
-            )
+            raw = work_dir / grids.run_id(run)
+            out = encode.encode_run(raw, out_root, model, update_latest=False, reader=reader)
             problems = validate_run(out, sorted(dl.files))
             if sorted(dl.files) != steps:
                 problems.append(f"descarga incompleta: {sorted(dl.files)}")
@@ -140,6 +160,8 @@ def update(
             else:
                 encode.write_latest(model_dir, run)
                 removed = prune(model_dir, keep)
+                if not keep_raw:
+                    shutil.rmtree(raw, ignore_errors=True)  # GRIB crudos (hasta ~155 MB con ECMWF)
                 result = UpdateResult(
                     "actualizado", encode.iso(run), f"publicado; borrados: {removed or 'ninguno'}"
                 )
@@ -154,12 +176,18 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     root = Path(__file__).resolve().parents[2]
     parser.add_argument("--salida", type=Path, default=root / "out/web/data")
-    parser.add_argument("--trabajo", type=Path, default=root / "out/gfs")
+    parser.add_argument("--trabajo", type=Path, default=root / "out/raw")
     parser.add_argument("--keep", type=int, default=2)
     parser.add_argument("--region", choices=sorted(grids.REGIONS), default="colombia")
+    parser.add_argument("--modelo", choices=["gfs", "ecmwf", "todos"], default="todos")
     args = parser.parse_args(argv)
-    result = update(args.salida, args.trabajo, keep=args.keep, region=args.region)
-    return 1 if result.status == "error" else 0
+    models = ["gfs", "ecmwf"] if args.modelo == "todos" else [args.modelo]
+    results = [
+        update(args.salida, args.trabajo / m, model=m, keep=args.keep, region=args.region)
+        for m in models
+    ]
+    # Un modelo que falla no impide publicar el otro; el código de salida avisa del fallo.
+    return 1 if any(r.status == "error" for r in results) else 0
 
 
 if __name__ == "__main__":

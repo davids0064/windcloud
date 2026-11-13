@@ -18,7 +18,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | Fuente | Qué da | Clave | Licencia | Uso | Verificar |
 |---|---|---|---|---|---|
 | **NOAA GFS 0.25° (NOMADS)** | GRIB2 global cada 6 h, 384 h | No | Dominio público | Texturas de viento, ráfagas, nubes, lluvia ✅ descarga en uso | ✅ 2026-11-13: filtro con subregión OK; run 06Z con f072 publicado a las ~15:00 UTC; 404 + HTML si no existe; se usa 1 s entre peticiones. Alternativa: bucket `noaa-gfs-bdp-pds` en AWS |
-| **ECMWF Open Data** | GRIB2 0.25° IFS y AIFS | No | CC BY 4.0 | Texturas de viento ECMWF | Variables y resolución abiertas actuales |
+| **ECMWF Open Data** | GRIB2 0.25° IFS y AIFS | No | CC BY 4.0 («© ECMWF») | ✅ Segundo modelo de las capas del mapa (T-31) | ✅ 2026-11-13: GRIB global ~101 MB/paso con índice JSON y rangos HTTP (se bajan 11 campos, ~6 MB/paso); runs 00/06/12/18; 00Z completo a las ~07:30 UTC; `10fg` = ráfaga máx. última hora; `tcc` en fracción; `tprate` tasa instantánea |
 | **DWD ICON (opendata.dwd.de)** | GRIB2 global ICON | No | Abierta con atribución | Opcional, tercer modelo en mapa | Formato de rejilla icosaédrica (requiere regridding) |
 
 ## Observación (lo que realmente pasó)

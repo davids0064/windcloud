@@ -18,7 +18,7 @@ import { scalarFileUrl } from './layers/forecastLayers'
 import { scalarUrl } from './layers/scalarUrl'
 import type { ScalarName } from './layers/scalarStyles'
 import { ForecastPanel } from './wind/ForecastPanel'
-import { useForecastGrid } from './wind/useForecastGrid'
+import { useForecastGrid, type GridModel } from './wind/useForecastGrid'
 import './App.css'
 
 // El mapa (MapLibre + deck.gl) se carga aparte para no inflar el bundle inicial (RNF-2).
@@ -47,7 +47,8 @@ export default function App() {
   const [windOn, setWindOn] = useState(true)
   const [scalar, setScalar] = useState<ScalarName | null>(null)
   const [isobarsOn, setIsobarsOn] = useState(false)
-  const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn)
+  const [gridModel, setGridModel] = useState<GridModel>('gfs')
+  const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn, gridModel)
   const gridReady = grid.status === 'ready' ? grid : null
   const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null
   const scalarLayer =
@@ -156,6 +157,8 @@ export default function App() {
             onBasemapChange={setBasemap}
             wind={
               <ForecastPanel
+                model={gridModel}
+                onModel={setGridModel}
                 state={grid}
                 windOn={windOn}
                 onWindOn={setWindOn}

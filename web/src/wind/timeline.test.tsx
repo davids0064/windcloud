@@ -110,6 +110,17 @@ describe('useForecastGrid (T-35, T-36)', () => {
     expect(urls.some((u) => u.includes('wind_'))).toBe(false)
   })
 
+  it('cambiar de modelo lee el latest.json de ese modelo', async () => {
+    const { result, rerender } = renderHook(({ m }) => useForecastGrid(true, true, m), {
+      initialProps: { m: 'gfs' as 'gfs' | 'ecmwf' },
+    })
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+    rerender({ m: 'ecmwf' })
+    await waitFor(() => expect(urls.some((u) => u.endsWith('/ecmwf/latest.json'))).toBe(true))
+    await waitFor(() => expect(result.current.status).toBe('ready'))
+    expect((result.current as { model: string }).model).toBe('ecmwf')
+  })
+
   it('apagado no pide nada; sin datos publicados lo dice', async () => {
     const { result } = renderHook(() => useForecastGrid(false))
     expect(result.current.status).toBe('off')
@@ -158,6 +169,7 @@ describe('ForecastPanel', () => {
   } as unknown as GridMeta
   const state = {
     status: 'ready' as const,
+    model: 'gfs' as const,
     loaded: { meta: metaWithScalars, base: '/data/gfs/x' },
     field: {} as never,
     level: '10m' as const,
@@ -168,6 +180,8 @@ describe('ForecastPanel', () => {
     togglePlay: vi.fn(),
   }
   const base = {
+    model: 'gfs' as const,
+    onModel: vi.fn(),
     state,
     windOn: true,
     onWindOn: vi.fn(),
@@ -214,6 +228,14 @@ describe('ForecastPanel', () => {
     expect(screen.getByText('Lluvia (tasa instantánea) (mm/h)')).toBeInTheDocument()
     expect(screen.getByText('0,5')).toBeInTheDocument()
     expect(screen.getByText('Presión reducida al nivel del mar.')).toBeInTheDocument()
+  })
+
+  it('selector de modelo GFS / ECMWF', () => {
+    render(<ForecastPanel {...base} />)
+    expect(screen.getByRole('radio', { name: 'GFS' })).toHaveAttribute('aria-checked', 'true')
+    fireEvent.click(screen.getByRole('radio', { name: 'ECMWF' }))
+    expect(base.onModel).toHaveBeenCalledWith('ecmwf')
+    expect(screen.queryByText(/ECMWF llegará/)).not.toBeInTheDocument()
   })
 
   it('sin datos publicados lo dice en vez de mostrar capas', () => {

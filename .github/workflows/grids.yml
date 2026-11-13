@@ -1,6 +1,7 @@
-name: Rejillas GFS
+name: Rejillas de pronóstico
 
-# Descarga y codifica el run de GFS más reciente y lo publica en la rama `grids` (T-33, RNF-5).
+# Descarga y codifica el run más reciente de GFS y de ECMWF y los publica en la rama `grids` (T-33, T-31).
+# - ECMWF completa sus 72 h unas 7,5 h después del run (más tarde que GFS); el reintento suele alcanzarlo.
 # - GFS corre a las 00/06/12/18 UTC y NOMADS completa los 72 h unas 5 h después (medido 2026-11-13):
 #   se intenta a las +4 h 45 min y se reintenta 1,5 h más tarde. Si el run ya está publicado no hace nada.
 # - La rama `grids` tiene UN solo commit que se reemplaza (sin historial que crezca) con los 2 últimos runs.
@@ -41,26 +42,39 @@ jobs:
         working-directory: pipeline
         run: uv sync --locked
 
-      - name: Actualizar rejillas
+      - name: Actualizar rejillas (GFS y ECMWF)
+        id: update
         working-directory: pipeline
-        run: uv run python -m windcloud_pipeline.update --salida ../publish/data --trabajo ../work
+        # Si un modelo falla, el otro se publica igual; el paso queda en rojo al final (ver "Resultado").
+        continue-on-error: true
+        run: uv run python -m windcloud_pipeline.update --modelo todos --salida ../publish/data --trabajo ../work
 
       - name: Publicar en la rama grids (commit único)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          result=$(jq -r .result publish/data/gfs/status.json)
-          if [ "$result" != "actualizado" ]; then
-            echo "Sin cambios que publicar ($result)."
+          changed=""
+          for m in gfs ecmwf; do
+            f="publish/data/$m/status.json"
+            [ -f "$f" ] && [ "$(jq -r .result "$f")" = "actualizado" ] && changed="$changed $m"
+          done
+          if [ -z "$changed" ]; then
+            echo "Sin cambios que publicar."
             exit 0
           fi
-          run=$(jq -r .run publish/data/gfs/latest.json)
+          run="$(for m in gfs ecmwf; do [ -f publish/data/$m/latest.json ] && echo "$m $(jq -r .run publish/data/$m/latest.json)"; done | paste -sd ',' -)"
           cd publish
           git init --quiet -b grids
           git add -A
           git -c user.name="windcloud-bot" \
               -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
-              commit --quiet -m "Rejillas GFS run ${run}"
+              commit --quiet -m "Rejillas:${changed} (${run})"
           git push --quiet --force \
             "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" grids
           echo "Publicado run ${run} ($(du -sh data | cut -f1))."
+
+      - name: Resultado
+        if: steps.update.outcome == 'failure'
+        run: |
+          echo "::error::Al menos un modelo falló (ver el paso de actualización y data/*/status.json)."
+          exit 1

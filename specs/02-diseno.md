@@ -154,6 +154,19 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Limitación conocida:** en Relieve 3D las partículas van a nivel del mar (no siguen el terreno).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
 
+### 4.1.0 Segundo modelo: ECMWF Open Data (T-31) — `pipeline/src/windcloud_pipeline/ecmwf.py`
+- `https://data.ecmwf.int/forecasts/{AAAAMMDD}/{HH}z/ifs/0p25/oper/…-{paso}h-oper-fc.grib2` (~101 MB global por
+  paso) + `.index` (JSON por campo con `_offset`/`_length`). Se bajan por **rangos HTTP** solo 11 campos (10u, 10v,
+  u/v 850 y 500, 10fg, tcc, tprate, 2t, msl): ~6 MB/paso, ~155 MB/run, ~10 min (275 peticiones, 0,2 s de cortesía).
+- Normalización a las convenciones de GFS: `tcc` fracción → %; `10fg` es la **ráfaga máxima de la última hora**
+  (`stepType` max) y en f000 no existe (se omite); `tprate` tasa instantánea; rejilla global recortada a la región.
+  Mismos nombres de campo → mismo `encode_run` (con `reader`) y mismo `meta.json` (`/data/ecmwf/…`).
+- `update --modelo todos` actualiza ambos; un modelo que falla no impide publicar el otro; los GRIB crudos se borran
+  tras publicar. Validación basada en lo que declara `meta.json`.
+- Web: selector **GFS / ECMWF** que cambia todas las capas de pronóstico; meta e imágenes en caché por modelo; al
+  cambiar, se vuelve a la hora más cercana a ahora del run de ese modelo. Aviso de antigüedad por modelo según su
+  latencia medida: GFS > 9 h, ECMWF > 14 h.
+
 ### 4.1.1 Capas de color e isobaras (T-36, RF-4, RF-5)
 - **Pipeline:** además de viento, GFS aporta TMP 2 m (`2t`, K → °C, PNG −10…40 °C) y PRMSL (`prmsl`, Pa). Isobaras cada
   2 hPa con **contourpy** sobre la rejilla en grados, tras **suavizado binomial** (3 pasadas [1,4,6,4,1]/16): la

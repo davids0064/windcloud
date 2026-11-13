@@ -92,4 +92,10 @@ export function windFrame(meta: GridMeta, level: WindLevel, step: number): WindF
 export const runAgeHours = (meta: Pick<GridMeta, 'run'>, now: Date) =>
   (now.getTime() - Date.parse(meta.run)) / 3_600_000
 
-export const STALE_GRID_HOURS = 9
+/**
+ * Antigüedad del run a partir de la cual se avisa, por modelo. Según la latencia medida (2026-11-13): GFS completa
+ * sus 72 h ~5 h después del run y ECMWF ~7,5 h; con runs cada 6 h, lo normal es hasta ~11 h y ~13,5 h. Avisar por
+ * debajo de eso haría que el aviso saliera siempre y dejara de significar algo.
+ */
+export const STALE_GRID_HOURS: Record<string, number> = { gfs: 9, ecmwf: 14 }
+export const staleHours = (model: string) => STALE_GRID_HOURS[model] ?? 9

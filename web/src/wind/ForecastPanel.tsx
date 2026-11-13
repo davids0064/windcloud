@@ -9,9 +9,9 @@ import {
 import { DataChip } from '../ui/DataChip'
 import { SourceLine } from '../ui/SourceLine'
 import { rampGradient, SPEED_MAX_MS } from './colorRamp'
-import { runAgeHours, STALE_GRID_HOURS, type WindLevel } from './meta'
+import { runAgeHours, staleHours, type WindLevel } from './meta'
 import { LEVEL_LABELS, leadLabel, nowPosition, relativeLabel, validLabel } from './timeline'
-import type { useForecastGrid } from './useForecastGrid'
+import type { GridModel, useForecastGrid } from './useForecastGrid'
 
 type GridState = ReturnType<typeof useForecastGrid>
 
@@ -25,7 +25,14 @@ const SCALAR_OPTIONS: { value: ScalarName | null; label: string }[] = [
 ]
 const num = (x: number) => x.toLocaleString('es-CO', { maximumFractionDigits: 1 })
 
+const MODELS: { value: GridModel; label: string; title: string }[] = [
+  { value: 'gfs', label: 'GFS', title: 'GFS 0,25° de NOAA (EE. UU.)' },
+  { value: 'ecmwf', label: 'ECMWF', title: 'IFS 0,25° del Centro Europeo (Open Data)' },
+]
+
 interface Props {
+  model: GridModel
+  onModel: (m: GridModel) => void
   state: GridState
   windOn: boolean
   onWindOn: (on: boolean) => void
@@ -53,6 +60,21 @@ export function ForecastPanel(props: Props) {
       <div className="wind-panel__head">
         <h2 id="forecast-panel-title">Pronóstico</h2>
         <DataChip kind="pronostico" />
+      </div>
+
+      <div className="segmented" role="radiogroup" aria-label="Modelo de pronóstico">
+        {MODELS.map((m) => (
+          <button
+            key={m.value}
+            type="button"
+            role="radio"
+            aria-checked={props.model === m.value}
+            title={m.title}
+            onClick={() => props.onModel(m.value)}
+          >
+            {m.label}
+          </button>
+        ))}
       </div>
 
       {anyOn && state.status === 'loading' && <p>Cargando rejillas de pronóstico…</p>}
@@ -213,9 +235,10 @@ export function ForecastPanel(props: Props) {
 
       {anyOn && ready && (
         <>
-          {runAgeHours(ready.loaded.meta, now) > STALE_GRID_HOURS && (
+          {runAgeHours(ready.loaded.meta, now) > staleHours(ready.loaded.meta.model) && (
             <p className="wind-panel__warn">
-              ⚠ El run tiene más de {STALE_GRID_HOURS} h: puede estar desactualizado.
+              ⚠ El run tiene más de {staleHours(ready.loaded.meta.model)} h: puede estar
+              desactualizado.
             </p>
           )}
           <SourceLine
@@ -224,7 +247,6 @@ export function ForecastPanel(props: Props) {
               label: `run ${formatRunUtc(new Date(ready.loaded.meta.run))}`,
               dateTime: ready.loaded.meta.run,
             }}
-            extra="ECMWF llegará en una próxima versión"
           />
         </>
       )}

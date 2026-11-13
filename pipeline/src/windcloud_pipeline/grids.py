@@ -65,21 +65,21 @@ LEVELS = (
     "mean_sea_level",
 )
 
-#: Campo de salida ← (shortName de eccodes, typeOfLevel, level). Siempre stepType "instant".
-FIELDS: dict[str, tuple[str, str, int]] = {
-    "u10": ("10u", "heightAboveGround", 10),
-    "v10": ("10v", "heightAboveGround", 10),
-    "u850": ("u", "isobaricInhPa", 850),
-    "v850": ("v", "isobaricInhPa", 850),
-    "u500": ("u", "isobaricInhPa", 500),
-    "v500": ("v", "isobaricInhPa", 500),
-    "gust": ("gust", "surface", 0),
-    "tcc": ("tcc", "atmosphere", 0),
-    "prate": ("prate", "surface", 0),
-    "t2m": ("2t", "heightAboveGround", 2),  # K
-    "prmsl": ("prmsl", "meanSea", 0),  # Pa, reducida al nivel del mar
+#: Campo ← (shortName de eccodes, typeOfLevel, level, stepType). GFS: siempre instantáneos.
+FieldSpec = tuple[str, str, int, str]
+FIELDS: dict[str, FieldSpec] = {
+    "u10": ("10u", "heightAboveGround", 10, "instant"),
+    "v10": ("10v", "heightAboveGround", 10, "instant"),
+    "u850": ("u", "isobaricInhPa", 850, "instant"),
+    "v850": ("v", "isobaricInhPa", 850, "instant"),
+    "u500": ("u", "isobaricInhPa", 500, "instant"),
+    "v500": ("v", "isobaricInhPa", 500, "instant"),
+    "gust": ("gust", "surface", 0, "instant"),
+    "tcc": ("tcc", "atmosphere", 0, "instant"),
+    "prate": ("prate", "surface", 0, "instant"),
+    "t2m": ("2t", "heightAboveGround", 2, "instant"),  # K
+    "prmsl": ("prmsl", "meanSea", 0, "instant"),  # Pa, reducida al nivel del mar
 }
-STEP_TYPE = "instant"
 
 DEFAULT_STEPS = tuple(range(0, 73, 3))  # 0–72 h cada 3 h = 25 pasos (diseño §4.1)
 POLITE_DELAY_S = 1.0  # NOMADS bloquea temporalmente a quien hace demasiadas peticiones por minuto
@@ -269,9 +269,9 @@ class GridStep:
         return self.run + timedelta(hours=self.step)
 
 
-def read_step(path: Path) -> GridStep:
-    """Lee un GRIB2 del filtro y devuelve los campos de FIELDS (valores instantáneos)."""
-    wanted = {key: name for name, key in FIELDS.items()}
+def read_step(path: Path, fields: dict[str, FieldSpec] | None = None) -> GridStep:
+    """Lee un GRIB2 y devuelve los campos de `fields` (por defecto los de GFS, instantáneos)."""
+    wanted = {spec: name for name, spec in (fields or FIELDS).items()}
     fields: dict[str, np.ndarray] = {}
     lats = lons = None
     run: datetime | None = None
@@ -283,9 +283,10 @@ def read_step(path: Path) -> GridStep:
                     eccodes.codes_get(h, "shortName"),
                     eccodes.codes_get(h, "typeOfLevel"),
                     int(eccodes.codes_get(h, "level")),
+                    eccodes.codes_get(h, "stepType"),
                 )
                 name = wanted.get(key)
-                if name is None or eccodes.codes_get(h, "stepType") != STEP_TYPE:
+                if name is None:
                     continue  # TCDC a 500/850 hPa (sobrante del filtro) o promedios de intervalo
                 ni, nj = eccodes.codes_get(h, "Ni"), eccodes.codes_get(h, "Nj")
                 values = eccodes.codes_get_values(h).reshape(nj, ni)
@@ -311,6 +312,17 @@ def read_step(path: Path) -> GridStep:
     if run is None or lats is None or lons is None:
         raise ValueError(f"Sin campos reconocibles en {path}")
     return GridStep(run=run, step=step, lats=lats, lons=lons, fields=fields)
+
+
+def crop(step: GridStep, bbox: tuple[float, float, float, float] | None) -> GridStep:
+    """Recorta un paso a (oeste, este, sur, norte); None = sin recorte."""
+    if bbox is None:
+        return step
+    west, east, south, north = bbox
+    rows = (step.lats <= north + 1e-6) & (step.lats >= south - 1e-6)
+    cols = (step.lons >= west - 1e-6) & (step.lons <= east + 1e-6)
+    fields = {k: v[np.ix_(rows, cols)] for k, v in step.fields.items()}
+    return GridStep(step.run, step.step, step.lats[rows], step.lons[cols], fields)
 
 
 def wind_speed(u: np.ndarray, v: np.ndarray) -> np.ndarray:

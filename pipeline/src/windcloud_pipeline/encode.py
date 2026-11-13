@@ -23,6 +23,7 @@ import argparse
 import json
 import math
 import shutil
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -35,7 +36,11 @@ from PIL import Image
 from . import grids
 
 SCHEMA = 1
-MODEL_LABEL = {"gfs": "GFS 0,25° (NOAA)"}
+MODEL_LABEL = {"gfs": "GFS 0,25° (NOAA)", "ecmwf": "ECMWF IFS 0,25° (Open Data)"}
+MODEL_SOURCE = {
+    "gfs": "NOAA/NCEP GFS 0,25° (NOMADS), dominio público",
+    "ecmwf": "ECMWF Open Data (IFS 0,25°), CC BY 4.0",
+}
 
 #: Niveles de viento: clave de salida → (campo u, campo v, etiqueta)
 WIND_LEVELS: dict[str, tuple[str, str, str]] = {
@@ -149,9 +154,12 @@ def decode_scalar(pixel: np.ndarray, spec: ScalarSpec) -> np.ndarray:
 def scalar_fields(step: grids.GridStep) -> dict[str, np.ndarray]:
     """Escalares en unidades de presentación (km/h, %, mm/h)."""
     f = step.fields
-    speed10 = grids.wind_speed(f["u10"], f["v10"])
-    out: dict[str, np.ndarray] = {"gust": np.fmax(f["gust"], speed10) * grids.MS_TO_KMH}
-    out["tcc"] = f["tcc"]
+    out: dict[str, np.ndarray] = {}
+    if "gust" in f:
+        speed10 = grids.wind_speed(f["u10"], f["v10"])
+        out["gust"] = np.fmax(f["gust"], speed10) * grids.MS_TO_KMH
+    if "tcc" in f:
+        out["tcc"] = f["tcc"]
     if "prate" in f:
         out["prate"] = f["prate"] * grids.KGM2S_TO_MMH
     if "t2m" in f:
@@ -215,13 +223,17 @@ def iso(dt: datetime) -> str:
 
 
 def encode_run(
-    run_dir: Path, out_root: Path, model: str = "gfs", update_latest: bool = True
+    run_dir: Path,
+    out_root: Path,
+    model: str = "gfs",
+    update_latest: bool = True,
+    reader: Callable[[Path], grids.GridStep] = grids.read_step,
 ) -> Path:
     """Codifica los fHHH.grib2 de `run_dir` en `out_root/<model>/<run>/` (escritura atómica)."""
     paths = sorted(run_dir.glob("f*.grib2"), key=lambda p: int(p.stem[1:]))
     if not paths:
         raise FileNotFoundError(f"Sin GRIB2 en {run_dir}")
-    steps = [grids.read_step(p) for p in paths]
+    steps = [reader(p) for p in paths]
     first = steps[0]
     west, east = float(first.lons[0]), float(first.lons[-1])
     north, south = float(first.lats[0]), float(first.lats[-1])
@@ -259,7 +271,7 @@ def encode_run(
         "schema": SCHEMA,
         "model": model,
         "modelLabel": MODEL_LABEL.get(model, model),
-        "source": grids.SOURCE,
+        "source": MODEL_SOURCE.get(model, grids.SOURCE),
         "run": iso(first.run),
         "generatedAt": iso(datetime.now(UTC)),
         "bounds": {"west": west, "east": east, "north": north, "south": south},

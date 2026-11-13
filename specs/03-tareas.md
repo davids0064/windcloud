@@ -33,7 +33,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 ## Fase 2 · Viento animado y capas de pronóstico
 - [x] **T-30** `pipeline/grids.py`: bajar GFS 0.25° (u/v 10 m, 850, 500 hPa, GUST, TCDC, PRATE) vía filtro NOMADS. → RF-2
       Región Colombia ampliada por defecto; run completo real: 25 pasos, 16,5 MB, 41 s. Valores instantáneos.
-- [ ] **T-31** Añadir ECMWF Open Data (u/v) al mismo pipeline. → RF-2
+- [x] **T-31** Añadir ECMWF Open Data (u/v) al mismo pipeline. → RF-2
+      Más allá de u/v: ráfagas, nubes, lluvia, temperatura y presión (todas las capas). Descarga por rangos (~6 MB/paso); selector GFS/ECMWF.
 - [x] **T-32** Codificar PNG (R=u, G=v) + `meta.json`; escalares (ráfaga, nubes, lluvia) como PNG coloreable. → RF-2, RF-3, RF-4
       `pipeline/…/encode.py`: filas remuestreadas a Mercator; run real = 150 PNG, 5,7 MB, 2,7 s; verificado contra el GRIB.
 - [x] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5
@@ -46,7 +47,7 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       Coloreadas en el navegador (MapLibre 6 sin `raster-color`); isobaras suavizadas (ruido de montaña); línea de tiempo común.
 - [x] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
       **Ausencia documentada:** RainViewer no cubre las ciudades colombianas (su máscara: solo Leticia). Aviso + enlaces a SAB y SIATA.
-  *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad.
+  *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad. ✅ **Fase 2 completa (2026-11-13): 60 fps (48 reproduciendo); GFS 12Z con 5 h.** ECMWF llega con ~7,5 h de latencia (aviso a 14 h).
 
 ## Fase 3 · Precisión verificada
 - [ ] **T-40** `stations.json`: aeropuertos METAR de Colombia y vecinos (código ICAO, lat, lon, altitud). → RF-9

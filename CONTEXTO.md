@@ -11,16 +11,16 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 7/8** (T-30, T-32…T-37 ✅; T-33 verificado en local, falta 1.ª corrida en GitHub). Falta T-31 (ECMWF). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. **Fase 2 ✅ completa** (8/8; T-33 aún sin 1.ª corrida en GitHub). Siguiente: **Fase 3** (precisión verificada). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-37 (radar: ausencia documentada para Colombia, aviso + enlaces SAB/SIATA) |
-| Siguiente tarea | **T-31** ECMWF Open Data (última de la fase 2); o subir el código para que `grids.yml` corra |
+| Última tarea cerrada | T-31 (ECMWF Open Data como segundo modelo de todas las capas; selector GFS/ECMWF) |
+| Siguiente tarea | **Fase 3:** T-40 `stations.json` (aeropuertos METAR) → T-41 verificación. O subir el código para que `grids.yml` corra |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
-| Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (no hace nada si el run ya está publicado) |
+| Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (GFS y ECMWF; no hace nada si el run ya está publicado; ECMWF tarda ~10 min) |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
 | Bloqueos | Ninguno para trabajo local |
@@ -96,6 +96,8 @@
 | 2026-11-13 | Rejillas publicadas en rama `grids` con un único commit reemplazado (no en main, no artefactos) | Sin historial que crezca (~26 MB/día); accesible para deploy; si falla no se toca | 02 §1 |
 | 2026-11-13 | Cron +4 h 45 min tras cada run + reintento +1,5 h | Medido: 12Z completo ~17:00 UTC (≈ 5 h) | 02 §1 |
 | 2026-11-13 | **No integrar RainViewer**; documentar ausencia de radar en Colombia y enlazar SAB/SIATA | Su máscara no cubre ninguna ciudad colombiana (solo Leticia); licencia personal/educativa, zoom 7, 100 pet./min | 02 §4.3, 04 |
+| 2026-11-13 | ECMWF con **todas** las capas (no solo u/v) y descarga por rangos HTTP | El índice trae ráfaga, nubes, lluvia, temperatura y presión por ~6 MB/paso | 02 §4.1.0 |
+| 2026-11-13 | Aviso de antigüedad por modelo (GFS 9 h, ECMWF 14 h) | ECMWF publica ~7,5 h tras el run: con 9 h el aviso saldría casi siempre | 02 §4.1.0 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -186,6 +188,10 @@
   líneas falsas: suavizar (los mapas sinópticos lo hacen).
 - **El chequeo de bundle volvió a salvar:** `App` importaba `scalarUrl` desde un módulo que importa MapLibre (368 KB).
   Regla: helpers de URL/constantes en módulos sin dependencias (`layers/scalarUrl.ts`).
+- **ECMWF Open Data:** GRIB global ~101 MB/paso con `.index` JSON y rangos HTTP; `tcc` en fracción, `10fg` ráfaga
+  máx. de la última hora (nula en f000), `tprate` instantánea, `entireAtmosphere`. 00Z completo ~07:30 UTC.
+- Fixtures de ECMWF: se recortan mensajes reales con eccodes (`codes_clone` + Ni/Nj/lat/lon + valores): 6 KB.
+- La guarda de seguridad bloquea `rm -rf $VAR`: para pruebas usar `mktemp -d` y no borrar.
 - **RainViewer 2026:** API viva pero recortada (zoom > 7 → imagen «Zoom Level Not Supported»; todas las teselas de
   ese zoom tienen el mismo número de píxeles). En su máscara de cobertura **negro opaco = SIN radar** (al revés de lo
   que sugiere la imagen); comprobarlo con una zona de control (EE. UU.). Lista 8 radares colombianos que no aparecen.
@@ -213,6 +219,19 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-31 ECMWF Open Data → **Fase 2 completa**
+- **Tareas:** T-31 ✅ — fase 2 queda 8/8.
+- **Exploración real:** índice JSON + rangos; 11 campos disponibles (incl. ráfaga, nubes, lluvia, temperatura, presión);
+  metadatos distintos a GFS (tcc fracción, 10fg máx. 1 h, entireAtmosphere); latencia ~7,5 h.
+- **Hecho:** `grids.read_step(fields)` con tipo de paso, `grids.crop`; `ecmwf.py` (run, índice, rangos con reintentos,
+  validación GRIB, lector que recorta y normaliza); `encode_run(reader=…)` y escalares opcionales; `update --modelo`
+  (ambos modelos, validación desde `meta.json`, borrado de GRIB crudos); `grids.yml` publica ambos; web con selector
+  GFS/ECMWF (`useForecastGrid(model)`), aviso por modelo, Metodología, README y 04 con atribución «© ECMWF».
+- **Verificado:** pipeline 46 ✓ (fixtures ECMWF reales recortados de 6 KB), web 180 ✓. Run real ECMWF 06Z publicado
+  (25 pasos, 6,8 MB, 10,5 min). Chrome: GFS 12Z (+6 h) y ECMWF 06Z (+12 h) a la misma hora válida, sin avisos,
+  temperatura/viento ECMWF coherentes, consola limpia.
+- **Pendiente:** subir código (T-33/T-04); fase 3.
 
 ### 2026-11-13 · T-37 Radar de lluvia → ausencia documentada
 - **Tareas:** T-37 ✅

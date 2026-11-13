@@ -40,7 +40,7 @@ WindCloud no produce pronósticos propios: reúne y compara los de estas fuentes
 |---|---|---|
 | [Open-Meteo](https://open-meteo.com/) | Pronóstico multi-modelo, ensambles, runs anteriores, geocodificación | Datos CC BY 4.0; API gratuita **solo para uso no comercial** |
 | [NOAA GFS / NOMADS](https://nomads.ncep.noaa.gov/) | Rejillas de viento, nubes y lluvia | Dominio público |
-| [ECMWF Open Data](https://www.ecmwf.int/en/forecasts/datasets/open-data) | Rejillas de viento IFS / AIFS | CC BY 4.0 |
+| [ECMWF Open Data](https://www.ecmwf.int/en/forecasts/datasets/open-data) | Viento, ráfagas, nubes, lluvia, temperatura y presión (IFS 0,25°) | © ECMWF, CC BY 4.0 |
 | [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api) | Imágenes satelitales GOES de nubes | Abierta, con atribución a NASA |
 | [aviationweather.gov](https://aviationweather.gov/data/api/) | Observaciones METAR para verificar modelos | Dominio público (NOAA) |
 | [IDEAM / datos.gov.co](https://www.datos.gov.co/) | Estaciones hidrometeorológicas de Colombia | Datos abiertos de Colombia |
