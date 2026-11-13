@@ -124,3 +124,19 @@ def test_el_valor_decodificado_coincide_con_el_grib_en_bogota(tmp_path):
     u_px = np.asarray(Image.open(out / "wind_10m_003.png"))[k, j, 0]
     u = r["uMin"] + u_px / 255 * (r["uMax"] - r["uMin"])
     assert u == pytest.approx(float(g.fields["u10"][i, j]), abs=0.5)
+
+
+def test_latest_json_apunta_al_run_mas_reciente_y_no_retrocede(tmp_path):
+    from datetime import UTC, datetime
+
+    d = tmp_path / "gfs"
+    d.mkdir()
+    encode.write_latest(d, datetime(2026, 11, 13, 6, tzinfo=UTC))
+    assert json.loads((d / "latest.json").read_text()) == {
+        "run": "2026-11-13T06:00:00Z",
+        "meta": "2026111306/meta.json",
+    }
+    encode.write_latest(d, datetime(2026, 11, 13, 12, tzinfo=UTC))
+    encode.write_latest(d, datetime(2026, 11, 13, 0, tzinfo=UTC))  # más viejo: se ignora
+    assert json.loads((d / "latest.json").read_text())["run"] == "2026-11-13T12:00:00Z"
+    assert not list(d.glob("*.tmp"))

@@ -260,3 +260,42 @@
     top: 10px;
   }
 }
+
+.wind-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wind-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.wind-panel__toggle input {
+  accent-color: var(--accent);
+}
+
+.wind-panel__legend {
+  display: grid;
+  gap: 2px;
+}
+
+.wind-panel__bar {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.wind-panel__ticks {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.wind-panel__warn {
+  color: var(--estimated) !important;
+}

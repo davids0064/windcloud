@@ -14,6 +14,8 @@ import { ComingSoon } from './shell/tabs/ComingSoon'
 import { MapTab } from './shell/tabs/MapTab'
 import { MethodologyTab } from './shell/tabs/MethodologyTab'
 import { PointTab } from './shell/tabs/PointTab'
+import { useWindField } from './wind/useWindField'
+import { WindPanel } from './wind/WindPanel'
 import './App.css'
 
 // El mapa (MapLibre + deck.gl) se carga aparte para no inflar el bundle inicial (RNF-2).
@@ -39,6 +41,8 @@ export default function App() {
   const [basemap, setBasemap] = useState<BasemapId>('oscuro')
   const [cloudKind, setCloudKind] = useState<CloudKind | null>('infrarrojo')
   const cloud = useCloudAnimation(cloudKind)
+  const [windOn, setWindOn] = useState(true)
+  const windState = useWindField(windOn)
 
   const choosePoint = useCallback((p: SelectedPoint) => {
     setPoint(p)
@@ -91,6 +95,7 @@ export default function App() {
           selectedPoint={point}
           flyTo={flyTo}
           basemap={basemap}
+          wind={windState.status === 'ready' ? windState.field : null}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -120,6 +125,7 @@ export default function App() {
           <MapTab
             basemap={basemap}
             onBasemapChange={setBasemap}
+            wind={<WindPanel on={windOn} onToggle={setWindOn} state={windState} />}
             clouds={
               <CloudPanel
                 kind={cloudKind}

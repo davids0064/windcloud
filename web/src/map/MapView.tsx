@@ -10,6 +10,8 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useRef, useState } from 'react'
 import type { CloudLayerInfo } from '../api/gibs'
+import { initialParticleCount } from '../wind/particles'
+import { WIND_LAYER_ID, WindLayer, type WindField } from '../wind/WindLayer'
 import {
   applyBasemap,
   DARK_STYLE_URL,
@@ -41,6 +43,10 @@ import './MapView.css'
 setWorkerUrl(maplibreWorkerUrl)
 registerCloudProtocol() // teselas de nubes con fondo transparente (cloudAlpha.ts)
 
+/** Las nubes van debajo del viento (si está) y de los departamentos. */
+const cloudsBefore = (map: MapLibreMap) =>
+  map.getLayer(WIND_LAYER_ID) ? WIND_LAYER_ID : DEPARTMENTS_FILL
+
 export interface LatLon {
   lat: number
   lon: number
@@ -65,6 +71,8 @@ interface MapViewProps {
   flyTo?: FlyTarget | null
   /** Mapa base elegido en el menú (RF-1). */
   basemap?: BasemapId
+  /** Campo de viento a animar (T-34); null = capa apagada. */
+  wind?: WindField | null
   /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
   clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number; preloadAll?: boolean } | null
 }
@@ -76,6 +84,7 @@ export default function MapView({
   flyTo,
   clouds,
   basemap = 'oscuro',
+  wind = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
@@ -188,13 +197,38 @@ export default function MapView({
     const map = mapRef.current
     if (!ready || !map || !cloudLayer || !cloudFrames?.length) return
     if (cloudPreloadAll) {
-      ensureAllCloudFrames(map, cloudLayer, cloudFrames, cloudIndex, DEPARTMENTS_FILL)
+      ensureAllCloudFrames(map, cloudLayer, cloudFrames, cloudIndex, cloudsBefore(map))
     } else {
-      ensureCloudFrame(map, cloudLayer, cloudFrames, cloudIndex, DEPARTMENTS_FILL)
+      ensureCloudFrame(map, cloudLayer, cloudFrames, cloudIndex, cloudsBefore(map))
     }
     showCloudFrame(map, cloudFrames.length, cloudIndex)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- cloudKey resume capa y cuadros
   }, [ready, cloudKey, cloudIndex, cloudPreloadAll])
+
+  // Viento (T-34): una sola capa WebGL; cambiar de campo solo sube otra textura.
+  const windLayerRef = useRef<WindLayer | null>(null)
+  useEffect(() => {
+    const map = mapRef.current
+    if (!ready || !map) return
+    if (!wind) {
+      if (map.getLayer(WIND_LAYER_ID)) map.removeLayer(WIND_LAYER_ID)
+      windLayerRef.current = null
+      return
+    }
+    if (windLayerRef.current && map.getLayer(WIND_LAYER_ID)) {
+      windLayerRef.current.setField(wind)
+      return
+    }
+    const count = initialParticleCount({
+      width: window.innerWidth,
+      coarsePointer: window.matchMedia?.('(pointer: coarse)').matches ?? false,
+    })
+    const layer = new WindLayer(count, wind)
+    windLayerRef.current = layer
+    if (import.meta.env.DEV) (window as unknown as { __wcWind?: WindLayer }).__wcWind = layer // depuración
+    // Encima de las nubes, debajo de departamentos y nombres.
+    map.addLayer(layer, map.getLayer(DEPARTMENTS_FILL) ? DEPARTMENTS_FILL : undefined)
+  }, [ready, wind])
 
   useEffect(() => {
     const map = mapRef.current

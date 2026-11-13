@@ -14,7 +14,7 @@
 | Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 2/8** (T-30, T-32 ✅). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
 | Última tarea cerrada | T-32 (PNG de viento R=u/G=v y escalares + meta.json, filas en Mercator; 150 PNG, 5,7 MB/run) |
-| Siguiente tarea | **T-34** WindLayer WebGL de partículas (o T-33 workflow `grids.yml` / T-31 ECMWF) |
+| Siguiente tarea | **Terminar T-34** (ver bitácora: verificar visibilidad sobre tierra, docs, commit); luego T-35 |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
@@ -190,6 +190,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-34 Partículas de viento (EN CURSO, sin cerrar)
+- **Hecho:** pipeline escribe `latest.json`; plugin Vite `web/vite-plugin-local-data.ts` sirve `pipeline/out/web/data`
+  en `/data` (bloquea `..`); `web/src/wind/` (meta, colorRamp, motion, particles, shaders, glUtil, WindLayer
+  CustomLayer WebGL2, useWindField, WindPanel); sección «Viento a 10 m» en la pestaña Mapa. 152 pruebas web ✓.
+- **Verificado en Chrome:** partículas animadas sobre el Caribe (alisios), remolino frente a Panamá; **60 fps con
+  40 000 partículas** a 2500×1858 (WebGL2); aviso «run > 9 h» correcto.
+- **Pendiente para cerrar T-34:** (1) recargar la página y confirmar que la rampa aclarada (`#968ce0` inicial,
+  contraste ≥ 3:1 probado) hace visible el viento flojo sobre Colombia (en la última captura seguía tenue: la rampa
+  se crea en `onAdd`, puede requerir recarga completa); (2) probar Satélite/Relieve 3D y móvil; (3) actualizar
+  03-tareas (T-34 [x]) y 02-diseno §4.1 con lo construido; (4) commit final.
 
 ### 2026-11-13 · T-32 Rejillas a PNG + meta.json
 - **Tareas:** T-32 ✅

@@ -233,7 +233,23 @@ def encode_run(run_dir: Path, out_root: Path, model: str = "gfs") -> Path:
     if final.exists():
         shutil.rmtree(final)
     tmp.replace(final)
+    write_latest(out_root / model, first.run)
     return final
+
+
+def write_latest(model_dir: Path, run: datetime) -> Path:
+    """`latest.json` apunta al run más reciente (el navegador lo lee primero). Escritura atómica."""
+    latest = model_dir / "latest.json"
+    current = json.loads(latest.read_text(encoding="utf-8")) if latest.exists() else None
+    if current and current.get("run", "") > iso(run):
+        return latest  # nunca retroceder a un run más viejo
+    tmp = latest.with_suffix(".json.tmp")
+    tmp.write_text(
+        json.dumps({"run": iso(run), "meta": f"{grids.run_id(run)}/meta.json"}, indent=1),
+        encoding="utf-8",
+    )
+    tmp.replace(latest)
+    return latest
 
 
 def main(argv: list[str] | None = None) -> int:
