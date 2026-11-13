@@ -54,9 +54,11 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: `pipeline/data/stations.json` (43: 37 CO + 6 vecinos ≤ 100 km), generado con `windcloud_pipeline.stations`._
 - [x] **T-41** `pipeline/verify.py`: observaciones METAR (aviationweather.gov) + Previous Runs API de Open-Meteo. → RF-9
   _Hecho: `metar.py` (tope de 400 registros) + `verify.py` → `out/verify/pares/AAAA-MM-DD.csv`; 12/11: 2 583 pares de 42 estaciones._
-- [ ] **T-46** Investigar acceso a datos de cada red local (SAB, SIATA, CDIAC, CVC): ¿API o descarga abierta? ¿términos de uso? ¿licencia?
+- [x] **T-46** Investigar acceso a datos de cada red local (SAB, SIATA, CDIAC, CVC): ¿API o descarga abierta? ¿términos de uso? ¿licencia?
       Registrar resultado en `04-fuentes-de-datos.md`. Si no hay acceso permitido → solo enlace. → RF-9, RF-14
+  _Hecho: solo IDEAM (datos.gov.co, CC BY-SA, ~500 estaciones, diario) es integrable; SAB en vivo sin histórico (CC BY-NC); SIATA, CDIAC y CVC → solo enlace. T-47 empieza por IDEAM._
 - [ ] **T-47** Adaptadores `pipeline/sources/<red>.py` para las redes con acceso permitido + control de calidad + métricas por red. → RF-9
+  _Según T-46: `sources/ideam.py` (hora local, duplicados, m/s, QC, cobertura mínima); SAB solo si se decide capturar el acumulado diario._
 - [ ] **T-48** Reconfirmar Pereira (redhidro.org) y Bucaramanga (CDMB); actualizar estado. → RF-14
 - [ ] **T-49** `cityNetworks.json` + enlace "Red oficial de tu ciudad" en el panel de punto y listado en Precisión. → RF-14
 - [x] **T-42** Métricas MAE/sesgo/RMSE y POD/FAR/CSI, ventanas 7 y 30 días; pruebas con fixtures. → RF-9

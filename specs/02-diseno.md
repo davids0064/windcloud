@@ -288,9 +288,13 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
 2. **Observaciones**, por prioridad de precisión:
    1. **Redes locales de ciudad** (SAB Bogotá, SIATA Medellín, CDIAC Manizales, CVC Cali) — ver
       `04-fuentes-de-datos.md`. Solo si ofrecen acceso programático permitido por sus términos.
+      **Resultado T-46 (13/11/2026):** ninguna ofrece hoy un histórico abierto y vigente. SAB tiene una foto en vivo
+      (CC BY-NC) sin histórico; SIATA y CDIAC no tienen API ni licencia abierta; el dataset de la CVC está detenido
+      desde mayo de 2025. → Solo enlace (RF-14), salvo acceso concedido por solicitud.
       Cada red se integra con un adaptador `pipeline/sources/<red>.py` que normaliza a
       `{station_id, red, lat, lon, alt, time_utc, temp_c, precip_mm, wind_kmh}`.
-   2. Estaciones **IDEAM** vía datos.gov.co (Socrata) si la frecuencia y latencia sirven.
+   2. Estaciones **IDEAM** vía datos.gov.co (Socrata). **Sirve (T-46):** ~500 estaciones de lluvia y ~325 de
+      temperatura y viento, lote diario completo del día anterior, CC BY-SA 4.0; hora local y datos preliminares.
    3. **METAR** `aviationweather.gov/api/data/metar` (JSON, gratis) cada hora — cobertura mínima garantizada.
    - Control de calidad: descartar valores fuera de rango físico, saltos imposibles y estaciones con < 80 % de datos en la ventana.
    - Las métricas se publican **por red**, para no mezclar redes de distinta calidad sin decirlo.

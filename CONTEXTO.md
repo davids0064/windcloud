@@ -11,10 +11,10 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 6/10** (T-40 a T-45 ✅; faltan redes locales T-46…T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 7/10** (T-40 a T-46 ✅; faltan T-47…T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-45 (consenso ponderado por precisión verificada + «¿Por qué este número?» con pesos) |
-| Siguiente tarea | Fase 3 restante: T-46…T-49 (redes locales). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí). O pasar a Fase 4 |
+| Última tarea cerrada | T-46 (investigación de acceso a redes locales: solo IDEAM integrable) |
+| Siguiente tarea | **T-47** adaptador IDEAM (`sources/ideam.py`), luego T-48/T-49. **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 204 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
@@ -122,6 +122,9 @@
   el MAE a 1 día de la estación verificada más cercana (≤ 150 km, ventana 30 días, ≥ 14 días). Nubosidad y lluvia
   siempre pesos iguales. Se activa sola; mientras tanto el panel dice cuántos días lleva.
 
+- **2026-11-13 · Redes locales (T-46):** solo enlace para SAB, SIATA, CDIAC y CVC (sin histórico abierto vigente); la
+  verificación suma **IDEAM** (datos.gov.co, CC BY-SA) como segunda red. No se raspa ninguna página.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -133,6 +136,9 @@
 - ~~¿Partir `precision.json`?~~ Resuelto en T-43: resumen 64 KB + detalle por estación ~12 KB.
 - La rama `data` crece ~40 MB/año (pares + JSON reescritos a diario). Si algún día molesta: sacar `web/` del
   historial (rama aparte de commit único, como `grids`) y dejar con historial solo `pares/`.
+
+- ¿Pedir acceso a datos a SIATA (`solicitud.datos@siata.gov.co`) y CDIAC (`idea_man@unal.edu.co`)? Lo decide y envía
+  el usuario. ¿Capturar cada noche el acumulado diario del SAB (frágil) o basta IDEAM en Bogotá?
 
 ## 5. Aprendizajes y trampas conocidas
 
@@ -244,6 +250,10 @@
 - `Intl.DateTimeFormat('es-CO', {day: '2-digit'})` da «6/11» (sin cero) en Node: las fechas de datos se arman a mano
   desde el ISO para que pruebas y navegador coincidan.
 
+- **IDEAM en datos.gov.co publica la hora LOCAL (UTC−5) sin zona** y con filas duplicadas; datos preliminares.
+  Comprobado contra el METAR de El Dorado.
+- El catálogo de datos.gov.co se consulta mejor con `api.us.socrata.com/api/catalog/v1?domains=www.datos.gov.co&q=…`.
+
 ## 6. Bitácora de iteraciones (más reciente arriba)
 
 <!--
@@ -256,6 +266,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-46 Acceso a datos de redes locales
+- **Tareas:** T-46 ✅
+- **Método:** consultas directas a CKAN de Bogotá, catálogo Socrata y SoQL de datos.gov.co, endpoints del SAB; lectura
+  de los sitios de SIATA y CDIAC con dos subagentes web; búsquedas.
+- **Resultado:** IDEAM integrable (CC BY-SA 4.0, ~500/326/324 estaciones de lluvia/temperatura/viento, lote diario);
+  SAB con foto en vivo CC BY-NC sin histórico; SIATA sin API ni licencia (descarga deshabilitada, datos por correo);
+  CDIAC con login y «algunos derechos reservados»; CVC con dataset abierto detenido en mayo de 2025.
+- **Hallazgos para T-47:** hora local en IDEAM (verificado con METAR SKBO), duplicados, viento en m/s, cobertura
+  desigual, datos preliminares.
+- **Pendiente / siguiente paso:** T-47 `sources/ideam.py`; decidir si se piden accesos por correo.
 
 ### 2026-11-13 · T-45 Consenso ponderado por precisión
 - **Tareas:** T-45 ✅ (activación real cuando la verificación llegue a 14 días)
