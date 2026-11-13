@@ -11,14 +11,15 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (2/10: T-40, T-41). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (3/10: T-40, T-41, T-42). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-41 (`verify.py`: pares METAR ↔ Previous Runs de los 8 modelos, por hora) |
-| Siguiente tarea | **Fase 3:** T-46 (acceso a redes locales) o T-42 (métricas). O subir el código para que `grids.yml` corra |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify) 71 pruebas · CI |
+| Última tarea cerrada | T-42 (`metrics.py` → `precision.json`: MAE/sesgo/RMSE y POD/FAR/CSI, 7 y 30 días) |
+| Siguiente tarea | **Subir el código y T-43** (`verify.yml` diario + histórico) para que empiecen a contar los 14 días; luego T-44 |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics) 78 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (→ `out/verify/pares/`, ~1 min) |
+| Métricas | `cd pipeline && uv run python -m windcloud_pipeline.metrics [--hasta AAAA-MM-DD]` (→ `out/verify/precision.json`) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
@@ -109,6 +110,10 @@
   hora con METAR+SPECI+RE…; pronóstico de Previous Runs con `elevation` de la estación. Pares en CSV largo por variable
   (métricas en T-42; dónde vive el histórico se decide en T-43).
 
+- **2026-11-13 · Lluvia verificada en bloques de 6 h ≥ 1 mm (T-42):** por hora todos los modelos salían iguales de malos
+  (FAR ≈ 0,9), así que no servía para ordenarlos. Se publica también el sesgo de frecuencia (AIFS anuncia lluvia 3×).
+  Solo cuentan horas con los 8 modelos; ranking con ≥ 24 pares.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -116,6 +121,9 @@
 - [ ] Términos actuales de RainViewer para radar → T-37
 - [ ] ¿Las texturas de viento caben en los límites de Pages (25 MiB/archivo, 20 000 archivos) o hace falta R2? → T-32/T-33
 - [ ] Hosting definitivo: Cloudflare Pages vs. GitHub Pages (preferido Cloudflare) → T-04
+
+- `precision.json` pesa ~440 KB (~50 KB gzip) con 43 estaciones: ¿partirlo en resumen regional + detalle por estación
+  (cargado al abrir la estación)? Decidir en T-43/T-44.
 
 ## 5. Aprendizajes y trampas conocidas
 
@@ -221,6 +229,9 @@
   solo reportan de día (7–26 METAR/día): el control de "≥ 80 % de datos" debe contar horas esperadas, no 24.
   Viento en nudos; sin campo de lluvia (hay que leer el tiempo presente: RA, SHRA, TSRA…).
 
+- **Verificar lluvia por hora contra un aeropuerto no discrimina modelos:** un desfase de 1 h o de unos km es a la vez
+  fallo y falsa alarma. En bloques de 6 h el CSI se duplica y el ranking tiene sentido.
+
 ## 6. Bitácora de iteraciones (más reciente arriba)
 
 <!--
@@ -233,6 +244,19 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-42 Métricas de precisión
+- **Tareas:** T-42 ✅
+- **Hecho:** `metrics.py`: MAE/sesgo/RMSE, POD/FAR/CSI/sesgo de frecuencia; región, red y estación; ventanas 7 y 30 días;
+  solo horas con los 8 modelos; ranking (≥ 24 pares) → `out/verify/precision.json` (schema 1).
+- **Datos reales:** pares del 3 al 12/11 (10 días, ~2 600 pares/día). Se probaron umbrales de lluvia con datos reales
+  (por hora 0,1–1 mm vs bloques de 6 h 0,5–3 mm) → bloques de 6 h ≥ 1 mm.
+- **Resultado 7 días (6–12/11, día 1, no definitivo):** temperatura ICON 1,34 · UKMO 1,43 · AIFS 1,45 · IFS 1,49 · GEM
+  1,66 · Météo-France 1,71 · JMA 1,93 · GFS 2,12 °C. Viento ICON 3,57 … JMA 4,64 km/h (todos subestiman). Lluvia CSI
+  UKMO 0,30 · AIFS 0,28 (pero anuncia lluvia 3,2×) · IFS 0,26 … Météo-France 0,20. Mejor modelo de temperatura por
+  estación: AIFS en 14, ICON en 9, Météo-France en 7.
+- **Verificado:** 78 pruebas pipeline ✓ (valores calculados a mano).
+- **Pendiente / siguiente paso:** subir el código + T-43 para que el histórico empiece a crecer solo.
 
 ### 2026-11-13 · T-41 Pares observación–pronóstico
 - **Tareas:** T-41 ✅

@@ -298,8 +298,21 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
    `timezone=GMT` → evita tener que guardar nosotros cada run. Verificado: los 8 modelos responden.
    Salida diaria `pipeline/out/verify/pares/AAAA-MM-DD.csv`: `hora_utc, icao, red, variable, obs,
    <modelo>_d1, <modelo>_d2…` (lluvia: obs 0/1, pronóstico en mm de la hora anterior).
-4. **Métricas** por estación × modelo × variable × lead (24 h, 48 h), ventanas 7 y 30 días:
-   MAE, sesgo, RMSE; lluvia: POD (aciertos), FAR (falsas alarmas), CSI.
+4. **Métricas** (`metrics.py`) por región, red y estación × modelo × variable × lead (día 1, día 2),
+   ventanas 7 y 30 días que terminan ayer (UTC): MAE, sesgo (pronóstico − observado), RMSE; lluvia:
+   POD (aciertos), FAR (falsas alarmas), CSI y sesgo de frecuencia.
+   - **Mismas horas para todos:** solo cuentan las horas con pronóstico de los 8 modelos en ese lead.
+   - **Lluvia en bloques de 6 h UTC**, no por hora: observado «sí» si algún METAR/SPECI del bloque tuvo
+     precipitación; pronóstico «sí» si suma ≥ 1 mm en esas mismas horas; bloque válido con ≥ 3 horas de
+     METAR. Medido con 7 días reales (6/11–12/11): por hora (≥ 0,1 mm) todos daban FAR 0,87–0,92 y CSI
+     0,08–0,14; en bloques de 6 h ≥ 1 mm, CSI 0,20–0,30. Por hora el desfase de 1 h o de unos km cuenta
+     como fallo y falsa alarma a la vez.
+   - **Ranking:** MAE ascendente (temperatura, viento) y CSI descendente (lluvia), día 1; un modelo entra
+     con ≥ 24 pares (horas o bloques). Por estación, la lluvia en 7 días casi nunca llega a 24 bloques →
+     sin ranking de lluvia por estación en la ventana corta (honesto: no hay muestra).
+   - Esquema `precision.json` v1: `{schema, generatedAt, hasta, fuentes, modelos, leads_dias, umbrales,
+     estaciones[], ventanas: {"7"|"30": {dias[], region:{metricas, ranking}, redes:{…}, estaciones:{icao:
+     {metricas, ranking}}}}}`. Pesa ~440 KB (~50 KB gzip): T-43/T-44 decide si se parte en resumen + detalle.
 5. Salida `precision.json` (resumen ligero para el cliente) + histórico parquet en rama `data`.
 6. Presupuesto de llamadas: 40 estaciones × 1 llamada multi-modelo/día ≈ 40×9 = 360 llamadas → dentro de RNF-6.
    Las redes locales pueden sumar ~100 estaciones más: agrupar por celda de 0,1° (≈ 11 km), porque los modelos no

@@ -59,7 +59,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [ ] **T-47** Adaptadores `pipeline/sources/<red>.py` para las redes con acceso permitido + control de calidad + métricas por red. → RF-9
 - [ ] **T-48** Reconfirmar Pereira (redhidro.org) y Bucaramanga (CDMB); actualizar estado. → RF-14
 - [ ] **T-49** `cityNetworks.json` + enlace "Red oficial de tu ciudad" en el panel de punto y listado en Precisión. → RF-14
-- [ ] **T-42** Métricas MAE/sesgo/RMSE y POD/FAR/CSI, ventanas 7 y 30 días; pruebas con fixtures. → RF-9
+- [x] **T-42** Métricas MAE/sesgo/RMSE y POD/FAR/CSI, ventanas 7 y 30 días; pruebas con fixtures. → RF-9
+  _Hecho: `metrics.py` → `precision.json` (schema 1). Lluvia en bloques de 6 h (por hora no discrimina: FAR ≈ 0,9 en todos)._
 - [ ] **T-43** Workflow `verify.yml` diario; histórico en rama `data`; publicar `precision.json`. → RF-9
 - [ ] **T-44** Página **Precisión**: ranking de modelos, mapa de estaciones por mejor modelo, detalle por estación. → RF-9
 - [ ] **T-45** Conectar pesos de `precision.json` al consenso + "¿Por qué este número?". → RF-7
