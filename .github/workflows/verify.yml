@@ -1,0 +1,76 @@
+name: Verificación de precisión
+
+# Compara cada día los pronósticos de los 8 modelos con los METAR (T-41, T-42, T-43 → RF-9).
+# - Corre a las 03:30 UTC: el METAR de las 23 UTC de ayer ya llegó y los pronósticos día 1/2 están archivados.
+# - Completa cualquier día faltante de los últimos 10 (se recupera solo si un día falló o no corrió).
+# - Rama `data` CON historial (a diferencia de `grids`): el histórico de pares es lo que da valor al ranking.
+#     data/pares/AAAA-MM-DD.csv.gz   pares observación–pronóstico (~57 KB/día)
+#     data/web/precision.json        resumen (región, redes, ranking por estación)
+#     data/web/precision/<ICAO>.json detalle por estación
+#     data/web/verificacion-status.json
+# - El deploy (deploy.yml) copia data/web/ a /data del sitio.
+# - Si un día falla, se publica igual lo demás y el workflow queda en rojo.
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: verify
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+
+      - name: Traer el histórico (rama data, o crearla)
+        run: |
+          url="https://github.com/${GITHUB_REPOSITORY}.git"
+          if ! git clone --quiet --branch data --single-branch "$url" datos; then
+            git init --quiet -b data datos
+          fi
+
+      - name: Instalar pipeline
+        working-directory: pipeline
+        run: uv sync --locked
+
+      - name: Verificar y recalcular métricas
+        id: verify
+        working-directory: pipeline
+        continue-on-error: true
+        run: uv run python -m windcloud_pipeline.daily --historico ../datos/pares --web ../datos/web
+
+      - name: Guardar en la rama data
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: datos
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Sin cambios que guardar."
+            exit 0
+          fi
+          hasta="$(jq -r .hasta web/verificacion-status.json)"
+          git -c user.name="windcloud-bot" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet -m "Verificación hasta ${hasta}"
+          git push --quiet \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
+          echo "Guardado: $(ls pares | wc -l) días de pares ($(du -sh pares | cut -f1))."
+
+      - name: Resultado
+        if: steps.verify.outcome == 'failure'
+        run: |
+          echo "::error::Algún día no se pudo verificar (ver datos/web/verificacion-status.json)."
+          exit 1

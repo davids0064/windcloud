@@ -1,6 +1,5 @@
 """verify.py: emparejar METAR por hora con los pronósticos de Previous Runs (sin red)."""
 
-import csv
 import json
 import re
 from datetime import UTC, date, datetime
@@ -83,8 +82,9 @@ def test_verify_day_extremo_a_extremo(tmp_path):
         return json.dumps([fake_doc(10.0), fake_doc(20.0)]).encode()
 
     path = verify.verify_day(DAY, STATIONS, tmp_path, get=get, sleep=lambda s: None)
-    rows = list(csv.DictReader(path.open(encoding="utf-8")))
-    assert path.name == "2026-11-12.csv"
+    rows = verify.read_pairs(path)
+    assert path.name == "2026-11-12.csv.gz"
+    assert path.read_bytes() == verify.pairs_path(tmp_path, DAY).read_bytes()
     assert len(rows) == 6  # 2 estaciones × 1 hora × 3 variables
     skbo_t = next(r for r in rows if r["icao"] == "SKBO" and r["variable"] == "temperatura")
     assert skbo_t["hora_utc"] == "2026-11-12T00:00Z" and skbo_t["obs"] == "14.0"

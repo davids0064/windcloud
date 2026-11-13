@@ -11,15 +11,15 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (3/10: T-40, T-41, T-42). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3 en curso** (4/10: T-40 a T-43). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-42 (`metrics.py` → `precision.json`: MAE/sesgo/RMSE y POD/FAR/CSI, 7 y 30 días) |
-| Siguiente tarea | **Subir el código y T-43** (`verify.yml` diario + histórico) para que empiecen a contar los 14 días; luego T-44 |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics) 78 pruebas · CI |
+| Última tarea cerrada | T-43 (verificación diaria: `daily.py` + `verify.yml` → rama `data`; probado en local, sin subir) |
+| Siguiente tarea | **T-44** página Precisión (lee `/data/precision.json`, ya servido en local). Subir el código cuando se decida: activa `grids.yml` y `verify.yml` |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily) 81 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
-| Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (→ `out/verify/pares/`, ~1 min) |
-| Métricas | `cd pipeline && uv run python -m windcloud_pipeline.metrics [--hasta AAAA-MM-DD]` (→ `out/verify/precision.json`) |
+| Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]` (un día → `out/verify/pares/`, ~1 min) |
+| Verificación diaria (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.daily` (completa días faltantes → `out/verify/pares/*.csv.gz` y `out/web/data/precision*.json`) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
@@ -114,6 +114,10 @@
   (FAR ≈ 0,9), así que no servía para ordenarlos. Se publica también el sesgo de frecuencia (AIFS anuncia lluvia 3×).
   Solo cuentan horas con los 8 modelos; ranking con ≥ 24 pares.
 
+- **2026-11-13 · Histórico de verificación en CSV.gz, no parquet (T-43):** biblioteca estándar, sin pandas/pyarrow;
+  rama `data` con historial (solo crece); se completan días faltantes de los últimos 10; `precision.json` se parte en
+  resumen + detalle por estación.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -122,8 +126,9 @@
 - [ ] ¿Las texturas de viento caben en los límites de Pages (25 MiB/archivo, 20 000 archivos) o hace falta R2? → T-32/T-33
 - [ ] Hosting definitivo: Cloudflare Pages vs. GitHub Pages (preferido Cloudflare) → T-04
 
-- `precision.json` pesa ~440 KB (~50 KB gzip) con 43 estaciones: ¿partirlo en resumen regional + detalle por estación
-  (cargado al abrir la estación)? Decidir en T-43/T-44.
+- ~~¿Partir `precision.json`?~~ Resuelto en T-43: resumen 64 KB + detalle por estación ~12 KB.
+- La rama `data` crece ~40 MB/año (pares + JSON reescritos a diario). Si algún día molesta: sacar `web/` del
+  historial (rama aparte de commit único, como `grids`) y dejar con historial solo `pares/`.
 
 ## 5. Aprendizajes y trampas conocidas
 
@@ -244,6 +249,16 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-43 Verificación diaria (en local)
+- **Tareas:** T-43 ✅ (código y workflow; 1.ª corrida en GitHub pendiente por decisión de seguir en local)
+- **Hecho:** pares en `.csv.gz` reproducible (`verify.write_pairs/read_pairs`, archivos locales convertidos: 2,8 MB →
+  572 KB); `metrics.write_web` (resumen + `precision/<ICAO>.json`, borra estaciones retiradas); `daily.py` (días
+  faltantes de los últimos 10, tolera fallos, `verificacion-status.json`, código 1 si algo falló); `verify.yml` (03:30
+  UTC, rama `data` con historial); `deploy.yml` copia `data/web/` a `/data`.
+- **Verificado:** 81 pruebas pipeline ✓; `daily` real → `out/web/data/precision.json` 64 KB (6 KB gzip) + 43 estaciones;
+  simulación local del workflow (rama `data` nueva en carpeta temporal, commit, segunda corrida) ✓.
+- **Pendiente / siguiente paso:** T-44 página Precisión.
 
 ### 2026-11-13 · T-42 Métricas de precisión
 - **Tareas:** T-42 ✅

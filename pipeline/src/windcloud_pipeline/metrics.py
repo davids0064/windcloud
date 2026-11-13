@@ -1,6 +1,6 @@
 """Métricas de precisión por modelo (T-42, RF-9, diseño §6.4).
 
-Lee los pares diarios de `verify.py` (`out/verify/pares/AAAA-MM-DD.csv`) y calcula, para las
+Lee los pares diarios de `verify.py` (`out/verify/pares/AAAA-MM-DD.csv.gz`) y calcula, para las
 ventanas de 7 y 30 días que terminan en `--hasta` (por defecto, ayer UTC):
 - **Temperatura y viento:** MAE (error absoluto medio), sesgo (pronóstico − observado) y RMSE.
 - **Lluvia sí/no por bloques de 6 h UTC** (00–06, 06–12…): tabla de contingencia → POD (aciertos),
@@ -14,13 +14,12 @@ Por región (todas las estaciones), por red y por estación, para cada modelo y 
 Justicia de la comparación: solo cuentan las horas en que **todos** los modelos tienen pronóstico
 para ese lead; así ningún modelo sale beneficiado por faltar en las horas difíciles.
 
-Uso: uv run python -m windcloud_pipeline.metrics [--hasta AAAA-MM-DD] [--salida RUTA.json]
+Uso: uv run python -m windcloud_pipeline.metrics [--hasta AAAA-MM-DD] [--web DIR]
 """
 
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 from collections import defaultdict
@@ -32,7 +31,8 @@ from . import metar, verify
 
 ROOT = Path(__file__).resolve().parents[3]
 PAIRS = ROOT / "pipeline/out/verify/pares"
-OUTPUT = ROOT / "pipeline/out/verify/precision.json"
+#: lo sirve el plugin de Vite en /data durante el desarrollo; en Actions, la rama `data`
+WEB = ROOT / "pipeline/out/web/data"
 WINDOWS = (7, 30)
 #: lluvia: horas por bloque, mm pronosticados que cuentan como «sí», horas mínimas con dato
 RAIN_BLOCK_H = 6
@@ -52,12 +52,11 @@ def load_pairs(pairs_dir: Path, until: date, days: int) -> tuple[list[dict], lis
     found: list[str] = []
     for i in range(days - 1, -1, -1):
         d = until - timedelta(days=i)
-        path = pairs_dir / f"{d}.csv"
+        path = verify.pairs_path(pairs_dir, d)
         if not path.exists():
             continue
         found.append(d.isoformat())
-        with path.open(encoding="utf-8") as f:
-            rows.extend(csv.DictReader(f))
+        rows.extend(verify.read_pairs(path))
     return rows, found
 
 
@@ -221,24 +220,74 @@ def build_precision(
     }
 
 
+def split_for_web(doc: dict) -> tuple[dict, dict[str, dict]]:
+    """Resumen ligero (región, redes y ranking por estación) + detalle por estación.
+
+    El resumen basta para el ranking y el mapa; el detalle se carga al abrir una estación.
+    """
+    summary = {k: v for k, v in doc.items() if k != "ventanas"}
+    summary["ventanas"] = {}
+    details: dict[str, dict] = {}
+    for w, win in doc["ventanas"].items():
+        summary["ventanas"][w] = {
+            "dias": win["dias"],
+            "region": win["region"],
+            "redes": win["redes"],
+            "estaciones": {
+                icao: {"ranking": st["ranking"]} for icao, st in win["estaciones"].items()
+            },
+        }
+        for icao, st in win["estaciones"].items():
+            d = details.setdefault(
+                icao,
+                {
+                    "schema": doc["schema"],
+                    "generatedAt": doc["generatedAt"],
+                    "hasta": doc["hasta"],
+                    "icao": icao,
+                    "ventanas": {},
+                },
+            )
+            d["ventanas"][w] = st
+    return summary, details
+
+
+def write_web(doc: dict, web_dir: Path) -> list[Path]:
+    """`precision.json` + `precision/<ICAO>.json`; borra estaciones retiradas."""
+    summary, details = split_for_web(doc)
+    out_dir = web_dir / "precision"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    written = [web_dir / "precision.json"]
+    written[0].write_text(dumps(summary), encoding="utf-8")
+    for icao, d in details.items():
+        path = out_dir / f"{icao}.json"
+        path.write_text(dumps(d), encoding="utf-8")
+        written.append(path)
+    for old in out_dir.glob("*.json"):
+        if old.stem not in details:
+            old.unlink()
+    return written
+
+
+def dumps(obj: object) -> str:
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--hasta", type=date.fromisoformat)
     parser.add_argument("--pares", type=Path, default=PAIRS)
-    parser.add_argument("--salida", type=Path, default=OUTPUT)
+    parser.add_argument("--web", type=Path, default=WEB)
     args = parser.parse_args(argv)
     until = args.hasta or (datetime.now(UTC).date() - timedelta(days=1))
     stations = json.loads(verify.STATIONS.read_text(encoding="utf-8"))["stations"]
     doc = build_precision(args.pares, until, stations)
-    args.salida.parent.mkdir(parents=True, exist_ok=True)
-    args.salida.write_text(
-        json.dumps(doc, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
-    )
+    written = write_web(doc, args.web)
     for w, win in doc["ventanas"].items():
         rk = win["region"]["ranking"]
         print(f"{w} días ({len(win['dias'])} con datos): temperatura {rk.get('temperatura')}")
-    kb = args.salida.stat().st_size / 1024
-    print(f"✓ {args.salida} ({kb:.0f} KB)")
+    kb = written[0].stat().st_size / 1024
+    print(f"✓ {written[0]} ({kb:.0f} KB) + {len(written) - 1} estaciones")
     return 0
 
 

@@ -1,5 +1,6 @@
 """metrics.py: MAE/sesgo/RMSE y POD/FAR/CSI con valores calculados a mano (sin red)."""
 
+import json
 from datetime import UTC, date, datetime
 
 import pytest
@@ -56,9 +57,7 @@ def row(icao, var, obs, base, day="2026-11-12", hour=0, red="METAR", **override)
 
 
 def write_day(tmp_path, day, rows):
-    cols = ["hora_utc", "icao", "red", "variable", "obs", *verify.forecast_columns()]
-    lines = [",".join(cols)] + [",".join(r.get(c, "") for c in cols) for r in rows]
-    (tmp_path / f"{day}.csv").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    verify.write_pairs(rows, verify.pairs_path(tmp_path, date.fromisoformat(day)))
 
 
 def test_solo_horas_con_todos_los_modelos():
@@ -108,3 +107,22 @@ def test_ventanas_regiones_y_estaciones(tmp_path):
     assert set(w7["estaciones"]) == {"SKBO", "SKUI"}  # SKSV sin pares no aparece
     assert w7["estaciones"]["SKUI"]["metricas"]["viento"][f"{M[0]}_d1"]["sesgo"] == -2.0
     assert list(w7["redes"]) == ["METAR"]
+
+
+def test_resumen_y_detalle_para_la_web(tmp_path):
+    pairs = tmp_path / "pares"
+    write_day(pairs, "2026-11-12", [row("SKBO", "temperatura", 14, 15)])
+    stations = [{"icao": "SKBO", "red": "METAR"}]
+    doc = metrics.build_precision(pairs, date(2026, 11, 12), stations)
+    web = tmp_path / "web"
+    (web / "precision").mkdir(parents=True)
+    (web / "precision" / "SKXX.json").write_text("{}")  # estación retirada
+    written = metrics.write_web(doc, web)
+    assert [p.name for p in written] == ["precision.json", "SKBO.json"]
+    assert not (web / "precision" / "SKXX.json").exists()
+    summary = json.loads((web / "precision.json").read_text())
+    assert set(summary["ventanas"]["7"]["estaciones"]["SKBO"]) == {"ranking"}
+    assert "metricas" in summary["ventanas"]["7"]["region"]
+    detail = json.loads((web / "precision" / "SKBO.json").read_text())
+    assert detail["icao"] == "SKBO" and set(detail["ventanas"]) == {"7", "30"}
+    assert detail["ventanas"]["7"]["metricas"]["temperatura"][f"{M[0]}_d1"]["sesgo"] == 1.0

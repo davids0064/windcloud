@@ -8,7 +8,7 @@ Para cada estación de `data/stations.json` y cada hora del día:
   modelos (pronóstico emitido ~24 y ~48 h antes). Se pasa la altitud de la estación
   (`elevation=`) para que Open-Meteo corrija la temperatura por altura, como con un usuario.
 
-Salida: `out/verify/pares/AAAA-MM-DD.csv` (formato largo por variable, una columna por modelo×lead).
+Salida: `out/verify/pares/AAAA-MM-DD.csv.gz` (largo por variable; una columna por modelo×lead).
 Las métricas (MAE, sesgo, POD, FAR…) son T-42; el histórico y la automatización, T-43.
 
 Uso: uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD]   (por defecto, ayer UTC)
@@ -18,6 +18,8 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
+import io
 import json
 import time
 from collections import defaultdict
@@ -177,12 +179,23 @@ def build_pairs(stations: list[dict], obs: dict, fc: dict) -> list[dict]:
 
 
 def write_pairs(rows: list[dict], path: Path) -> None:
+    """CSV comprimido y reproducible (gzip sin fecha): mismo contenido → mismos bytes en git."""
     path.parent.mkdir(parents=True, exist_ok=True)
     cols = ["hora_utc", "icao", "red", "variable", "obs", *forecast_columns()]
-    with path.open("w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=cols, lineterminator="\n")
-        w.writeheader()
-        w.writerows(rows)
+    buf = io.StringIO()
+    w = csv.DictWriter(buf, fieldnames=cols, lineterminator="\n")
+    w.writeheader()
+    w.writerows(rows)
+    path.write_bytes(gzip.compress(buf.getvalue().encode("utf-8"), mtime=0))
+
+
+def read_pairs(path: Path) -> list[dict]:
+    with gzip.open(path, "rt", encoding="utf-8", newline="") as f:
+        return list(csv.DictReader(f))
+
+
+def pairs_path(out_dir: Path, day: date) -> Path:
+    return out_dir / f"{day}.csv.gz"
 
 
 def verify_day(
@@ -203,7 +216,7 @@ def verify_day(
     obs = hourly_observations(reports, day)
     fc = fetch_forecasts(stations, day, get=get, sleep=sleep)
     rows = build_pairs(stations, obs, fc)
-    path = out_dir / f"{day}.csv"
+    path = pairs_path(out_dir, day)
     write_pairs(rows, path)
     return path
 
@@ -216,8 +229,7 @@ def main(argv: list[str] | None = None) -> int:
     day = args.fecha or (datetime.now(UTC).date() - timedelta(days=1))
     stations = json.loads(STATIONS.read_text(encoding="utf-8"))["stations"]
     path = verify_day(day, stations, args.salida)
-    with path.open(encoding="utf-8") as f:
-        n = sum(1 for _ in f) - 1
+    n = len(read_pairs(path))
     print(f"✓ {day}: {n} pares de {len(stations)} estaciones → {path}")
     return 0
 

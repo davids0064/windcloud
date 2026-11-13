@@ -52,7 +52,7 @@ sirve como archivos estáticos. Lo específico del usuario (su punto) se consult
 | Estado/datos | TanStack Query (caché 30 min, RNF-5) + Zustand | Simple |
 | Estilos | CSS variables, tema oscuro `#0b0d10` | Coherente con la referencia |
 | Procesado GRIB | Python 3.12 (`uv`) + `xarray` + `cfgrib` + `eccodes`/`eccodeslib` (ruedas binarias, sin apt) + `numpy` + `Pillow`; pytest + ruff | Estándar en meteorología |
-| Verificación | Python + `pandas`; datos en `data/verify/*.parquet` en rama `data` | Sin base de datos |
+| Verificación | Python con biblioteca estándar (csv, gzip, statistics); pares `pares/*.csv.gz` en rama `data` (T-43) | Sin base de datos ni pandas/pyarrow |
 | Hosting | Cloudflare Pages (o GitHub Pages) | Gratis |
 | Programación | GitHub Actions (repo público = minutos ilimitados) | Gratis |
 
@@ -313,7 +313,15 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
    - Esquema `precision.json` v1: `{schema, generatedAt, hasta, fuentes, modelos, leads_dias, umbrales,
      estaciones[], ventanas: {"7"|"30": {dias[], region:{metricas, ranking}, redes:{…}, estaciones:{icao:
      {metricas, ranking}}}}}`. Pesa ~440 KB (~50 KB gzip): T-43/T-44 decide si se parte en resumen + detalle.
-5. Salida `precision.json` (resumen ligero para el cliente) + histórico parquet en rama `data`.
+5. **Publicación diaria (T-43, `daily.py` + `verify.yml` a las 03:30 UTC):** completa los días sin pares de los
+   últimos 10 (se recupera solo si un día falla), recalcula y escribe en la rama `data` (**con historial**, a
+   diferencia de `grids`): `pares/AAAA-MM-DD.csv.gz` (~57 KB/día, gzip sin fecha → bytes reproducibles; nunca se
+   borra), `web/precision.json` (resumen: región, redes y ranking por estación, ~64 KB / 6 KB gzip),
+   `web/precision/<ICAO>.json` (detalle por estación, ~12 KB, se carga al abrirla) y
+   `web/verificacion-status.json` (`checkedAt, hasta, verificados, fallidos, dias_ventana`). `deploy.yml` copia
+   `web/` a `/data` del sitio; en local, `daily.py` escribe en `pipeline/out/web/data` (lo sirve Vite).
+   Se eligió CSV.gz y no parquet: sin dependencias pesadas y suficiente para ~3 000 filas/día.
+   Crecimiento de la rama: ~57 KB/día de pares + ~60 KB/día de JSON reescritos ≈ 40 MB/año.
 6. Presupuesto de llamadas: 40 estaciones × 1 llamada multi-modelo/día ≈ 40×9 = 360 llamadas → dentro de RNF-6.
    Las redes locales pueden sumar ~100 estaciones más: agrupar por celda de 0,1° (≈ 11 km), porque los modelos no
    distinguen estaciones más cercanas entre sí, y así se mantiene ≤ ~1 500 llamadas/día.

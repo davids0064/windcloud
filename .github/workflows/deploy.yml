@@ -49,6 +49,19 @@ jobs:
             echo "::warning::Aún no hay rama grids: el sitio mostrará «Sin datos de pronóstico»."
           fi
 
+      # Precisión de los modelos publicada por verify.yml (rama `data`, carpeta web/) → /data del sitio.
+      - name: Incluir precisión verificada
+        working-directory: .
+        run: |
+          if git clone --quiet --depth 1 --branch data --single-branch \
+            "https://github.com/${GITHUB_REPOSITORY}.git" verify-data; then
+            mkdir -p web/dist/data
+            cp -r verify-data/web/. web/dist/data/
+            echo "Precisión hasta $(jq -r .hasta web/dist/data/verificacion-status.json)"
+          else
+            echo "::warning::Aún no hay rama data: la página Precisión mostrará «sin datos»."
+          fi
+
       # Crea el proyecto de Pages la primera vez; si ya existe, el error se ignora.
       - name: Asegurar proyecto en Cloudflare Pages
         uses: cloudflare/wrangler-action@v4
