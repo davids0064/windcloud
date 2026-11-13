@@ -10,15 +10,21 @@ const dir = new URL('../dist/assets/', import.meta.url).pathname
 const html = readFileSync(new URL('../dist/index.html', import.meta.url), 'utf8')
 const entry = html.match(/<script[^>]*src="\/assets\/([^"]+\.js)"/)?.[1]
 if (!entry) throw new Error('No se encontró el JS de entrada en dist/index.html')
-const preloads = [...html.matchAll(/rel="modulepreload"[^>]*href="\/assets\/([^"]+\.js)"/g)].map((m) => m[1])
+const preloads = [...html.matchAll(/rel="modulepreload"[^>]*href="\/assets\/([^"]+\.js)"/g)].map(
+  (m) => m[1],
+)
 const initial = [entry, ...preloads]
 
 const sizes = initial.map((f) => [f, gzipSync(readFileSync(join(dir, f))).length / 1024])
 const total = sizes.reduce((s, [, kb]) => s + kb, 0)
 const lazy = readdirSync(dir).filter((f) => f.endsWith('.js') && !initial.includes(f)).length
 for (const [f, kb] of sizes) console.log(`  ${f}: ${kb.toFixed(1)} KB gzip`)
-console.log(`JS inicial: ${total.toFixed(1)} KB gzip (límite ${LIMIT_KB} KB) · ${lazy} chunks diferidos`)
+console.log(
+  `JS inicial: ${total.toFixed(1)} KB gzip (límite ${LIMIT_KB} KB) · ${lazy} chunks diferidos`,
+)
 if (total > LIMIT_KB) {
-  console.error('✗ La carga inicial supera el presupuesto. ¿Se importó MapLibre/uPlot desde código no diferido?')
+  console.error(
+    '✗ La carga inicial supera el presupuesto. ¿Se importó MapLibre/uPlot desde código no diferido?',
+  )
   process.exit(1)
 }
