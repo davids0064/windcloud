@@ -11,14 +11,15 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 1/8** (T-30 ✅). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 2/8** (T-30, T-32 ✅). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-30 (descarga GFS 0,25° por NOMADS: región Colombia, 25 pasos, valores instantáneos) |
-| Siguiente tarea | **T-32** codificar PNG (R=u, G=v) + `meta.json` y escalares (o T-31 ECMWF Open Data antes) |
+| Última tarea cerrada | T-32 (PNG de viento R=u/G=v y escalares + meta.json, filas en Mercator; 150 PNG, 5,7 MB/run) |
+| Siguiente tarea | **T-34** WindLayer WebGL de partículas (o T-33 workflow `grids.yml` / T-31 ECMWF) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
+| Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
 | Bloqueos | Ninguno para trabajo local |
@@ -85,6 +86,8 @@
 | 2026-11-13 | Presupuesto de JS inicial ≤ 150 KB gzip verificado en CI (`npm run check:bundle`, cuenta entrada + modulepreload) | Una importación de `cloudAlpha` desde Metodología coló MapLibre y subió la carga inicial de 74 a 376 KB | 03 T-62 |
 | 2026-11-13 | Rejillas GFS por región «colombia» (−100…−50, −20…25) por defecto, global opcional | 16,5 MB/run frente a ~216 MB; misma resolución; Colombia primero | 02 §4.1 |
 | 2026-11-13 | Campos GFS **instantáneos** (no promedios de intervalo) | Promedios reinician cada 6 h (ventanas 3/6 h mezcladas); el instantáneo existe en todos los pasos | 02 §4.1 |
+| 2026-11-13 | PNG con filas remuestreadas a Web Mercator | Una imagen lat/lon pegada por esquinas se desplaza hasta ~42 km (medido) | 02 §4.1 |
+| 2026-11-13 | Escalares con rango fijo y lluvia en raíz cuadrada; ráfaga = máx(GUST, viento 10 m) | Colores comparables entre pasos; lloviznas visibles; GFS da GUST < viento | 02 §4.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -167,6 +170,8 @@
   7,5 mm/h máx. en Bogotá): mi supuesto inicial era falso y una prueba lo detectó. La subregión llega sur → norte.
   Archivo inexistente = 404 con HTML. Run 12Z aún sin f072 a las 15:01 UTC.
 - GFS puede dar ráfaga (GUST) **menor** que el viento medio a 10 m (f072 Bogotá 4,4 vs 4,9 km/h): revisar en T-36.
+- **Verificar codificaciones con una imagen de control:** decodificar el PNG y mirarlo. En GFS f024 se ven los
+  alisios del Caribe (21 km/h del ESE), calma amazónica y el chorro de Tehuantepec: orientación y detalle correctos.
 - `.gitignore` ignora `*.grib2`: los fixtures necesitan `!pipeline/tests/fixtures/*.grib2`.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
@@ -185,6 +190,16 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-32 Rejillas a PNG + meta.json
+- **Tareas:** T-32 ✅
+- **Medido antes de decidir:** pegar una imagen lat/lon por esquinas en Mercator desplaza hasta 42 km (región −20…25°).
+- **Hecho:** `pipeline/src/windcloud_pipeline/encode.py` (filas Mercator, remuestreo lineal, viento RGBA con rangos
+  por imagen, escalares gris+alfa con rango fijo y raíz cuadrada para lluvia, ráfaga ≥ viento, `meta.json` schema 1,
+  escritura atómica, CLI). 8 pruebas nuevas (incl. valor decodificado = GRIB en Bogotá).
+- **Verificado:** pipeline 26/26 ✓ + ruff. Run real 2026111306: 150 PNG, 5,7 MB, 201 × 186, 2,7 s. Imagen de control
+  decodificada: alisios del Caribe 21 km/h del ESE, Amazonía 3,9 km/h, chorro de Tehuantepec visible.
+- **Pendiente / siguiente paso:** T-34 WindLayer (consumirá `meta.json`); T-33 publicación cada 6 h; T-31 ECMWF.
 
 ### 2026-11-13 · T-30 Descarga de rejillas GFS (inicio de la fase 2)
 - **Tareas:** T-30 ✅

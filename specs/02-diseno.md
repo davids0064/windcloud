@@ -16,7 +16,7 @@ Referencias: requisitos en `01-requisitos.md`, fuentes en `04-fuentes-de-datos.m
                 ▼
  ┌────────────────────────────── Cloudflare Pages (gratis) ─────────────────────────────┐
  │  /           app React (Vite)                                                         │
- │  /data/wind/{model}/{run}/{level}/{hhh}.png + meta.json                               │
+ │  /data/{model}/{run}/wind_{nivel}_{hhh}.png · {escalar}_{hhh}.png · meta.json            │
  │  /data/precision.json  /data/risk.geojson  /data/stations.json                        │
  └──────────────┬───────────────────────────────────────────────────────────────────────┘
                 ▼
@@ -114,8 +114,17 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - **Valores instantáneos:** desde f003 GFS envía PRATE y TCDC dos veces (instantáneo y promedio); los promedios se
   reinician cada 6 h (ventanas de 3 y 6 h mezcladas), así que se usa siempre el instantáneo (también existe en f000).
   La capa de lluvia se rotula «tasa instantánea (mm/h)». Rejilla normalizada a filas norte → sur, lon −180…180.
-- **Codificación PNG:** R = u, G = v normalizados a [0,255] con `min/max` guardados en `meta.json`
-  (técnica de webgl-wind). Una imagen por modelo/run/nivel/paso (0–72 h cada 3 h = 25 imágenes).
+- **Codificación PNG (T-32, `pipeline/src/windcloud_pipeline/encode.py`):** viento RGBA con R = u, G = v (m/s)
+  normalizados a [0,255] con `uMin/uMax/vMin/vMax` **por imagen** en `meta.json` (técnica de webgl-wind), A = 0 sin
+  dato; niveles `10m`, `850`, `500`. Escalares en gris + alfa con **rango fijo** para colorear siempre igual con
+  `raster-color`: ráfagas 0–150 km/h (= máx(GUST, viento 10 m), porque GFS a veces da GUST < viento), nubosidad
+  0–100 %, lluvia 0–50 mm/h en escala **raíz cuadrada** (resolución en lloviznas).
+- **Proyección:** filas remuestreadas a espaciado uniforme en **Web Mercator** (`"projection": "mercator-rows"`),
+  así la imagen se pega por sus 4 esquinas sin error; una imagen lat/lon se desplazaría hasta ~42 km (> 1 celda).
+- **Salida:** `out/web/data/{modelo}/{run}/` con `wind_{nivel}_{hhh}.png`, `{gust|tcc|prate}_{hhh}.png` y
+  `meta.json` (schema 1: run, `validTimes`, `bounds`, ancho × alto, rangos por cuadro, escalas y fórmula de
+  decodificación). Escritura atómica (carpeta `.tmp` → renombrar). Run real Colombia: 25 pasos × 6 = 150 PNG,
+  **5,7 MB**, 201 × 186 px, 2,7 s.
 - **Render:** partículas en GPU (shaders de posición + desvanecimiento), color por velocidad (escala
   viridis-like apta para daltonismo). Móvil: 8 000 partículas; escritorio: 40 000 (RNF-3).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
