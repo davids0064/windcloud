@@ -8,7 +8,9 @@ import { ForecastPanel } from './ForecastPanel'
 const NOW = new Date()
 const H = 3_600_000
 // Run que empezó hace 4 h, pasos 0–72 cada 3 h (como el pipeline)
-const runStart = new Date(Math.floor(NOW.getTime() / H) * H - 4 * H)
+// Exactamente 4 h antes de ahora (no redondeado a la hora): así el paso más cercano es siempre el de +3 h
+// (hace 1 h) frente al de +6 h (dentro de 2 h), sin depender del minuto en que corra la prueba.
+const runStart = new Date(NOW.getTime() - 4 * H)
 const steps = Array.from({ length: 25 }, (_, i) => i * 3)
 const meta = {
   schema: 1,
@@ -182,7 +184,7 @@ describe('ForecastPanel', () => {
     expect(screen.getByRole('radio', { name: '10 m' })).toHaveAttribute('aria-checked', 'true')
     expect(screen.getByText('≥ 54 km/h')).toBeInTheDocument()
     const source = screen.getByText(/Fuente: GFS 0,25° \(NOAA\)/)
-    expect(source).toHaveTextContent(/run \d{2}\/\d{2}, \d{2}:00 UTC/)
+    expect(source).toHaveTextContent(/run \d{2}\/\d{2}, \d{2}:\d{2} UTC/)
     expect(source.querySelector('time')).toHaveAttribute('dateTime', meta.run)
   })
 

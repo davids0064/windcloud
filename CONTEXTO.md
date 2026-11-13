@@ -185,6 +185,9 @@
   líneas falsas: suavizar (los mapas sinópticos lo hacen).
 - **El chequeo de bundle volvió a salvar:** `App` importaba `scalarUrl` desde un módulo que importa MapLibre (368 KB).
   Regla: helpers de URL/constantes en módulos sin dependencias (`layers/scalarUrl.ts`).
+- **Pruebas que dependen del reloj:** construir los tiempos relativos a `now` exacto, no redondeados a la hora (la
+  prueba de T-35 fallaba pasado el minuto 30). Y **encadenar el commit con `&&` tras las pruebas**: dos commits (T-34,
+  T-33) se hicieron con pruebas en rojo porque el comando seguía aunque fallaran.
 - **Pruebas lentas, no rotas:** con Chrome + servidor abiertos (o un build en paralelo), la 1.ª prueba de cada archivo
   pasaba de 5 s (entorno jsdom ~46 % del tiempo). `testTimeout: 15_000` en `vite.config.ts`. Correr la suite completa
   antes de cada commit (el de T-34 se hizo con 5 fallos por tiempo, corregido justo después).
