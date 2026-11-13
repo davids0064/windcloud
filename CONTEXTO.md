@@ -11,10 +11,10 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 6/8** (T-30, T-32…T-36 ✅; T-33 verificado en local, falta 1.ª corrida en GitHub). Faltan T-31 (ECMWF), T-37 (radar). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 7/8** (T-30, T-32…T-37 ✅; T-33 verificado en local, falta 1.ª corrida en GitHub). Falta T-31 (ECMWF). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-33 (actualización programada: `update.py` + workflow `grids.yml` + rama `grids`) |
-| Siguiente tarea | **T-37** radar (evaluar RainViewer) o **T-31** ECMWF Open Data; o subir el código para que `grids.yml` corra |
+| Última tarea cerrada | T-37 (radar: ausencia documentada para Colombia, aviso + enlaces SAB/SIATA) |
+| Siguiente tarea | **T-31** ECMWF Open Data (última de la fase 2); o subir el código para que `grids.yml` corra |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
@@ -95,6 +95,7 @@
 | 2026-11-13 | Una sola línea de tiempo para todas las capas de pronóstico | Viento, color e isobaras siempre de la misma hora | 02 §4.1.1 |
 | 2026-11-13 | Rejillas publicadas en rama `grids` con un único commit reemplazado (no en main, no artefactos) | Sin historial que crezca (~26 MB/día); accesible para deploy; si falla no se toca | 02 §1 |
 | 2026-11-13 | Cron +4 h 45 min tras cada run + reintento +1,5 h | Medido: 12Z completo ~17:00 UTC (≈ 5 h) | 02 §1 |
+| 2026-11-13 | **No integrar RainViewer**; documentar ausencia de radar en Colombia y enlazar SAB/SIATA | Su máscara no cubre ninguna ciudad colombiana (solo Leticia); licencia personal/educativa, zoom 7, 100 pet./min | 02 §4.3, 04 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -185,6 +186,10 @@
   líneas falsas: suavizar (los mapas sinópticos lo hacen).
 - **El chequeo de bundle volvió a salvar:** `App` importaba `scalarUrl` desde un módulo que importa MapLibre (368 KB).
   Regla: helpers de URL/constantes en módulos sin dependencias (`layers/scalarUrl.ts`).
+- **RainViewer 2026:** API viva pero recortada (zoom > 7 → imagen «Zoom Level Not Supported»; todas las teselas de
+  ese zoom tienen el mismo número de píxeles). En su máscara de cobertura **negro opaco = SIN radar** (al revés de lo
+  que sugiere la imagen); comprobarlo con una zona de control (EE. UU.). Lista 8 radares colombianos que no aparecen.
+- zsh no separa `$var` en palabras (`set -- $u` no funciona como en bash): usar comandos explícitos o arreglos.
 - **Pruebas que dependen del reloj:** construir los tiempos relativos a `now` exacto, no redondeados a la hora (la
   prueba de T-35 fallaba pasado el minuto 30). Y **encadenar el commit con `&&` tras las pruebas**: dos commits (T-34,
   T-33) se hicieron con pruebas en rojo porque el comando seguía aunque fallaran.
@@ -208,6 +213,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-37 Radar de lluvia → ausencia documentada
+- **Tareas:** T-37 ✅
+- **Evaluación (API real + términos):** RainViewer vivo pero solo uso personal/educativo, 13 cuadros (2 h), sin nowcast
+  ni satélite, zoom máx. 7, 100 pet./min/IP (términos leídos con un subagente web: api.html, transition-faq,
+  coverage). Máscara de cobertura a zoom 6: sin radar en 10 de 11 ciudades colombianas (solo Leticia); Panamá y
+  Maracaibo sí (controles).
+- **Decisión:** no integrar; aviso «Radar de lluvia: No disponible para Colombia» en la pestaña Mapa con alternativas
+  (Lluvia GFS, infrarrojo) y enlaces a IDIGER-SAB y SIATA; entrada en Metodología. También se corrigió un texto
+  desactualizado de la pestaña Mapa («ráfagas… próximas versiones»).
+- **Verificado:** 177 pruebas web ✓, typecheck, lint ✓; aviso visible en Chrome.
 
 ### 2026-11-13 · T-33 Actualización programada de rejillas
 - **Tareas:** T-33 ✅ (en código y en local; la primera corrida real en GitHub ocurrirá al subir el código).

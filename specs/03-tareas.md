@@ -44,7 +44,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       Altura 10 m / ~1,5 km / ~5,5 km, 25 pasos precargados, reproducir (48 fps), marca «ahora». Modelo: solo GFS hasta T-31.
 - [x] **T-36** Capas escalares: ráfagas, nubosidad pronosticada, lluvia, temperatura, isobaras. → RF-4, RF-5
       Coloreadas en el navegador (MapLibre 6 sin `raster-color`); isobaras suavizadas (ruido de montaña); línea de tiempo común.
-- [ ] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
+- [x] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
+      **Ausencia documentada:** RainViewer no cubre las ciudades colombianas (su máscara: solo Leticia). Aviso + enlaces a SAB y SIATA.
   *Hecho fase 2:* viento animado ≥ 30 fps en portátil, datos con < 9 h de antigüedad.
 
 ## Fase 3 · Precisión verificada

@@ -32,6 +32,7 @@ Cada requisito tiene un ID (`RF-x` funcional, `RNF-x` no funcional) que las tare
 - EL SISTEMA DEBE mostrar radar de precipitación observado donde exista cobertura gratuita.
 - EL SISTEMA DEBE mostrar precipitación pronosticada (mm/h) por modelo.
 - SI no hay radar en la zona, EL SISTEMA DEBE indicarlo y ofrecer la estimación satelital/modelo.
+  *Nota 2026-11-13 (T-37):* hoy no hay radar gratuito sobre Colombia; se indica y se ofrecen GFS + infrarrojo y enlaces a SAB/SIATA.
 
 ### RF-5 · Otras capas
 - Temperatura 2 m, humedad relativa, presión a nivel del mar (isobaras), rayos (GOES GLM), calidad del aire (PM2.5).

@@ -407,3 +407,7 @@
   color: var(--text-muted);
   font-size: 0.72rem;
 }
+
+.radar-notice__status {
+  color: var(--estimated);
+}

@@ -112,6 +112,14 @@ export function MethodologyTab() {
           genera líneas falsas; los mapas sinópticos hacen lo mismo.
         </dd>
 
+        <dt>Radar</dt>
+        <dd>
+          No se muestra radar: el único servicio mundial gratuito (RainViewer) no cubre las ciudades
+          colombianas según su propia máscara de cobertura (revisado el 13/11/2026), y su plan
+          gratuito es solo para uso personal o educativo con zoom máximo 7. Se enlaza a los radares
+          oficiales de Bogotá (IDIGER-SAB) y Medellín (SIATA).
+        </dd>
+
         <dt>Frescura de los datos</dt>
         <dd>
           Cada dato muestra su fuente y la hora del run o de la imagen. Un run de más de{' '}

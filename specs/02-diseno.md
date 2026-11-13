@@ -187,8 +187,15 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - Nubosidad **pronosticada**: textura escalar de `TCDC` (GFS) rotulada "pronóstico".
 
 ### 4.3 Lluvia (RF-4)
-- Radar observado: **RainViewer** tiles (verificar términos vigentes: en 2025 redujo su API gratuita).
-  Si no es viable → mostrar solo precipitación de modelo + satélite IR, y declararlo.
+- **Radar observado: no se integra (T-37, evaluado 2026-11-13).** RainViewer, único radar mundial gratuito, mantiene
+  la API `public/weather-maps.json` (CORS `*`) pero desde 2026 solo para uso personal/educativo, 2 h pasadas, zoom
+  máx. 7 (por encima devuelve «Zoom Level Not Supported»), un esquema de color, sin nowcast ni satélite, 100
+  pet./min/IP. Su **máscara de cobertura** (negro opaco = sin radar; verificado con EE. UU. como control) marca sin
+  cobertura Bogotá, Medellín, Cali, Barranquilla, Cartagena, Bucaramanga, Cúcuta, Pereira, Villavicencio y San
+  Andrés; solo Leticia (radar de Brasil). Aunque su web lista 8 radares colombianos, no alimentan sus datos.
+- En su lugar (RF-4 «si no hay radar, indicarlo y ofrecer alternativa»): aviso «No disponible para Colombia» en la
+  pestaña Mapa, alternativas (capa Lluvia de GFS e infrarrojo GOES) y enlaces a radares oficiales (IDIGER-SAB, SIATA).
+  Reevaluar si RainViewer recupera radares colombianos o si T-46 confirma acceso abierto a SAB/SIATA.
 - Precipitación pronosticada: textura escalar `PRATE`/`APCP` de GFS.
 
 ### 4.4 Otras (RF-5)
