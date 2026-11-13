@@ -125,8 +125,20 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
   `meta.json` (schema 1: run, `validTimes`, `bounds`, ancho × alto, rangos por cuadro, escalas y fórmula de
   decodificación). Escritura atómica (carpeta `.tmp` → renombrar). Run real Colombia: 25 pasos × 6 = 150 PNG,
   **5,7 MB**, 201 × 186 px, 2,7 s.
-- **Render:** partículas en GPU (shaders de posición + desvanecimiento), color por velocidad (escala
-  viridis-like apta para daltonismo). Móvil: 8 000 partículas; escritorio: 40 000 (RNF-3).
+- **Render (T-34, `web/src/wind/`):** `WindLayer` = CustomLayerInterface WebGL2 de MapLibre. En `prerender`:
+  estela atenuada (×0,955) + partículas dibujadas en una textura de pantalla, y avance de partículas en la GPU
+  (posiciones en RGBA8 con ping-pong); en `render` se compone sobre el mapa (premultiplicado). Matriz:
+  `defaultProjectionData.mainMatrix`; posiciones en Mercator 0–1 (exacto porque la rejilla tiene filas Mercator).
+  Velocidad: `uv = v·0,18 / (512·2^zoom·span)` → avance constante en pantalla a cualquier zoom. Reaparición solo en la
+  zona visible; estela borrada al mover el mapa. Se guarda/restaura framebuffer, viewport y VAO.
+- **Color:** viridis aclarada (`#968ce0` → `#fde725`), luminosidad monótona (daltonismo) y contraste ≥ 3:1 con la
+  tierra del mapa oscuro (probado): la versión oscura hacía invisible el viento flojo tierra adentro. Máximo de color
+  por nivel: 15 / 25 / 40 m/s (10 m / 850 / 500 hPa). Partículas: móvil 8 000, escritorio 40 000, mitad si < 30 fps
+  sostenido (RNF-3). Medido: 60 fps con 40 000 a 2500 × 1858 px.
+- **Datos:** `/data/{modelo}/latest.json` → `meta.json` → PNG del paso más cercano a ahora (decodificado con
+  `premultiplyAlpha: 'none'`, `colorSpaceConversion: 'none'`). En desarrollo los sirve
+  `web/vite-plugin-local-data.ts` desde `pipeline/out/web/data`. Sin datos → «Sin datos de viento».
+- **Limitación conocida:** en Relieve 3D las partículas van a nivel del mar (no siguen el terreno).
 - **Ráfagas:** de Open-Meteo no hay grid; usar `GUST` de GFS como textura escalar coloreada.
 
 ### 4.2 Nubes observadas (RF-3) — `web/src/api/gibs.ts`, `web/src/map/clouds.ts`, `web/src/map/cloudAlpha.ts`

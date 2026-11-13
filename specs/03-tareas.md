@@ -37,7 +37,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-32** Codificar PNG (R=u, G=v) + `meta.json`; escalares (ráfaga, nubes, lluvia) como PNG coloreable. → RF-2, RF-3, RF-4
       `pipeline/…/encode.py`: filas remuestreadas a Mercator; run real = 150 PNG, 5,7 MB, 2,7 s; verificado contra el GRIB.
 - [ ] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5
-- [ ] **T-34** `WindLayer` WebGL de partículas (técnica webgl-wind), color por velocidad, ajuste por dispositivo. → RF-2, RNF-3
+- [x] **T-34** `WindLayer` WebGL de partículas (técnica webgl-wind), color por velocidad, ajuste por dispositivo. → RF-2, RNF-3
+      `web/src/wind/`: 60 fps con 40 000 partículas (WebGL2, retina); 8 000 en móvil y reducción automática si < 30 fps.
 - [ ] **T-35** Línea de tiempo 0–72 h y selector de modelo/nivel. → RF-2
 - [ ] **T-36** Capas escalares: ráfagas, nubosidad pronosticada, lluvia, temperatura, isobaras. → RF-4, RF-5
 - [ ] **T-37** Radar: evaluar términos actuales de RainViewer; integrar o documentar ausencia. → RF-4
