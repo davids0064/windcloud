@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | Fase 1 · MVP — **8/9 tareas** (T-10, T-11, T-12, T-20…T-24 ✅; **solo falta completar T-13**). Criterio de fase medido: 449 ms ✅. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | **Fase 1 · MVP completa ✅** (9/9: T-10…T-13, T-20…T-24; criterio 449 ms). Siguiente: **Fase 2** (viento animado y capas de pronóstico). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-24 (chips Observado/Pronóstico/Estimado + fuente y hora en todo dato; runs atrasados) |
-| Siguiente tarea | **T-13** completar shell (menú lateral colapsable, pestañas, "Usar mi ubicación", reloj UTC/local) → cierra fase 1 |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · 127 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
+| Última tarea cerrada | T-13 (shell: menú lateral con 5 pestañas, reloj UTC/local, conexión, «Usar mi ubicación», móvil) |
+| Siguiente tarea | **T-30** `pipeline/grids.py`: GFS 0,25° (u/v 10 m, 850, 500 hPa, ráfagas, nubes, lluvia) vía filtro NOMADS |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
@@ -78,6 +78,9 @@
 | 2026-11-13 | "Hoy" de la probabilidad = desde la hora en curso | Si no, contaría lluvia ya caída (88 % día completo vs 51 % resto del día) | 02 §5.4 |
 | 2026-11-13 | El acuerdo entre modelos se rotula "Estimado" (indicador propio), no "Pronóstico" | P3: separar índices propios de pronósticos | 02 §9 |
 | 2026-11-13 | Run con > 30 h = "atrasado": se avisa pero sigue en el consenso | P4 sin descartar datos válidos; caso real `cmc_gem_gdps` congelado | 02 §9 |
+| 2026-11-13 | Controles de capas (mapa base, nubes) dentro del menú lateral, no flotando | Diseño §9; libera el mapa | 02 §9.0 |
+| 2026-11-13 | Precisión y Riesgo como «en construcción» con fase, sin datos de relleno | Honestidad (P3) | 02 §9.0 |
+| 2026-11-13 | Metodología preliminar ya publicada, con umbrales leídos del código | RF-13 y explicar la transparencia de nubes (pendiente de T-12) | 02 §9.0 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -144,6 +147,13 @@
 - **Ensemble API:** las claves no usan el id pedido (`ecmwf_ifs025` → `…_ecmwf_ifs025_ensemble`, `gfs025` →
   `…_ncep_gefs025`); agrupar por patrón. Esos sufijos sirven como id de `meta.json` en `ensemble-api.open-meteo.com`.
 - Coste real por punto abierto: 5,4 (multi-modelo) + 8,2 (ensambles) = 13,6 de 600/min.
+- **macOS no distingue mayúsculas en nombres de archivo:** `clock.ts` y `Clock.tsx` chocan (`./Clock` resolvía al .ts).
+  Usar nombres distintos (`clockFormat.ts`). Igual con `tabs.ts` vs carpeta `tabs/` → `menuTabs.ts`.
+- oxlint `only-export-components`: un archivo de componente no debe exportar constantes (rompe recarga en caliente).
+- Intl es-CO formatea «a. m.» con espacio duro (U+00A0): normalizar espacios en pruebas.
+- **Probar móvil sin redimensionar Chrome** (la ventana maximizada ignora `resize_window`): reemplazar el body por un
+  `<iframe src="/" style="width:390px">` del mismo origen; dentro, `matchMedia` y el CSS responden como en un teléfono.
+- Simular «Usar mi ubicación» sin diálogo de permisos: `Object.defineProperty(navigator, 'geolocation', …)` en la página.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -161,6 +171,20 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-13 Shell de la interfaz → **Fase 1 completa**
+- **Tareas:** T-13 ✅ — con esto la fase 1 queda 9/9.
+- **Hecho:** `shell/SideMenu.tsx` (+CSS), `menuTabs.ts`, `Clock.tsx`/`clockFormat.ts`, `useOnline.ts`,
+  `geolocation.ts`, `LocateButton.tsx`, `tabs/` (MapTab, PointTab, ComingSoon, MethodologyTab). `App` reorganizado:
+  menú + panel de punto cerrable (el punto se conserva en «Mi punto»); `MapView` recibe `basemap` como prop y pone la
+  escala abajo a la derecha; CloudPanel y BasemapSwitcher pasan a la pestaña Mapa.
+- **Verificado:** 140/140 pruebas ✓ (reloj, geolocalización y errores, menú, flechas, sin conexión, Metodología con
+  umbrales reales, flujo de ubicación en App), typecheck, lint, build ✓. En Chrome escritorio: menú + mapa + panel a
+  la vez, pestañas sin desbordar, plegar/desplegar, ubicación simulada (Cali) → panel en 2,8 s. Móvil 390 px (iframe):
+  menú cerrado al inicio, cajón de 340 px sin desborde horizontal, créditos plegados, al ubicar (Medellín) se cierra
+  el menú y aparece la hoja del pronóstico.
+- **Pendiente:** en móvil el marcador queda tras el borde de la hoja (centrar con `padding` en `flyTo`) → T-61.
+  Siguiente fase: T-30 (pipeline de rejillas GFS).
 
 ### 2026-11-13 · T-24 Naturaleza del dato y fuente + hora en todo dato
 - **Tareas:** T-24 ✅

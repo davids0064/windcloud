@@ -269,7 +269,7 @@
 /* Con el panel abierto, los controles del mapa a la derecha se corren para no quedar debajo. */
 @media (min-width: 641px) {
   .app--panel-open .maplibregl-ctrl-top-right,
-  .app--panel-open .basemap-switcher {
+  .app--panel-open .maplibregl-ctrl-bottom-right {
     right: 460px;
   }
 }

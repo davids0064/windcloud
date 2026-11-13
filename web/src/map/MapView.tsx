@@ -17,7 +17,6 @@ import {
   installBasemapSources,
   type BasemapId,
 } from './basemaps'
-import { BasemapSwitcher } from './BasemapSwitcher'
 import { registerCloudProtocol } from './cloudAlpha'
 import {
   CLOUD_PREFIX,
@@ -64,18 +63,25 @@ interface MapViewProps {
   selectedPoint?: LatLon | null
   /** Destino al que mover la cámara (p. ej. resultado del buscador). */
   flyTo?: FlyTarget | null
+  /** Mapa base elegido en el menú (RF-1). */
+  basemap?: BasemapId
   /** Nubes observadas (T-12): capa GIBS, cuadros disponibles y cuadro visible. */
   clouds?: { layer: CloudLayerInfo; frames: Date[]; index: number; preloadAll?: boolean } | null
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
-export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }: MapViewProps) {
+export default function MapView({
+  onSelectPoint,
+  selectedPoint,
+  flyTo,
+  clouds,
+  basemap = 'oscuro',
+}: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerRef = useRef<Marker | null>(null)
   const onSelectRef = useRef(onSelectPoint)
   const [ready, setReady] = useState(false)
-  const [basemap, setBasemap] = useState<BasemapId>('oscuro')
   const [failed, setFailed] = useState(false)
   const [hover, setHover] = useState<{ x: number; y: number; nombre: string } | null>(null)
 
@@ -99,7 +105,8 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }:
     if (import.meta.env.DEV) (window as unknown as { __wcMap?: MapLibreMap }).__wcMap = map // depuración
 
     map.addControl(new NavigationControl({ visualizePitch: true }), 'top-right')
-    map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-left')
+    // Abajo a la derecha: el menú lateral ocupa la izquierda.
+    map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-right')
 
     // Overlay de deck.gl intercalado con las capas de MapLibre; las capas de datos llegan en fases 1–2.
     const overlay = new MapboxOverlay({ interleaved: true, layers: [] })
@@ -110,6 +117,12 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }:
       applySpanishLabels(map)
       installBasemapSources(map)
       installDepartments(map)
+      // En pantallas angostas los créditos empiezan plegados (siguen a un toque en ⓘ): no tapan el mapa.
+      if (window.matchMedia?.('(max-width: 640px)').matches) {
+        containerRef.current
+          ?.querySelector('.maplibregl-ctrl-attrib')
+          ?.classList.remove('maplibregl-compact-show')
+      }
       setReady(true)
     })
     map.on('click', (e) => {
@@ -219,7 +232,6 @@ export default function MapView({ onSelectPoint, selectedPoint, flyTo, clouds }:
           {hover.nombre}
         </div>
       )}
-      <BasemapSwitcher value={basemap} onChange={setBasemap} disabled={!ready} />
       {failed && (
         <p className="map-view__error" role="alert">
           No se pudo cargar el mapa base. Revisa tu conexión y recarga la página.

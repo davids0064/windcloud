@@ -1,0 +1,262 @@
+.side-menu {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  bottom: 10px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  width: 330px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 96%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.side-menu[hidden] {
+  display: none;
+}
+
+.menu-toggle {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Abierto: el botón queda dentro de la cabecera del menú, a la derecha. */
+.menu-toggle--open {
+  left: 296px;
+  width: 32px;
+  justify-content: center;
+  padding: 0;
+}
+
+.menu-toggle__label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.side-menu__header {
+  display: grid;
+  gap: 6px;
+  padding: 12px 52px 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.side-menu__brand {
+  display: grid;
+}
+
+.side-menu__title {
+  margin: 0;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+}
+
+.side-menu__tagline {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+.side-menu__status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-size: 0.75rem;
+}
+
+.clock {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.clock strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.conn {
+  color: var(--text-muted);
+}
+.conn--on span {
+  color: var(--observed);
+}
+.conn--off {
+  color: var(--estimated);
+}
+
+.side-menu__tools {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.side-menu__tabs {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Las 5 pestañas caben sin desplazamiento en 330 px (y en 88vw en móvil). */
+.side-menu__tabs button {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 7px 2px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.side-menu__tabs button[aria-selected='true'] {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+}
+
+.side-menu__content {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 12px 14px 16px;
+  overflow-y: auto;
+  font-size: 0.85rem;
+}
+
+.side-menu__content h2 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.side-menu__content h3 {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.side-menu__content p,
+.side-menu__content ul {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.side-menu__content ul {
+  padding-left: 18px;
+}
+
+.locate__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.locate__btn svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.locate__btn:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.locate__error {
+  margin: 6px 0 0;
+  color: var(--estimated);
+  font-size: 0.78rem;
+}
+
+.tab-section {
+  display: grid;
+  gap: 8px;
+}
+
+.coming-soon {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+}
+
+.coming-soon__tag {
+  justify-self: start;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.method dt {
+  margin-top: 8px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.method dd {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+}
+
+.method table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.method th,
+.method td {
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+/* Con el menú abierto en escritorio, el panel de punto no lo tapa (ya está a la derecha). */
+@media (max-width: 640px) {
+  .side-menu {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(340px, 88vw);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .menu-toggle--open {
+    left: calc(min(340px, 88vw) - 42px);
+    top: 10px;
+  }
+}

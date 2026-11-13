@@ -16,8 +16,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       268 KB (102 KB gzip), generado por `pipeline/…/geo.py`; resaltado y nombre al pasar el cursor.
 - [x] **T-12** Capa de nubes NASA GIBS (GOES-East visible e IR); leer IDs reales de GetCapabilities; animación 3 h. → RF-3
       10 cuadros cada 20 min, fondo transparente por brillo, hora UTC/local y antigüedad visibles. Nubosidad *pronosticada* queda para T-36.
-- [ ] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6
-      🟡 Buscador de ciudad/país hecho (`web/src/search/PlaceSearch.tsx`); faltan menú lateral, pestañas, ubicación y reloj.
+- [x] **T-13** Shell de UI: menú lateral colapsable, pestañas, buscador (Geocoding), "Usar mi ubicación", reloj UTC/local. → RF-13, RF-6
+      Menú `web/src/shell/` con las 5 pestañas de RF-13, indicador de conexión, cajón en móvil y Metodología preliminar.
 - [x] **T-20** `api/openMeteo.ts`: petición multi-modelo (lista §5.1 del diseño), parseo por modelo, caché 30 min. → RF-6, RNF-5
       8 modelos independientes validados contra la API real; hora del run por `meta.json`; Bogotá en ~0,5 s.
 - [x] **T-21** `core/consensus.ts` + `core/agreement.ts` con pruebas (u/v, mediana ponderada, nulos, pesos iguales). → RF-7, RF-8
@@ -28,7 +28,7 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
       Barras por día y ensamble (sin mezclarlos), "hoy" desde la hora en curso, acuerdo entre ensambles, run de cada uno.
 - [x] **T-24** Chips Observado/Pronóstico/Estimado y "fuente + hora" en todo dato. → P2, P3, RNF-9
       `ui/DataChip` + `ui/SourceLine` (con `<time>`); acuerdo rotulado "Estimado"; runs > 30 h marcados "atrasado". Auditado en Chrome.
-  *Hecho fase 1:* clic en Bogotá muestra ≥ 5 modelos, consenso y acuerdo en < 3 s.
+  *Hecho fase 1:* clic en Bogotá muestra ≥ 5 modelos, consenso y acuerdo en < 3 s. ✅ **Fase 1 completa (2026-11-13): 8 modelos en 449 ms.**
 
 ## Fase 2 · Viento animado y capas de pronóstico
 - [ ] **T-30** `pipeline/grids.py`: bajar GFS 0.25° (u/v 10 m, 850, 500 hPa, GUST, TCDC, PRATE) vía filtro NOMADS. → RF-2

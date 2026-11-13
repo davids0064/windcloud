@@ -70,4 +70,36 @@ describe('App', () => {
     await act(async () => fireEvent.click(await screen.findByText('clic en Antioquia')))
     expect(await screen.findByRole('heading', { name: 'Punto en Antioquia' })).toBeInTheDocument()
   })
+
+  it('«Usar mi ubicación» abre el panel en tu posición (RF-6)', async () => {
+    vi.stubGlobal('navigator', {
+      ...navigator,
+      onLine: true,
+      geolocation: {
+        getCurrentPosition: (ok: PositionCallback) =>
+          ok({
+            coords: { latitude: 3.45, longitude: -76.53, accuracy: 20 },
+          } as GeolocationPosition),
+      },
+    })
+    render(<App />)
+    await act(async () =>
+      fireEvent.click(screen.getByRole('button', { name: 'Usar mi ubicación' })),
+    )
+    expect(await screen.findByRole('heading', { name: 'Mi ubicación' })).toBeInTheDocument()
+    expect(screen.getByText('3.45, -76.53')).toBeInTheDocument()
+  })
+
+  it('las pestañas cambian el contenido y cerrar el panel conserva el punto en «Mi punto»', async () => {
+    render(<App />)
+    expect(screen.getByRole('heading', { name: 'Mapa base' })).toBeInTheDocument()
+    await act(async () => fireEvent.click(await screen.findByText('clic en Antioquia')))
+    fireEvent.click(screen.getByRole('button', { name: 'Cerrar panel' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Mi punto' }))
+    expect(screen.getByText('Punto en Antioquia')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Ver pronóstico de este punto' }))
+    expect(await screen.findByRole('heading', { name: 'Punto en Antioquia' })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: 'Riesgo' }))
+    expect(screen.getByText(/no el pronóstico oficial del IDEAM/)).toBeInTheDocument()
+  })
 })

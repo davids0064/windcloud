@@ -228,6 +228,18 @@ usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias
 
 ## 9. Interfaz
 
+### 9.0 Shell (T-13) — `web/src/shell/`
+- **Menú lateral izquierdo** (330 px) plegable con botón accesible (`aria-expanded`); en móvil (≤ 640 px) es un
+  cajón de `min(340px, 88vw)` que **empieza cerrado** y se cierra al elegir un punto (la hoja del pronóstico necesita
+  la pantalla). Cabecera: marca, reloj **UTC + hora local** (cada 15 s), indicador **Conectado / Sin conexión** (P4).
+  Siempre visibles: buscador y **«Usar mi ubicación»** (Geolocation API, 10 s, sin alta precisión; la posición no se
+  guarda y solo viaja redondeada a ~1 km a la consulta meteorológica, RNF-8; errores traducidos).
+- **Pestañas de RF-13:** Mapa (mapa base + nubes; los controles dejaron de flotar sobre el mapa), Mi punto, Precisión
+  y Riesgo («en construcción» con su fase y sin datos de relleno; Riesgo enlaza al IDEAM), Metodología (preliminar,
+  con umbrales leídos del propio código para que no se desincronicen; la completa es T-60). Flechas para cambiar.
+- Escala del mapa abajo a la derecha (el menú ocupa la izquierda); créditos plegados al inicio en móvil.
+- Selector de modelo de la barra superior: se hará con la capa de viento (T-35), donde tiene sentido.
+
 ### 9.1 Panel de punto (RF-6/7/8, T-22) — `web/src/point/`
 - Panel lateral derecho (440 px; hoja inferior de 62 vh en móvil); los controles del mapa a la derecha se corren.
   Chip "Pronóstico", nombre del lugar, coordenadas y altura de la rejilla del modelo.
