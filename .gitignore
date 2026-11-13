@@ -14,6 +14,7 @@ __pycache__/
 # Datos generados por los pipelines (se publican, no se versionan en main)
 pipeline/out/
 *.grib2
+!pipeline/tests/fixtures/*.grib2
 
 # Sistema / editores
 .DS_Store

@@ -105,6 +105,15 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 ### 4.1 Viento (RF-2)
 - **Fuente:** GFS 0.25° (NOMADS, filtro `filter_gfs_0p25.pl` para bajar solo `UGRD`/`VGRD` a 10 m, 850, 500 hPa)
   y ECMWF Open Data 0.25° (`10u`, `10v`, `u`, `v` en niveles de presión).
+- **Descarga GFS (T-30, `pipeline/src/windcloud_pipeline/grids.py`):** un GRIB2 por paso (0–72 h cada 3 h) con
+  UGRD/VGRD (10 m, 850, 500 hPa), GUST, TCDC (atmósfera completa) y PRATE. **Región por defecto «colombia»**
+  (lon −100…−50, lat −20…25; rejilla 201 × 181 a 0,25°): ~650 KB/paso, 16,5 MB/run frente a ~216 MB global
+  (opción `--region global`). Run = el más reciente cuyo f072 ya tiene `.idx` publicado. Pausa de 1 s entre
+  peticiones, reintentos 5/15/45 s ante 5xx/429/red, 404 sin reintento, validación `b"GRIB"` (NOMADS devuelve HTML
+  en errores), escritura atómica y reanudación; `download.json` con run, región y pasos.
+- **Valores instantáneos:** desde f003 GFS envía PRATE y TCDC dos veces (instantáneo y promedio); los promedios se
+  reinician cada 6 h (ventanas de 3 y 6 h mezcladas), así que se usa siempre el instantáneo (también existe en f000).
+  La capa de lluvia se rotula «tasa instantánea (mm/h)». Rejilla normalizada a filas norte → sur, lon −180…180.
 - **Codificación PNG:** R = u, G = v normalizados a [0,255] con `min/max` guardados en `meta.json`
   (técnica de webgl-wind). Una imagen por modelo/run/nivel/paso (0–72 h cada 3 h = 25 imágenes).
 - **Render:** partículas en GPU (shaders de posición + desvanecimiento), color por velocidad (escala

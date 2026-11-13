@@ -17,7 +17,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 ## Grids para mapas (viento, nubes, lluvia)
 | Fuente | Qué da | Clave | Licencia | Uso | Verificar |
 |---|---|---|---|---|---|
-| **NOAA GFS 0.25° (NOMADS)** | GRIB2 global cada 6 h, 384 h | No | Dominio público | Texturas de viento, ráfagas, nubes, lluvia | Límite de peticiones de NOMADS; alternativa: bucket `noaa-gfs-bdp-pds` en AWS |
+| **NOAA GFS 0.25° (NOMADS)** | GRIB2 global cada 6 h, 384 h | No | Dominio público | Texturas de viento, ráfagas, nubes, lluvia ✅ descarga en uso | ✅ 2026-11-13: filtro con subregión OK; run 06Z con f072 publicado a las ~15:00 UTC; 404 + HTML si no existe; se usa 1 s entre peticiones. Alternativa: bucket `noaa-gfs-bdp-pds` en AWS |
 | **ECMWF Open Data** | GRIB2 0.25° IFS y AIFS | No | CC BY 4.0 | Texturas de viento ECMWF | Variables y resolución abiertas actuales |
 | **DWD ICON (opendata.dwd.de)** | GRIB2 global ICON | No | Abierta con atribución | Opcional, tercer modelo en mapa | Formato de rejilla icosaédrica (requiere regridding) |
 

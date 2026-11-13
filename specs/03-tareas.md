@@ -31,7 +31,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   *Hecho fase 1:* clic en Bogotá muestra ≥ 5 modelos, consenso y acuerdo en < 3 s. ✅ **Fase 1 completa (2026-11-13): 8 modelos en 449 ms.**
 
 ## Fase 2 · Viento animado y capas de pronóstico
-- [ ] **T-30** `pipeline/grids.py`: bajar GFS 0.25° (u/v 10 m, 850, 500 hPa, GUST, TCDC, PRATE) vía filtro NOMADS. → RF-2
+- [x] **T-30** `pipeline/grids.py`: bajar GFS 0.25° (u/v 10 m, 850, 500 hPa, GUST, TCDC, PRATE) vía filtro NOMADS. → RF-2
+      Región Colombia ampliada por defecto; run completo real: 25 pasos, 16,5 MB, 41 s. Valores instantáneos.
 - [ ] **T-31** Añadir ECMWF Open Data (u/v) al mismo pipeline. → RF-2
 - [ ] **T-32** Codificar PNG (R=u, G=v) + `meta.json`; escalares (ráfaga, nubes, lluvia) como PNG coloreable. → RF-2, RF-3, RF-4
 - [ ] **T-33** Workflow `grids.yml` cada 6 h (≈ 3,5 h después de cada run); no borra la versión anterior si falla. → RNF-5

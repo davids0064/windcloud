@@ -11,13 +11,14 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-13 |
-| Fase | **Fase 1 · MVP completa ✅** (9/9: T-10…T-13, T-20…T-24; criterio 449 ms). Siguiente: **Fase 2** (viento animado y capas de pronóstico). Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅ completa. **Fase 2 · viento y capas: 1/8** (T-30 ✅). Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-13 (shell: menú lateral con 5 pestañas, reloj UTC/local, conexión, «Usar mi ubicación», móvil) |
-| Siguiente tarea | **T-30** `pipeline/grids.py`: GFS 0,25° (u/v 10 m, 850, 500 hPa, ráfagas, nubes, lluvia) vía filtro NOMADS |
+| Última tarea cerrada | T-30 (descarga GFS 0,25° por NOMADS: región Colombia, 25 pasos, valores instantáneos) |
+| Siguiente tarea | **T-32** codificar PNG (R=u, G=v) + `meta.json` y escalares (o T-31 ECMWF Open Data antes) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · 140 pruebas web (core 98,4 % cobertura) · `pipeline/` (geo.py) 9 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
+| Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
 | URL pública | — (T-04 pospuesta) |
 | Bloqueos | Ninguno para trabajo local |
@@ -82,6 +83,8 @@
 | 2026-11-13 | Precisión y Riesgo como «en construcción» con fase, sin datos de relleno | Honestidad (P3) | 02 §9.0 |
 | 2026-11-13 | Metodología preliminar ya publicada, con umbrales leídos del código | RF-13 y explicar la transparencia de nubes (pendiente de T-12) | 02 §9.0 |
 | 2026-11-13 | Presupuesto de JS inicial ≤ 150 KB gzip verificado en CI (`npm run check:bundle`, cuenta entrada + modulepreload) | Una importación de `cloudAlpha` desde Metodología coló MapLibre y subió la carga inicial de 74 a 376 KB | 03 T-62 |
+| 2026-11-13 | Rejillas GFS por región «colombia» (−100…−50, −20…25) por defecto, global opcional | 16,5 MB/run frente a ~216 MB; misma resolución; Colombia primero | 02 §4.1 |
+| 2026-11-13 | Campos GFS **instantáneos** (no promedios de intervalo) | Promedios reinician cada 6 h (ventanas 3/6 h mezcladas); el instantáneo existe en todos los pasos | 02 §4.1 |
 | 2026-11-13 | Licencia MIT a nombre de "Contribuidores de WindCloud"; sin datos personales en archivos públicos | Privacidad en repo público | — |
 
 ## 4. Preguntas abiertas / riesgos
@@ -159,6 +162,12 @@
   elimina por tree-shaking): constantes compartidas en módulos sin dependencias (`clouds/alphaRamp.ts`).
   Medir solo el archivo de entrada no basta: sumar los chunks `modulepreload` de `index.html`. Verificado que el
   chequeo falla (363 KB, código 1) al importar MapLibre en `App.tsx`.
+- **GFS en NOMADS:** el filtro hace producto cartesiano variables × niveles (llega TCDC a 500/850 hPa de más). PRATE y
+  TCDC llegan instantáneo **y** promedio desde f003 → elegir por `stepType`. PRATE en f000 **no es 0** (instantánea,
+  7,5 mm/h máx. en Bogotá): mi supuesto inicial era falso y una prueba lo detectó. La subregión llega sur → norte.
+  Archivo inexistente = 404 con HTML. Run 12Z aún sin f072 a las 15:01 UTC.
+- GFS puede dar ráfaga (GUST) **menor** que el viento medio a 10 m (f072 Bogotá 4,4 vs 4,9 km/h): revisar en T-36.
+- `.gitignore` ignora `*.grib2`: los fixtures necesitan `!pipeline/tests/fixtures/*.grib2`.
 - `performance.getEntriesByType('resource')` tiene tope de 250 entradas: no sirve para contar >250 teselas.
 - `wrangler pages deploy` falla si el proyecto no existe → `deploy.yml` intenta `pages project create` antes (ignora error si ya existe).
 
@@ -176,6 +185,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-13 · T-30 Descarga de rejillas GFS (inicio de la fase 2)
+- **Tareas:** T-30 ✅
+- **Exploración real de NOMADS:** filtro y subregión OK; global 8,6 MB/paso vs región 570–660 KB; mensajes duplicados
+  (TCDC por nivel, PRATE/TCDC instantáneo + promedio); orientación sur → norte; 404 HTML si no existe.
+- **Hecho:** `pipeline/src/windcloud_pipeline/grids.py` (selección de run por `.idx`, URL del filtro, descarga con
+  reintentos/pausas/validación/escritura atómica/reanudación, `download.json`, lectura eccodes a filas norte → sur con
+  campos instantáneos, CLI). Fixtures GRIB2 reales de ~6 KB alrededor de Bogotá (f000 y f003). 10 pruebas nuevas.
+- **Verificado:** pipeline 18/18 ✓ + ruff. Descarga real: run 2026111306, 25 pasos, 16,5 MB en 41 s; rejilla 181 × 201
+  sin NaN; Bogotá f000 viento 3,1 km/h, nubes 100 % (1 a. m. local, plausible).
+- **Corregido en el camino:** supuesto falso «PRATE en f000 = 0» y lectura no determinista de PRATE/TCDC duplicados.
+- **Pendiente / siguiente paso:** T-32 (PNG + meta.json) o T-31 (ECMWF Open Data).
 
 ### 2026-11-13 · T-13 Shell de la interfaz → **Fase 1 completa**
 - **Tareas:** T-13 ✅ — con esto la fase 1 queda 9/9.
