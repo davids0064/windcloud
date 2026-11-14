@@ -146,7 +146,8 @@ export default function RiskTab({ state, selection, onSelection, levels, fires }
             </p>
           )}
           <p className="risk__muted">
-            Celdas de 0,25° (≈ 28 × 28 km). Pasa el cursor por una para ver sus valores.
+            Celdas de 0,25° (≈ 28 × 28 km). Pasa el cursor por una para ver sus valores; tócala (o
+            haz clic) para abrir su pronóstico.
           </p>
         </div>
       )}

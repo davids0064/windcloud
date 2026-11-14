@@ -162,15 +162,16 @@
 }
 .agreement--alto {
   color: #0b0d10;
-  background: var(--observed);
+  background: #34c3a0;
 }
 .agreement--medio {
   color: #0b0d10;
-  background: #e0c95b;
+  background: #f0e442;
 }
+/* Verde azulado, amarillo y salmón: distinguibles con protanopía, deuteranopía y tritanopía (T-61). */
 .agreement--bajo {
   color: #0b0d10;
-  background: var(--estimated);
+  background: #f28c64;
 }
 .agreement--na {
   color: var(--text-muted);

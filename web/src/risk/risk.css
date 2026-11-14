@@ -166,3 +166,19 @@
   display: inline-block;
   font-weight: 700;
 }
+
+.risk__pick {
+  display: grid;
+  gap: 4px;
+  font-size: 0.76rem;
+}
+
+.risk__pick select {
+  min-height: 32px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}

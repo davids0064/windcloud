@@ -61,6 +61,17 @@ describe('FiresSection', () => {
     expect(p.onToggle).toHaveBeenCalledWith(false)
   })
 
+  it('se puede elegir un foco sin el mapa (teclado, WCAG 2.1.1), del más intenso al menos', () => {
+    const p = props()
+    render(<FiresSection {...p} />)
+    const select = screen.getByRole('combobox', { name: /Ver un foco/ })
+    const options = [...select.querySelectorAll('option')].map((o) => o.textContent)
+    expect(options[1]).toMatch(/^Casanare · .* · 12,7 MW$/)
+    expect(options[3]).toMatch(/sin potencia$/)
+    fireEvent.change(select, { target: { value: '0' } })
+    expect(p.onSelect).toHaveBeenCalledWith(0)
+  })
+
   it('sin datos lo dice', () => {
     render(<FiresSection {...props({ state: { status: 'error', message: 'HTTP 404' } })} />)
     expect(screen.getByRole('alert')).toHaveTextContent('Sin datos de focos de calor (HTTP 404)')

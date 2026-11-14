@@ -3,6 +3,7 @@ import type { Loadable } from '../precision/usePrecision'
 import { SourceLine } from '../ui/SourceLine'
 import { FIRE_COLORS, ago, localTime, type Fire, type FiresData, type WindRow } from './data'
 
+const PICK_MAX = 20
 const n0 = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 })
 const utc = (iso: string) => {
   const d = new Date(iso).toISOString()
@@ -31,6 +32,11 @@ export function FiresSection({
   data?.focos.forEach(
     (f) => f.departamento && deps.set(f.departamento, (deps.get(f.departamento) ?? 0) + 1),
   )
+  // Alternativa al mapa para teclado y lectores de pantalla (WCAG 2.1.1): los focos más intensos.
+  const strongest = (data?.focos ?? [])
+    .map((f, i) => ({ f, i }))
+    .sort((a, b) => (b.f.frp ?? -1) - (a.f.frp ?? -1))
+    .slice(0, PICK_MAX)
   const top = [...deps].sort((a, b) => b[1] - a[1]).slice(0, 6)
 
   return (
@@ -69,6 +75,21 @@ export function FiresSection({
             industria…), no un incendio confirmado. Toca uno para ver hacia dónde lo empujaría el
             viento.
           </p>
+          <label className="risk__pick">
+            <span>Ver un foco (los {strongest.length} más intensos):</span>
+            <select
+              value={selected ?? ''}
+              onChange={(e) => onSelect(e.target.value === '' ? null : Number(e.target.value))}
+            >
+              <option value="">— elegir —</option>
+              {strongest.map(({ f, i }) => (
+                <option key={i} value={i}>
+                  {f.departamento ?? 'Colombia'} · {localTime(f.hora)} ·{' '}
+                  {f.frp === null ? 'sin potencia' : `${f.frp.toLocaleString('es-CO')} MW`}
+                </option>
+              ))}
+            </select>
+          </label>
           {fire && <FireDetail fire={fire} wind={wind} onClose={() => onSelect(null)} />}
           {Object.keys(data.fallidos).length > 0 && (
             <p className="risk__muted">Sin datos de: {Object.keys(data.fallidos).join(', ')}.</p>

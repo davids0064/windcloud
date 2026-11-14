@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 1/5** (T-60 ✅) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 2/5** (T-60, T-61 ✅) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-60 (Metodología completa con fórmulas, limitaciones y referencias) |
-| Siguiente tarea | **T-61** (accesibilidad AA, daltonismo, móvil 360 px), luego T-62, T-63, T-64. T-54 (push) opcional. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · `core/methodology.ts` · 261 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 120 pruebas · CI |
+| Última tarea cerrada | T-61 (accesibilidad AA, daltonismo, móvil 360 px) |
+| Siguiente tarea | **T-62** (presupuestos: fps y llamadas a APIs), luego T-63 (E2E) y T-64 (atribuciones). T-54 (push) opcional. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · `core/methodology.ts` · `a11y.test.tsx` + `ui/contrast.test.ts` · 270 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 120 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -169,6 +169,11 @@
 
 ## 5. Aprendizajes y trampas conocidas
 
+- **Chrome en macOS no baja de ~500 px de ancho:** `resize_window` a 360 deja el viewport ancho. Para probar
+  360 px, cargar la app en un `<iframe>` de 360 × 780 en la misma página (mismo origen) e inspeccionarla (T-61).
+- **Verde/rojo-naranja con luminancia parecida** se confunden con deuteranopía (ΔE 6–7): medirlo con la simulación
+  de Machado, no a ojo.
+
 - **Constantes repetidas entre Python y TS:** una prueba de Python que lee el `.ts` con regex (como la de modelos)
   evita que Metodología muestre un umbral distinto del real (T-60). Ojo: las listas `[a, b]` necesitan su propio
   patrón en la regex.
@@ -313,6 +318,18 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-61 Accesibilidad, daltonismo y móvil
+- **Hecho:** `axe-core` (devDependency, MPL-2.0) en `a11y.test.tsx`: app, Precisión, Riesgo + focos, rayos, alertas
+  y Metodología sin violaciones. `ui/contrast.test.ts`: contraste AA leído del CSS (texto ≥ 4,5:1, marcas ≥ 3:1) y
+  simulación de daltonismo (protanopía, deuteranopía, tritanopía) con ΔE ≥ 12 entre tonos vecinos.
+- **Cambios:** insignias de acuerdo `#34c3a0` / `#f0e442` / `#f28c64` (antes alto/bajo ΔE 6 con deuteranopía y
+  medio/bajo ΔE 4 con protanopía); casillas de 18 px y deslizadores de 24 px; selector «Ver un foco» (20 más
+  intensos) como alternativa de teclado al mapa; texto de Riesgo para pantallas táctiles.
+- **Móvil 360 px** (iframe en Chrome): ninguna pestaña se desborda; solo enlaces dentro del texto quedan < 24 px
+  (exentos en WCAG).
+- **Verificado:** 270 pruebas web, tsc, lint, build.
+- **Siguiente:** T-62.
 
 ### 2026-11-14 · T-60 Metodología completa → **Fase 5 iniciada**
 - **Hecho:** `MethodologyTab` reescrita (13 secciones e índice), diferida; `core/methodology.ts` con las constantes del

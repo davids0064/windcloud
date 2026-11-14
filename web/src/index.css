@@ -43,6 +43,18 @@ a {
   color: var(--accent);
 }
 
+/* Controles nativos con área táctil cómoda (T-61, RNF-4): casillas de 18 px y deslizadores de 24 px de alto. */
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+input[type='range'] {
+  min-height: 24px;
+}
+
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
