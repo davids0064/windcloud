@@ -27,3 +27,6 @@ pipeline/out/
 # Playwright (T-63)
 web/test-results/
 web/playwright-report/
+
+# Wrangler (T-04)
+web/.wrangler/

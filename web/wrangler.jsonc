@@ -1,0 +1,13 @@
+// Sitio de WindCloud en Cloudflare Workers (solo archivos estáticos, plan gratuito). → T-04, RNF-1
+// Lo despliega .github/workflows/deploy.yml con `wrangler deploy` tras compilar y juntar los datos en dist/.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "windcloud",
+  "compatibility_date": "2026-11-13",
+  "assets": {
+    "directory": "./dist",
+  },
+  // https://windcloud.windcloudcol.workers.dev ; sin URL de vista previa por versión.
+  "workers_dev": true,
+  "preview_urls": false,
+}

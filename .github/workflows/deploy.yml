@@ -1,50 +1,67 @@
 name: Deploy web
 
-# Publica web/ en Cloudflare Pages (plan gratuito). → RNF-1, T-04
-# Por ahora solo manual (Actions → Deploy web → Run workflow): el desarrollo se hace en local
-# hasta decidir publicar. Para desplegar en cada push, volver a añadir el disparador `push`.
+# Publica el sitio en Cloudflare Workers (archivos estáticos, plan gratuito). → RNF-1, T-04
+# https://windcloud.windcloudcol.workers.dev
+#
+# Cuándo:
+# - Tras cada CI exitoso en main (cambios de la app).
+# - Tras cada corrida de las rejillas (8 al día) y de la verificación (1 al día): los datos viven en las ramas
+#   `grids` y `data`, y el sitio solo los ve al redesplegar. Los rayos no: la web los lee de la rama `rayos`.
+# - A mano (Actions → Deploy web → Run workflow).
+#
 # Requiere los secretos del repositorio:
-#   CLOUDFLARE_API_TOKEN   token con permiso "Cloudflare Pages: Edit"
+#   CLOUDFLARE_API_TOKEN   token con permiso de cuenta «Workers Scripts: Edit»
 #   CLOUDFLARE_ACCOUNT_ID  ID de la cuenta de Cloudflare
+# El build conectado a Git desde el panel de Cloudflare debe estar desconectado (subía el código sin compilar).
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows: ["CI", "Rejillas de pronóstico", "Verificación de precisión"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
 
 concurrency:
-  group: deploy-pages
-  cancel-in-progress: false
-
-env:
-  PAGES_PROJECT: windcloud
+  group: deploy-web
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    # CI debe pasar; las rejillas y la verificación publican solo lo válido, así que se despliega igual
+    # aunque un modelo haya fallado (la rama conserva el run anterior).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.name != 'CI' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: web
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
-      - run: npm test
+      # Las pruebas ya corrieron en CI para este commit; aquí basta compilar (incluye tsc).
       - run: npm run build
 
-      # Rejillas de pronóstico publicadas por grids.yml (rama `grids`) → /data del sitio.
+      # Rejillas, riesgo y focos de calor publicados por grids.yml (rama `grids`) → /data del sitio.
       - name: Incluir rejillas de pronóstico
         working-directory: .
         run: |
           if git clone --quiet --depth 1 --branch grids --single-branch \
             "https://github.com/${GITHUB_REPOSITORY}.git" grids-data; then
             cp -r grids-data/data web/dist/data
-            echo "Rejillas: $(jq -r .run web/dist/data/gfs/latest.json)"
+            echo "Rejillas GFS: $(jq -r .run web/dist/data/gfs/latest.json 2>/dev/null || echo '—')"
           else
             echo "::warning::Aún no hay rama grids: el sitio mostrará «Sin datos de pronóstico»."
           fi
@@ -57,23 +74,19 @@ jobs:
             "https://github.com/${GITHUB_REPOSITORY}.git" verify-data; then
             mkdir -p web/dist/data
             cp -r verify-data/web/. web/dist/data/
-            echo "Precisión hasta $(jq -r .hasta web/dist/data/verificacion-status.json)"
+            echo "Precisión hasta $(jq -r .hasta web/dist/data/verificacion-status.json 2>/dev/null || echo '—')"
           else
             echo "::warning::Aún no hay rama data: la página Precisión mostrará «sin datos»."
           fi
 
-      # Crea el proyecto de Pages la primera vez; si ya existe, el error se ignora.
-      - name: Asegurar proyecto en Cloudflare Pages
-        uses: cloudflare/wrangler-action@v4
-        continue-on-error: true
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages project create ${{ env.PAGES_PROJECT }} --production-branch=main
+      - name: "Tamaño del sitio (límites del plan gratuito: 20 000 archivos, 25 MiB por archivo)"
+        run: |
+          echo "Archivos: $(find dist -type f | wc -l) · total $(du -sh dist | cut -f1)"
+          big=$(find dist -type f -size +25M)
+          if [ -n "$big" ]; then echo "::error::Archivos de más de 25 MiB: $big"; exit 1; fi
 
-      - name: Publicar en Cloudflare Pages
-        uses: cloudflare/wrangler-action@v4
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy web/dist --project-name=${{ env.PAGES_PROJECT }} --branch=main
+      - name: Publicar en Cloudflare Workers
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4.162.0 deploy
