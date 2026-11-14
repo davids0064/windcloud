@@ -14,7 +14,7 @@
 | Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 4/6** (T-50 a T-53 ✅; T-54 y T-55 opcionales) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
 | Última tarea cerrada | T-52 (focos de calor NASA FIRMS con dirección de propagación por viento) |
-| Siguiente tarea | T-55 (rayos GLM, opcional) o T-54 (push, opcional), o fase 5. **Antes de subir el código:** el usuario guarda la clave con `! gh secret set FIRMS_MAP_KEY` (en local está en `pipeline/.env`, ignorado por git). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Siguiente tarea | T-55 (rayos GLM, opcional) o T-54 (push, opcional), o fase 5. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · 252 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires) 113 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
@@ -313,7 +313,7 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
   nominal. `fires.json` 45 KB; comprobado que no contiene la clave. SNPP sin datos desde el 02/11.
 - **Verificado:** 113 pruebas del pipeline, 252 web, tsc, lint, build (inicial 93,2 KB; Riesgo 3,5 KB). En Chrome:
   foco en Meta → «tendería a avanzar hacia el este», tabla +6/+12/+24 h y flecha; consola limpia.
-- **Pendiente del usuario:** `! gh secret set FIRMS_MAP_KEY` antes de subir el código.
+- **Secreto:** `FIRMS_MAP_KEY` guardado en el repositorio con `gh secret set` (valor por stdin desde `pipeline/.env`).
 
 ### 2026-11-14 · T-53 Alertas por punto (página abierta)
 - **Hecho:** `core/alerts.ts` (reglas, `checkAlerts` 24 h, clave por día local, texto), `alerts/useAlerts.ts`
