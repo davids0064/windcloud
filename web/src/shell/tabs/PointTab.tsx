@@ -1,3 +1,5 @@
+import { AlertsSection } from '../../alerts/AlertsSection'
+import type { AlertsState } from '../../alerts/useAlerts'
 import type { LatLon } from '../../map/MapView'
 
 const coord = new Intl.NumberFormat('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -7,10 +9,12 @@ export function PointTab({
   point,
   panelOpen,
   onOpenPanel,
+  alerts,
 }: {
   point: (LatLon & { label?: string }) | null
   panelOpen: boolean
   onOpenPanel: () => void
+  alerts?: AlertsState
 }) {
   return (
     <section className="tab-section">
@@ -39,6 +43,7 @@ export function PointTab({
         Tu ubicación solo se usa para pedir el pronóstico (redondeada a ~1 km); no se guarda ni se
         comparte con otros servicios.
       </p>
+      {alerts && <AlertsSection point={point} alerts={alerts} />}
     </section>
   )
 }

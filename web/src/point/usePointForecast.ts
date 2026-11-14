@@ -32,6 +32,24 @@ async function loadVerification(point: LatLon) {
 
 const keyOf = (p: LatLon) => `${p.lat.toFixed(3)},${p.lon.toFixed(3)}`
 
+/** Pronóstico + consenso (ponderado si hay verificación cerca) de un punto. Lo usan el panel y las alertas. */
+export async function loadPointForecast(point: LatLon): Promise<PointForecast> {
+  // Sin signal: la consulta se comparte en caché; si el punto cambia, quien llama ignora el resultado.
+  const forecast = await fetchMultiModel(point.lat, point.lon)
+  // Pesos por precisión verificada cerca del punto (T-45); si falla, pesos iguales y se dice.
+  const [summary, detail] = await loadVerification(point)
+  const weights = consensusWeights(
+    forecast.models.map((m) => m.model.apiId),
+    point,
+    summary,
+    detail,
+  )
+  const consensus = consensusSeries(forecast, weights.base, weights.byVariable)
+  const runList = await Promise.all(forecast.models.map((m) => fetchModelRun(m.model)))
+  const runs = Object.fromEntries(forecast.models.map((m, i) => [m.model.apiId, runList[i]]))
+  return { forecast, consensus, weights, runs }
+}
+
 /** Pronóstico multi-modelo + consenso para un punto (RF-6). */
 export function usePointForecast(point: LatLon | null) {
   const [state, setState] = useState<State | null>(null)
@@ -43,21 +61,9 @@ export function usePointForecast(point: LatLon | null) {
     const controller = new AbortController()
     ;(async () => {
       try {
-        // Sin signal: la consulta se comparte en caché; si el punto cambia, aquí solo se ignora el resultado.
-        const forecast = await fetchMultiModel(point.lat, point.lon)
-        // Pesos por precisión verificada cerca del punto (T-45); si falla, pesos iguales y se dice.
-        const [summary, detail] = await loadVerification(point)
-        const weights = consensusWeights(
-          forecast.models.map((m) => m.model.apiId),
-          point,
-          summary,
-          detail,
-        )
-        const consensus = consensusSeries(forecast, weights.base, weights.byVariable)
-        const runList = await Promise.all(forecast.models.map((m) => fetchModelRun(m.model)))
-        const runs = Object.fromEntries(forecast.models.map((m, i) => [m.model.apiId, runList[i]]))
+        const data = await loadPointForecast(point)
         if (!controller.signal.aborted) {
-          setState({ status: 'ready', key, data: { forecast, consensus, weights, runs } })
+          setState({ status: 'ready', key, data })
         }
       } catch (err) {
         if (!controller.signal.aborted) {

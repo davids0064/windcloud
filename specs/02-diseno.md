@@ -419,6 +419,17 @@ estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red
 
 ## 8. Alertas (RF-12)
 - v1: alertas **con la página abierta** (Notification API + revisión cada 15 min en el cliente). Costo 0.
+  **Hecho en T-53** (`web/src/core/alerts.ts`, `web/src/alerts/`):
+  - En «Mi punto»: umbrales de ráfagas (km/h), lluvia en 1 h (mm) y temperatura (°C), cada uno activable; por
+    defecto ráfagas > 50 y lluvia > 10. «Activar alertas para este punto» fija el punto actual.
+  - Se revisa el **mismo consenso del panel** (`loadPointForecast`, con pesos por precisión si hay) de la hora en
+    curso a +24 h; supera = estrictamente mayor. Al activar y luego cada 15 min (Open-Meteo se cachea 30 min).
+  - Un aviso por regla, punto y **día local** del primer exceso (no se repite por revisión ni porque un run nuevo
+    corra la hora). Aviso del sistema solo si el usuario lo permitió (botón «Permitir avisos»); siempre, aviso en la
+    página («Pronóstico (consenso de modelos), no alerta oficial»), con «Ver pronóstico».
+  - Configuración y avisos ya dados en `localStorage` (`wc-alertas-v1`): solo este navegador, nada sale a un
+    servidor. Sin almacenamiento, funciona mientras la página siga abierta.
+  - El código del pronóstico se carga en diferido solo si hay alertas activas (no infla la carga inicial).
 - Push con página cerrada requiere un servidor que envíe Web Push. Opción gratuita: **Cloudflare Worker + Cron Trigger + KV**
   (plan gratuito) que revisa puntos suscritos. Se deja como fase 3 y se valida el límite de CPU del plan gratis.
 

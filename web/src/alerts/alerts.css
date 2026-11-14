@@ -1,0 +1,140 @@
+.alerts {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.alerts__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.alerts__head h3 {
+  margin: 0;
+}
+
+.alerts__hint {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.alerts__rules {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.alerts__rules legend {
+  padding: 0 4px;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.alerts__rule {
+  display: grid;
+  grid-template-columns: 1fr 64px auto;
+  gap: 6px;
+  align-items: center;
+}
+
+.alerts__rule input[type='number'] {
+  width: 100%;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+}
+
+.alerts__rule input[type='number']:disabled {
+  opacity: 0.5;
+}
+
+.alerts__status {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+}
+
+.alerts__status p {
+  margin: 0;
+}
+
+.alerts__list {
+  margin: 0;
+  padding-left: 4px;
+  list-style: none;
+  color: var(--warn, #f2c94c);
+}
+
+.alerts__off,
+.alerts__perm {
+  justify-self: start;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}
+
+.alert-banner {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 30;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: min(520px, calc(100vw - 32px));
+  padding: 10px 12px;
+  border: 1px solid #f2c94c;
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.82rem;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.4);
+  transform: translateX(-50%);
+}
+
+.alert-banner ul {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+
+.alert-banner__note {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.alert-banner__actions {
+  display: flex;
+  flex: none;
+  gap: 6px;
+}
+
+.alert-banner__actions button {
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.74rem;
+  cursor: pointer;
+}

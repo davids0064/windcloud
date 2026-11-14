@@ -9,6 +9,8 @@ import type { MapStation } from './map/stations'
 import { bestByStation, modelColorOf, modelLabel } from './precision/data'
 import type { PrecisionSelection } from './precision/PrecisionTab'
 import { usePrecision } from './precision/usePrecision'
+import { AlertBanner } from './alerts/AlertsSection'
+import { useAlerts } from './alerts/useAlerts'
 import { describeCell, levelsFor, riskGeoJSON } from './risk/data'
 import type { RiskSelection } from './risk/RiskTab'
 import { useRisk } from './risk/useRisk'
@@ -86,6 +88,7 @@ export default function App() {
       }
     })
   }, [precisionData, precisionSel.win, precisionSel.variable, precisionSel.red])
+  const alerts = useAlerts()
   const [riskSel, setRiskSel] = useState<RiskSelection>({ view: 'incendio', when: 'max' })
   const risk = useRisk(tab === 'riesgo')
   const riskData = risk.status === 'ready' ? risk.data : null
@@ -259,7 +262,12 @@ export default function App() {
           />
         )}
         {tab === 'punto' && (
-          <PointTab point={point} panelOpen={panelOpen} onOpenPanel={() => setPanelOpen(true)} />
+          <PointTab
+            point={point}
+            panelOpen={panelOpen}
+            onOpenPanel={() => setPanelOpen(true)}
+            alerts={alerts}
+          />
         )}
         {tab === 'precision' && (
           <Suspense fallback={<p className="tab-section">Cargando…</p>}>
@@ -284,6 +292,14 @@ export default function App() {
         )}
         {tab === 'metodologia' && <MethodologyTab />}
       </SideMenu>
+
+      <AlertBanner
+        alerts={alerts}
+        onOpen={() => {
+          if (alerts.config) choosePoint(alerts.config.point)
+          alerts.dismiss()
+        }}
+      />
 
       {point && panelOpen && (
         <Suspense fallback={null}>
