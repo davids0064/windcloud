@@ -33,7 +33,7 @@ import numpy as np
 import shapely
 from PIL import Image
 
-from . import grids
+from . import grids, risk
 
 SCHEMA = 1
 MODEL_LABEL = {"gfs": "GFS 0,25° (NOAA)", "ecmwf": "ECMWF IFS 0,25° (Open Data)"}
@@ -228,6 +228,7 @@ def encode_run(
     model: str = "gfs",
     update_latest: bool = True,
     reader: Callable[[Path], grids.GridStep] = grids.read_step,
+    colombia=None,
 ) -> Path:
     """Codifica los fHHH.grib2 de `run_dir` en `out_root/<model>/<run>/` (escritura atómica)."""
     paths = sorted(run_dir.glob("f*.grib2"), key=lambda p: int(p.stem[1:]))
@@ -266,6 +267,17 @@ def encode_run(
             iso_path.write_text(json.dumps(isobars(st), separators=(",", ":")), encoding="utf-8")
             total += iso_path.stat().st_size
             isobar_steps.append(st.step)
+
+    # Riesgo (T-50): producto aparte; si faltan campos no bloquea las capas del mapa.
+    risk_meta = None
+    if model == "gfs" and risk.can_compute(steps):
+        if colombia is None:
+            from .stations import colombia_shape
+
+            colombia, _ = colombia_shape()
+        risk_path = risk.write(steps, tmp, colombia)
+        total += risk_path.stat().st_size
+        risk_meta = {"file": risk_path.name, "label": "Riesgo meteorológico (indicador propio)"}
 
     meta = {
         "schema": SCHEMA,
@@ -308,6 +320,7 @@ def encode_run(
             "steps": isobar_steps,
             "note": "Presión reducida al nivel del mar (extrapolada sobre montañas)",
         },
+        "risk": risk_meta,
         "bytes": total,
     }
     (tmp / "meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")

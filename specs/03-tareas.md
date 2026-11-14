@@ -74,7 +74,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   *Hecho fase 3:* tras 14 días, ranking visible y consenso ponderado activo.
 
 ## Fase 4 · Riesgo, incendios y alertas
-- [ ] **T-50** `pipeline/risk.py`: Fosberg + viento fuerte + lluvia intensa + calor → `risk.geojson` (H3). → RF-10
+- [x] **T-50** `pipeline/risk.py`: Fosberg + viento fuerte + lluvia intensa + calor → `risk.geojson` (H3). → RF-10
+  _Hecho: `risk.json` por run de GFS (1 622 celdas 0,25° sobre Colombia × 25 pasos); **sin H3** (ver diseño §7). Se añadió RH a 2 m a la descarga._
 - [ ] **T-51** Página **Riesgo** con H3HexagonLayer y aviso "indicador propio" + enlace IDEAM. → RF-10, P3
 - [ ] **T-52** Focos NASA FIRMS (clave gratuita MAP_KEY) con vector de viento por foco. → RF-11
 - [ ] **T-53** Alertas con página abierta (Notification API). → RF-12

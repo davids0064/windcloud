@@ -115,7 +115,8 @@ def test_rango_que_no_es_grib_se_reintenta():
 def test_lector_normaliza_a_las_convenciones_de_gfs():
     read = ecmwf.make_reader("colombia")
     g3 = read(FIX / "ecmwf_bogota_f003.grib2")
-    assert set(g3.fields) == set(grids.FIELDS)  # mismos nombres que GFS
+    # mismos nombres que GFS, salvo los que solo usa el riesgo de GFS (T-50)
+    assert set(g3.fields) == set(grids.FIELDS) - {"rh2m", "prate_avg"}
     assert (
         0 <= float(np.nanmin(g3.fields["tcc"])) and float(np.nanmax(g3.fields["tcc"])) > 1
     )  # % no fracción

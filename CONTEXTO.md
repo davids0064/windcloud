@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 1/6** (T-50 ✅) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-49 (enlace «Red oficial de tu ciudad» + listado de redes en Precisión) |
-| Siguiente tarea | Decidir: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí) o seguir con la **fase 4** (riesgo). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · 214 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam) 94 pruebas · CI |
+| Última tarea cerrada | T-50 (riesgo: Fosberg, viento, lluvia 3 h y calor → `gfs/<run>/risk.json`) |
+| Siguiente tarea | **T-51** (pestaña Riesgo). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · 214 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk) 105 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -134,6 +134,9 @@
   Ambas quedan en `cityNetworks` (T-49) como «no verificada» para listarlas con honestidad; se cubren con METAR
   (SKPE, SKBG) e IDEAM (Potreros a 17 km de Pereira; Llano Grande a 11 km de Bucaramanga).
 
+- **2026-11-14 · Riesgo sin H3 (T-50):** celdas de la rejilla GFS 0,25° en vez de hexágonos H3 res 5 (no inventar
+  resolución, sin `h3`/`h3-js`). El riesgo no bloquea la publicación de las capas si falla.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -154,6 +157,10 @@
   recortar a las estaciones con mejor cobertura.
 
 ## 5. Aprendizajes y trampas conocidas
+
+- **GFS: lluvia acumulada sin APCP:** el PRATE promedio (`stepType=avg`) trae su ventana en `stepRange` (0-3, 0-6,
+  6-9…); ventana × promedio = mm. En eccodes la HR a 2 m es `2r` (no `r`, que es la de niveles de presión).
+- Python: `flags & bit > 0` es `flags & (bit > 0)`; poner paréntesis.
 
 - **Pruebas con fechas fijas caducan:** un run «de ayer» pasa a «atrasado» al día siguiente. Usar horas relativas a
   `Date.now()` (T-49).
@@ -288,6 +295,16 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-50 Riesgo meteorológico (pipeline) → **Fase 4 iniciada**
+- **Hecho:** `risk.py` (Fosberg/Simard, lluvia en 3 h desde PRATE promedio, peligros por umbral, celdas sobre
+  Colombia) integrado en `encode_run` (GFS) y en `validate_run`; RH a 2 m y PRATE promedio en `grids.FIELDS`
+  (`GridStep.windows` guarda la ventana de los promedios). Fixtures nuevas `gfs_bogota_rh_f003/f006`.
+- **Con el run real 14/11 12Z:** 1 622 celdas × 25 pasos; FFWI mediana 1–3 (temporada de lluvias), máx. 44 en La
+  Guajira; lluvia > 20 mm/3 h en ≤ 3 celdas; calor > 35 °C en hasta 189 celdas (Caribe/Llanos); viento > 60 km/h en
+  ninguna. `risk.json` 685 KB (140 KB gzip). Actualización completa en 50 s.
+- **Verificado:** 105 pruebas del pipeline, ruff.
+- **Siguiente:** T-51 (pestaña Riesgo).
 
 ### 2026-11-14 · T-49 Red oficial de tu ciudad → **código de la fase 3 completo**
 - **Hecho:** `web/src/data/cityNetworks.json` + `cityNetworks.ts` (`officialNetworkAt`, `citiesByStatus`); enlace en el

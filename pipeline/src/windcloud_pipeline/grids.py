@@ -1,8 +1,8 @@
 """Rejillas de pronóstico GFS 0,25° para las capas del mapa (T-30, RF-2, diseño §4.1).
 
 Descarga con el filtro de NOMADS solo lo necesario: viento u/v a 10 m, 850 y 500 hPa,
-ráfagas (GUST), nubosidad total (TCDC, atmósfera completa) y tasa de precipitación (PRATE),
-pasos 0–72 h cada 3 h.
+ráfagas (GUST), nubosidad total (TCDC, atmósfera completa), tasa de precipitación (PRATE),
+temperatura y humedad relativa a 2 m (TMP, RH; riesgo, T-50), pasos 0–72 h cada 3 h.
 
 Hallazgos con el servicio real (2026-11-13):
 - Región por defecto "colombia" (lon −100…−50, lat −20…25): ~570 KB por paso (≈ 14 MB por run)
@@ -54,7 +54,7 @@ REGIONS: dict[str, tuple[float, float, float, float] | None] = {
     "global": None,
 }
 
-VARIABLES = ("UGRD", "VGRD", "GUST", "TCDC", "PRATE", "TMP", "PRMSL")
+VARIABLES = ("UGRD", "VGRD", "GUST", "TCDC", "PRATE", "TMP", "RH", "PRMSL")
 LEVELS = (
     "10_m_above_ground",
     "2_m_above_ground",
@@ -78,6 +78,9 @@ FIELDS: dict[str, FieldSpec] = {
     "tcc": ("tcc", "atmosphere", 0, "instant"),
     "prate": ("prate", "surface", 0, "instant"),
     "t2m": ("2t", "heightAboveGround", 2, "instant"),  # K
+    "rh2m": ("2r", "heightAboveGround", 2, "instant"),  # %, riesgo de incendio (T-50)
+    # Promedio de PRATE desde el último reinicio (cada 6 h): da la lluvia acumulada en 3 h (T-50).
+    "prate_avg": ("prate", "surface", 0, "avg"),
     "prmsl": ("prmsl", "meanSea", 0, "instant"),  # Pa, reducida al nivel del mar
 }
 
@@ -263,6 +266,8 @@ class GridStep:
     lats: np.ndarray  # decrecientes
     lons: np.ndarray  # crecientes, en −180…180
     fields: dict[str, np.ndarray]
+    #: Ventana (inicio, fin) en horas desde el run de los campos promediados (p. ej. prate_avg).
+    windows: dict[str, tuple[int, int]] = field(default_factory=dict)
 
     @property
     def valid(self) -> datetime:
@@ -273,6 +278,7 @@ def read_step(path: Path, fields: dict[str, FieldSpec] | None = None) -> GridSte
     """Lee un GRIB2 y devuelve los campos de `fields` (por defecto los de GFS, instantáneos)."""
     wanted = {spec: name for name, spec in (fields or FIELDS).items()}
     fields: dict[str, np.ndarray] = {}
+    windows: dict[str, tuple[int, int]] = {}
     lats = lons = None
     run: datetime | None = None
     step = 0
@@ -301,6 +307,9 @@ def read_step(path: Path, fields: dict[str, FieldSpec] | None = None) -> GridSte
                 missing = eccodes.codes_get(h, "missingValue")
                 values = np.where(values == missing, np.nan, values).astype(np.float32)
                 fields[name] = values
+                if key[3] != "instant":
+                    a, _, b = str(eccodes.codes_get(h, "stepRange")).partition("-")
+                    windows[name] = (int(a), int(b or a))
                 lats, lons = la, lo
                 if run is None:
                     date = eccodes.codes_get(h, "dataDate")
@@ -311,7 +320,7 @@ def read_step(path: Path, fields: dict[str, FieldSpec] | None = None) -> GridSte
                 eccodes.codes_release(h)
     if run is None or lats is None or lons is None:
         raise ValueError(f"Sin campos reconocibles en {path}")
-    return GridStep(run=run, step=step, lats=lats, lons=lons, fields=fields)
+    return GridStep(run=run, step=step, lats=lats, lons=lons, fields=fields, windows=windows)
 
 
 def crop(step: GridStep, bbox: tuple[float, float, float, float] | None) -> GridStep:
@@ -322,7 +331,7 @@ def crop(step: GridStep, bbox: tuple[float, float, float, float] | None) -> Grid
     rows = (step.lats <= north + 1e-6) & (step.lats >= south - 1e-6)
     cols = (step.lons >= west - 1e-6) & (step.lons <= east + 1e-6)
     fields = {k: v[np.ix_(rows, cols)] for k, v in step.fields.items()}
-    return GridStep(step.run, step.step, step.lats[rows], step.lons[cols], fields)
+    return GridStep(step.run, step.step, step.lats[rows], step.lons[cols], fields, step.windows)
 
 
 def wind_speed(u: np.ndarray, v: np.ndarray) -> np.ndarray:

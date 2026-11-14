@@ -109,7 +109,8 @@ def test_lee_campos_reales_orientados_norte_sur():
     g = grids.read_step(FIX / "gfs_bogota_f003.grib2")
     assert g.run == RUN and g.step == 3
     assert g.valid == datetime(2026, 11, 13, 9, tzinfo=UTC)
-    assert set(g.fields) == set(grids.FIELDS)  # TCDC a 500/850 hPa se descarta
+    # TCDC a 500/850 hPa se descarta; el fixture es anterior a RH (T-50)
+    assert set(g.fields) == set(grids.FIELDS) - {"rh2m"}
     assert g.lats[0] > g.lats[-1]  # filas norte → sur
     assert g.lons[0] < g.lons[-1] and g.lons.max() <= 180  # oeste → este, −180…180
     assert g.lats[0] == pytest.approx(7) and g.lons[0] == pytest.approx(-76)

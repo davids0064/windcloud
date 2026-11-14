@@ -71,6 +71,13 @@ def validate_run(run_dir: Path, steps: list[int]) -> list[str]:
             problems.append(f"falta isobars_{step:03d}.geojson")
     if meta.get("isobars", {}).get("steps") != steps:
         problems.append("isobaras no cubren todos los pasos")
+    risk_meta = meta.get("risk")
+    if risk_meta:
+        path = run_dir / risk_meta["file"]
+        if not path.exists():
+            problems.append(f"falta {risk_meta['file']}")
+        elif [p["step"] for p in json.loads(path.read_text(encoding="utf-8"))["pasos"]] != steps:
+            problems.append("riesgo no cubre todos los pasos")
     return problems
 
 
@@ -162,8 +169,15 @@ def update(
                 removed = prune(model_dir, keep)
                 if not keep_raw:
                     shutil.rmtree(raw, ignore_errors=True)  # GRIB crudos (hasta ~155 MB con ECMWF)
+                note = ""
+                if model == "gfs" and not json.loads(
+                    (out / "meta.json").read_text(encoding="utf-8")
+                ).get("risk"):
+                    note = "; sin riesgo (faltan campos: ¿RH a 2 m?)"
                 result = UpdateResult(
-                    "actualizado", encode.iso(run), f"publicado; borrados: {removed or 'ninguno'}"
+                    "actualizado",
+                    encode.iso(run),
+                    f"publicado; borrados: {removed or 'ninguno'}{note}",
                 )
     except Exception as e:  # noqa: BLE001 — se registra y el run anterior queda publicado
         result = UpdateResult("error", None, f"{type(e).__name__}: {e}")

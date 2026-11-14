@@ -386,12 +386,23 @@ estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red
   comprobación. Solo enlaces: sus datos no entran en la verificación (T-46).
 - El estado se revisa a mano (curl + búsqueda) y se registra en `04-fuentes-de-datos.md`.
 
-## 7. Riesgo (RF-10) — `pipeline/risk.py`
-- Grid 0,25° sobre Colombia con GFS (T, HR, viento, precip).
-- **Fosberg FFWI**: humedad de equilibrio del combustible `m` desde T y HR (Simard 1968), luego
-  `η = 1 − 2(m/30) + 1.5(m/30)² − 0.5(m/30)³`, `FFWI = η · √(1 + U²) / 0.3002` (U en mph). Clasificar 0–100.
-- Celdas de viento fuerte, lluvia intensa y calor según umbrales de RF-10.
-- Salida `risk.geojson` (hexágonos H3 res 5) → `deck.gl H3HexagonLayer`.
+## 7. Riesgo (RF-10) — `pipeline/src/windcloud_pipeline/risk.py` (T-50)
+- Rejilla GFS 0,25° (la misma de las capas), solo celdas cuyo centro cae en Colombia o a < 0,125° (costas y
+  fronteras): **1 622 celdas**, 25 pasos (0–72 h cada 3 h). Se calcula dentro de `encode_run` para GFS.
+- Entradas: T y **HR a 2 m** (`RH` se añadió al filtro de NOMADS; ~+130 KB por paso crudo, no se publica), viento a
+  10 m, ráfaga = máx(GUST, viento 10 m), y lluvia en 3 h desde el **promedio de PRATE** (`stepType=avg`), que GFS
+  reinicia cada 6 h: ventana de 3 h directa; ventana de 6 h menos el paso anterior; f000 sin dato (no cero).
+- **Fosberg FFWI**: humedad de equilibrio `m` (Simard 1968, T en °F, tres tramos de HR), luego
+  `η = 1 − 2(m/30) + 1.5(m/30)² − 0.5(m/30)³`, `FFWI = η · √(1 + U²) / 0.3002` (U en mph), recortado a 0–100.
+  Clases propias: bajo < 25 ≤ moderado < 50 ≤ alto < 75 ≤ muy alto. Limitación declarada: solo el tiempo del
+  momento (no sabe cuántos días lleva sin llover ni el estado del combustible).
+- Peligros (bits): viento 1 (ráfaga > 60 km/h), lluvia 2 (> 20 mm/3 h), calor 4 (T > 35 °C).
+- Salida `gfs/<run>/risk.json` (schema 1): `celdas [[lat, lon]]` y por paso arreglos alineados `ffwi`, `peligros`,
+  `rafaga`, `lluvia3h`, `t`, `hr`; umbrales, fuente y enlace oficial (IDEAM). ~685 KB (140 KB gzip); solo lo
+  carga la pestaña Riesgo. `meta.json` lo declara en `risk` (null si faltan campos: el run de capas se publica
+  igual y `status.json` lo avisa); `validate_run` exige el archivo y todos los pasos si `meta` lo declara.
+- **Sin H3** (cambio de diseño, T-50): pasar 0,25° (~770 km²) a hexágonos res 5 (~250 km²) aparentaría una
+  resolución que GFS no tiene y sumaría `h3`/`h3-js`. La web dibuja las celdas de la rejilla (T-51).
 
 ## 8. Alertas (RF-12)
 - v1: alertas **con la página abierta** (Notification API + revisión cada 15 min en el cliente). Costo 0.
