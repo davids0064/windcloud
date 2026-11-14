@@ -23,3 +23,7 @@ pipeline/out/
 .idea/
 .env
 .env.*
+
+# Playwright (T-63)
+web/test-results/
+web/playwright-report/

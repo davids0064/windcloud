@@ -4,3 +4,5 @@ node_modules
 package-lock.json
 # Datos generados por pipeline/ (no formatear: inflaría el tamaño)
 public/geo
+test-results
+playwright-report

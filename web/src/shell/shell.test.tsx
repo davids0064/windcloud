@@ -134,12 +134,16 @@ describe('SideMenu (RF-13, diseño §9)', () => {
     expect(screen.queryByRole('tablist')).not.toBeInTheDocument()
   })
 
-  it('las pestañas se recorren con flechas', () => {
+  it('las pestañas se recorren con flechas, Inicio y Fin', () => {
     const { onTabChange } = setup()
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Mapa' }), { key: 'ArrowRight' })
     expect(onTabChange).toHaveBeenCalledWith('punto')
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Mapa' }), { key: 'ArrowLeft' })
     expect(onTabChange).toHaveBeenCalledWith('metodologia')
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Mapa' }), { key: 'End' })
+    expect(onTabChange).toHaveBeenLastCalledWith('metodologia')
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Mapa' }), { key: 'Home' })
+    expect(onTabChange).toHaveBeenLastCalledWith('mapa')
   })
 
   it('avisa cuando no hay conexión (P4)', () => {

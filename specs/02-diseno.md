@@ -509,5 +509,11 @@ estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red
 ## 11. Pruebas
 - `core/` (consenso, acuerdo, u/v, unidades): Vitest, cobertura ≥ 90 %.
 - `pipeline/`: pytest con GRIB y respuestas METAR de ejemplo guardados en `tests/fixtures`.
-- E2E: Playwright — cargar mapa, clic en Bogotá, ver ≥ 5 modelos y badge de acuerdo.
+- E2E: Playwright — cargar mapa, clic en Bogotá, ver ≥ 5 modelos y badge de acuerdo. **Hecho (T-63):**
+  `web/e2e/` con el Chrome instalado (`channel: 'chrome'`), app compilada servida con `vite preview`; Open-Meteo,
+  buscador, `/data` y rayos simulados con `page.route` (deterministas, sin gastar cuota); mapa base y nubes reales.
+  7 escenarios: arranque sin errores + atribuciones, buscar Bogotá → consenso de 8 modelos con fuente y red
+  oficial, Precisión, Riesgo + foco elegido por teclado, rayos, pestañas con teclado (flechas, Inicio, Fin) y
+  móvil 360 px sin desborde. Trabajo `e2e` en `ci.yml` (trazas como artefacto si falla).
+- Accesibilidad (T-61): `axe-core` en Vitest por vista; contraste y daltonismo calculados desde el CSS.
 - Verificación manual de precisión: comparar el consenso de WindCloud contra METAR de SKBO (Bogotá) 14 días.

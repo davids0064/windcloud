@@ -21,16 +21,16 @@ export function SideMenu({ open, onToggle, tab, onTabChange, tools, children }: 
   const menuId = useId()
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
 
+  /** Patrón ARIA de pestañas: flechas (circular), Inicio y Fin. */
   const onTabKey = (e: KeyboardEvent, i: number) => {
-    const delta =
-      e.key === 'ArrowRight' || e.key === 'ArrowDown'
-        ? 1
-        : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
-          ? -1
-          : 0
-    if (!delta) return
+    let next: number
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1) % TABS.length
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp')
+      next = (i - 1 + TABS.length) % TABS.length
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = TABS.length - 1
+    else return
     e.preventDefault()
-    const next = (i + delta + TABS.length) % TABS.length
     onTabChange(TABS[next].id)
     tabRefs.current[next]?.focus()
   }
