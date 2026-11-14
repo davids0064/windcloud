@@ -375,8 +375,16 @@ Open-Meteo **Ensemble API** (`models=ecmwf_ifs025,gfs025`, `hourly=precipitation
 - Sin `precision.json` → «Sin datos de verificación» y recordatorio de que el consenso usa pesos iguales (P4).
 
 ### 6.1 Enlace a la red oficial de la ciudad (RF-14)
-`web/src/data/cityNetworks.json`: `{ciudad, bbox, red, operador, url, estado_verificado}`. Si el punto del
-usuario cae dentro del `bbox`, el panel de punto muestra "Red oficial de lluvias de <ciudad>: ver en vivo →".
+`web/src/data/cityNetworks.json` (`comprobado` + `ciudades[]`): `{ciudad, bbox [O,S,E,N], red, operador, url,
+estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red: null`. Lógica pura en
+`cityNetworks.ts` (`officialNetworkAt`, `citiesByStatus`).
+- Panel de punto: si el punto cae en el `bbox` de una red **verificada**, bajo el encabezado aparece «Red oficial
+  de lluvias de <ciudad>: ver en vivo →» (chip Observado, red + operador, «sitio externo», nueva pestaña). Una red
+  no verificada o caída nunca se enlaza (RF-14).
+- Pestaña Precisión (también sin `precision.json`): «Redes locales de ciudad» con enlaces a las verificadas, las no
+  verificadas con su estado y nota (sin enlace) y las ciudades que dependen solo de IDEAM/METAR, con la fecha de
+  comprobación. Solo enlaces: sus datos no entran en la verificación (T-46).
+- El estado se revisa a mano (curl + búsqueda) y se registra en `04-fuentes-de-datos.md`.
 
 ## 7. Riesgo (RF-10) — `pipeline/risk.py`
 - Grid 0,25° sobre Colombia con GFS (T, HR, viento, precip).

@@ -176,3 +176,33 @@
   font-size: 0.72rem;
   cursor: pointer;
 }
+
+.precision__cities {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.precision__city-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+}
+
+.precision__city-list a {
+  color: var(--accent);
+}
+
+.precision__cities,
+.precision__city-list li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.precision__city-op {
+  color: var(--text-muted);
+}

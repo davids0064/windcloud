@@ -426,3 +426,27 @@
   justify-content: space-between;
   gap: 8px;
 }
+
+.point-panel__network {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  align-items: center;
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+}
+
+.point-panel__network a {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.point-panel__network-op {
+  grid-column: 2;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}

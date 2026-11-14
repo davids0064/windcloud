@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 9/10** (T-40 a T-48 ✅; falta T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-48 (Pereira y Bucaramanga reconfirmadas: ambas **no verificadas** → sin enlace) |
-| Siguiente tarea | **T-49** (enlace «Red oficial de tu ciudad» + listado en Precisión; cierra el código de la fase 3). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 205 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam) 94 pruebas · CI |
+| Última tarea cerrada | T-49 (enlace «Red oficial de tu ciudad» + listado de redes en Precisión) |
+| Siguiente tarea | Decidir: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí) o seguir con la **fase 4** (riesgo). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · 214 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam) 94 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -155,6 +155,10 @@
 
 ## 5. Aprendizajes y trampas conocidas
 
+- **Pruebas con fechas fijas caducan:** un run «de ayer» pasa a «atrasado» al día siguiente. Usar horas relativas a
+  `Date.now()` (T-49).
+- **Clases con `white-space: nowrap` fuera de su lista** ensanchan el panel lateral: no reutilizarlas en texto largo.
+
 <!-- Cosas no obvias descubiertas al implementar: errores de APIs, IDs reales de capas, límites reales, etc. -->
 - El paquete pip `eccodes` ≥ 2.4x **ya no trae la librería nativa**: sin `eccodeslib` falla con
   `RuntimeError: Cannot find the ecCodes library` y cfgrib no aparece en `xr.backends.list_engines()`.
@@ -284,6 +288,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-49 Red oficial de tu ciudad → **código de la fase 3 completo**
+- **Hecho:** `web/src/data/cityNetworks.json` + `cityNetworks.ts` (`officialNetworkAt`, `citiesByStatus`); enlace en el
+  panel de punto bajo el encabezado; sección «Redes locales de ciudad» en Precisión (también si falla `precision.json`).
+- **Regla RF-14 en código:** solo `estado: "verificada"` se enlaza; Pereira (`caida`) y Bucaramanga (`no_verificada`)
+  aparecen sin enlace. Los 4 sitios enlazados respondieron 200 el 14/11.
+- **De paso:** la prueba de hora de run del panel usaba un run fijo (13/11 06:00) que hoy ya era «atrasado» → ahora
+  relativo a la hora actual. Texto obsoleto en Precisión («pasará a ponderar (T-45)») actualizado.
+- **Verificado:** 214 pruebas web, tsc, lint, build (inicial 87,2 KB gzip); en Chrome, Medellín muestra el enlace a
+  SIATA y la lista de Precisión no se desborda; consola limpia.
+- **Siguiente:** subir el código (cuando el usuario lo pida) o fase 4.
 
 ### 2026-11-14 · T-48 Reconfirmar Pereira y Bucaramanga
 - **Hecho:** comprobación HTTP/DNS y búsqueda web de ambas redes; spec 04 actualizado con el estado y la fecha.

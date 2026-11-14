@@ -1,0 +1,64 @@
+{
+  "comprobado": "2026-11-14",
+  "fuente": "specs/04-fuentes-de-datos.md (T-46, T-48)",
+  "ciudades": [
+    {
+      "ciudad": "Bogotá",
+      "bbox": [-74.23, 4.45, -73.99, 4.84],
+      "red": "Sistema de Alerta de Bogotá (SAB)",
+      "operador": "IDIGER",
+      "url": "https://app.sab.gov.co/sab/lluvias.htm",
+      "estado": "verificada"
+    },
+    {
+      "ciudad": "Medellín y Valle de Aburrá",
+      "bbox": [-75.72, 6.0, -75.3, 6.5],
+      "red": "SIATA",
+      "operador": "Área Metropolitana del Valle de Aburrá, Alcaldía de Medellín y EAFIT",
+      "url": "https://siata.gov.co/siata_nuevo/",
+      "estado": "verificada"
+    },
+    {
+      "ciudad": "Manizales",
+      "bbox": [-75.58, 4.98, -75.4, 5.12],
+      "red": "CDIAC – estaciones urbanas de Manizales",
+      "operador": "IDEA, Universidad Nacional sede Manizales",
+      "url": "https://cdiac.manizales.unal.edu.co/",
+      "estado": "verificada"
+    },
+    {
+      "ciudad": "Cali",
+      "bbox": [-76.6, 3.3, -76.45, 3.53],
+      "red": "Portal hidroclimatológico de la CVC",
+      "operador": "CVC",
+      "url": "https://portal-hidroclimatologico.cvc.gov.co/",
+      "estado": "verificada"
+    },
+    {
+      "ciudad": "Pereira",
+      "bbox": [-75.8, 4.75, -75.62, 4.88],
+      "red": "Red Hidroclimatológica de Risaralda",
+      "operador": "Universidad Tecnológica de Pereira",
+      "url": "http://redhidro.org/",
+      "estado": "caida",
+      "nota": "El sitio no responde (sin DNS desde el 12/11/2026)."
+    },
+    {
+      "ciudad": "Bucaramanga",
+      "bbox": [-73.2, 7.0, -73.03, 7.2],
+      "red": "Red hidroclimatológica de la CDMB",
+      "operador": "CDMB",
+      "url": "https://www.cdmb.gov.co/",
+      "estado": "no_verificada",
+      "nota": "Sin visor público de datos en vivo."
+    },
+    { "ciudad": "Barranquilla", "red": null },
+    { "ciudad": "Cartagena", "red": null },
+    { "ciudad": "Cúcuta", "red": null },
+    { "ciudad": "Ibagué", "red": null },
+    { "ciudad": "Armenia", "red": null },
+    { "ciudad": "Villavicencio", "red": null },
+    { "ciudad": "Popayán", "red": null },
+    { "ciudad": "Pasto", "red": null }
+  ]
+}

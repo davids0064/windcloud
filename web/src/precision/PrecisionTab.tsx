@@ -1,3 +1,4 @@
+import { CITY_NETWORKS_CHECKED, STATUS_LABEL, citiesByStatus } from '../data/cityNetworks'
 import { DataChip } from '../ui/DataChip'
 import { SourceLine } from '../ui/SourceLine'
 import {
@@ -57,6 +58,7 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
         <p role="alert">
           Sin datos de verificación ({state.message}). El consenso usa pesos iguales mientras tanto.
         </p>
+        <CityNetworks />
       </section>
     )
   }
@@ -193,9 +195,10 @@ export default function PrecisionTab({ state, selection, onSelection, station, o
         })}
       </ul>
       <p className="precision__hint">
-        El consenso del panel de punto aún usa pesos iguales; pasará a ponderar por esta precisión
-        (T-45).
+        El consenso del panel de punto pondera temperatura y viento por esta precisión (estación
+        verificada más cercana, a menos de 150 km) cuando la verificación lleva al menos 14 días.
       </p>
+      <CityNetworks />
     </section>
   )
 }
@@ -392,5 +395,42 @@ function Segmented<T extends string>({
         ))}
       </div>
     </div>
+  )
+}
+
+const ddmmyyyy = (d: string) => `${d.slice(8, 10)}/${d.slice(5, 7)}/${d.slice(0, 4)}`
+
+/** Ciudades con red local y las que dependen solo de IDEAM/METAR (RF-14). */
+function CityNetworks() {
+  const { verified, unverified, without } = citiesByStatus()
+  return (
+    <section className="precision__cities" aria-labelledby="precision-cities-title">
+      <h3 id="precision-cities-title">Redes locales de ciudad</h3>
+      <p className="precision__hint">
+        Redes oficiales más densas que los aeropuertos. WindCloud solo enlaza a ellas (sus datos no
+        tienen licencia abierta ni descarga); no entran en la verificación.
+      </p>
+      <ul className="precision__city-list">
+        {verified.map((c) => (
+          <li key={c.ciudad}>
+            <strong>{c.ciudad}</strong>:{' '}
+            <a href={c.url} target="_blank" rel="noopener noreferrer">
+              {c.red}
+            </a>{' '}
+            <span className="precision__city-op">({c.operador})</span>
+          </li>
+        ))}
+        {unverified.map((c) => (
+          <li key={c.ciudad}>
+            <strong>{c.ciudad}</strong>: {c.red} ({c.operador}) — <em>{STATUS_LABEL[c.estado]}</em>
+            {c.nota ? `. ${c.nota}` : ''} Sin enlace; usa IDEAM y METAR.
+          </li>
+        ))}
+      </ul>
+      <p className="precision__hint">
+        Sin red local pública: {without.map((c) => c.ciudad).join(', ')}. Dependen solo de IDEAM y
+        METAR. Estado de las redes comprobado el {ddmmyyyy(CITY_NETWORKS_CHECKED)}.
+      </p>
+    </section>
   )
 }

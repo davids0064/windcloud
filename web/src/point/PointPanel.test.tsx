@@ -32,6 +32,10 @@ vi.mock('./ModelChart', () => ({
   ModelChart: ({ variable }: { variable: string }) => <div>gráfica de {variable}</div>,
 }))
 
+// Run de hace 6–12 h (no «atrasado»), relativo a ahora para que la prueba no caduque.
+const RUN_S = Math.floor(Date.now() / 21_600_000) * 21_600 - 21_600
+const RUN_ISO = new Date(RUN_S * 1000).toISOString()
+const RUN_LABEL = `run ${RUN_ISO.slice(8, 10)}/${RUN_ISO.slice(5, 7)}, ${RUN_ISO.slice(11, 16)} UTC`
 const T0 = Math.floor(Date.now() / 3_600_000) * 3600 - 2 * 3600 // empieza 2 h antes de ahora
 const time = Array.from({ length: 48 }, (_, i) => T0 + i * 3600)
 function rawForecast() {
@@ -82,7 +86,7 @@ describe('PointPanel', () => {
         url.includes('/data/precision')
           ? { ok: false, status: 404 }
           : url.includes('/static/meta.json')
-            ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
+            ? { ok: true, json: async () => ({ last_run_initialisation_time: RUN_S }) }
             : url.includes('ensemble-api')
               ? { ok: true, json: async () => ensembleBody(30, 31) }
               : { ok: true, json: async () => rawForecast() },
@@ -107,6 +111,27 @@ describe('PointPanel', () => {
     expect(screen.getAllByText('Acuerdo alto').length).toBeGreaterThanOrEqual(3)
   })
 
+  it('enlaza la red oficial de la ciudad del punto (RF-14)', async () => {
+    render(<PointPanel point={point} onClose={() => {}} />)
+    const link = screen.getByRole('link', { name: /Red oficial de lluvias de Bogotá/ })
+    expect(link).toHaveAttribute('href', 'https://app.sab.gov.co/sab/lluvias.htm')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(screen.getByText(/IDIGER \(sitio externo\)/)).toBeInTheDocument()
+    await screen.findByText(/consenso de 8 modelos/)
+  })
+
+  it('sin enlace donde la red no está verificada (Pereira) o no hay red', async () => {
+    const { unmount } = render(
+      <PointPanel point={{ lat: 4.81, lon: -75.69, label: 'Pereira' }} onClose={() => {}} />,
+    )
+    expect(screen.queryByRole('link', { name: /Red oficial/ })).not.toBeInTheDocument()
+    await screen.findByText(/consenso de 8 modelos/)
+    unmount()
+    render(<PointPanel point={{ lat: 10.96, lon: -74.8 }} onClose={() => {}} />)
+    expect(screen.queryByRole('link', { name: /Red oficial/ })).not.toBeInTheDocument()
+    await screen.findByText(/consenso de 8 modelos/)
+  })
+
   it('avisa cuando los modelos no coinciden (RF-8)', async () => {
     render(<PointPanel point={point} onClose={() => {}} />)
     await screen.findByText(/consenso de 8 modelos/)
@@ -125,7 +150,7 @@ describe('PointPanel', () => {
     const list = screen
       .getByRole('heading', { name: 'Modelos y hora de su run' })
       .closest('section')!
-    expect(within(list).getAllByText('run 13/11, 06:00 UTC')).toHaveLength(8)
+    expect(within(list).getAllByText(RUN_LABEL)).toHaveLength(8)
     expect(screen.getByText('¿Por qué este número?')).toBeInTheDocument()
     expect(screen.getByText(/todos los modelos pesan igual/)).toBeInTheDocument()
     expect(screen.getAllByText(/Fuente: Open-Meteo/).length).toBeGreaterThanOrEqual(3) // tarjetas, gráfica, ensambles
@@ -149,7 +174,7 @@ describe('PointPanel', () => {
           : url.endsWith('/data/precision/SKBO.json')
             ? { ok: true, json: async () => detail }
             : url.includes('/static/meta.json')
-              ? { ok: true, json: async () => ({ last_run_initialisation_time: 1794549600 }) }
+              ? { ok: true, json: async () => ({ last_run_initialisation_time: RUN_S }) }
               : url.includes('ensemble-api')
                 ? { ok: true, json: async () => ensembleBody(30, 31) }
                 : { ok: true, json: async () => rawForecast() },
@@ -211,7 +236,9 @@ describe('PointPanel', () => {
     expect(screen.getByText('59–100 %')).toBeInTheDocument() // 30/51 ECMWF, 31/31 GEFS
     expect(screen.getByText('ECMWF 30/51 · GFS 31/31')).toBeInTheDocument()
     expect(screen.getByText('Los ensambles no coinciden.')).toBeInTheDocument()
-    expect(screen.getByText(/ECMWF ENS: 51 miembros · run 13\/11, 06:00 UTC/)).toBeInTheDocument()
+    expect(
+      screen.getByText(`ECMWF ENS: 51 miembros · ${RUN_LABEL}`, { exact: false }),
+    ).toBeInTheDocument()
     expect(screen.getByText('Hoy')).toBeInTheDocument()
   })
 
@@ -238,8 +265,8 @@ describe('PointPanel', () => {
     const sources = screen.getAllByText(/Fuente: Open-Meteo Forecast API/)
     expect(sources.length).toBeGreaterThanOrEqual(2) // tarjetas y gráfica
     const time = sources[0].querySelector('time')!
-    expect(time).toHaveTextContent('run 13/11, 06:00 UTC')
-    expect(time).toHaveAttribute('dateTime', '2026-11-13T06:00:00.000Z')
+    expect(time).toHaveTextContent(RUN_LABEL)
+    expect(time).toHaveAttribute('dateTime', RUN_ISO)
     // El acuerdo es un indicador propio: rotulado "Estimado"
     const estimated = screen.getByText('Estimado')
     expect(estimated).toHaveAttribute('title', expect.stringMatching(/Indicador propio/))

@@ -110,6 +110,21 @@ describe('PrecisionTab', () => {
     expect(screen.queryByRole('button', { name: /SKBO/ })).not.toBeInTheDocument()
   })
 
+  it('lista las ciudades con red local y las que dependen de IDEAM/METAR (RF-14)', () => {
+    render(<Harness state={{ status: 'ready', data: SUMMARY }} />)
+    const sec = screen.getByRole('region', { name: 'Redes locales de ciudad' })
+    expect(within(sec).getByRole('link', { name: 'SIATA' })).toHaveAttribute(
+      'href',
+      'https://siata.gov.co/siata_nuevo/',
+    )
+    expect(within(sec).queryByRole('link', { name: /CDMB|Risaralda/ })).not.toBeInTheDocument()
+    expect(within(sec).getByText('Bucaramanga').closest('li')).toHaveTextContent(/no verificada/)
+    expect(within(sec).getByText('Pereira').closest('li')).toHaveTextContent(/fuera de servicio/)
+    expect(within(sec).getByText(/Sin red local pública: Barranquilla/)).toHaveTextContent(
+      /comprobado el 14\/11\/2026/,
+    )
+  })
+
   it('sin datos lo dice y recuerda que el consenso usa pesos iguales', () => {
     render(<Harness state={{ status: 'error', message: 'HTTP 404' }} />)
     expect(screen.getByRole('alert')).toHaveTextContent(

@@ -4,6 +4,7 @@ import { OPEN_METEO_SOURCE } from '../api/openMeteo'
 import { LOW_AGREEMENT_WARNING } from '../core/agreement'
 import { formatRunRange, formatRunUtc, isRunStale, runRange } from '../core/runs'
 import { MODELS } from '../core/models'
+import { officialNetworkAt } from '../data/cityNetworks'
 import { normalizedWeights, type ConsensusWeights } from '../core/verifiedWeights'
 import { LABELS, UNITS, type VariableId } from '../core/variables'
 import type { LatLon } from '../map/MapView'
@@ -45,6 +46,7 @@ export default function PointPanel({ point, onClose }: Props) {
   const ensemble = usePointEnsemble(point)
   const [variable, setVariable] = useState<VariableId>('temperature_2m')
   const [now] = useState(() => new Date())
+  const network = officialNetworkAt(point.lat, point.lon)
 
   const view = useMemo(() => {
     if (!data) return null
@@ -112,6 +114,18 @@ export default function PointPanel({ point, onClose }: Props) {
           ×
         </button>
       </header>
+
+      {network && (
+        <p className="point-panel__network">
+          <DataChip kind="observado" />{' '}
+          <a href={network.url} target="_blank" rel="noopener noreferrer">
+            Red oficial de lluvias de {network.ciudad}: ver en vivo →
+          </a>
+          <span className="point-panel__network-op">
+            {network.red} · {network.operador} (sitio externo)
+          </span>
+        </p>
+      )}
 
       {status === 'loading' && (
         <p className="point-panel__msg" role="status">
