@@ -10,11 +10,11 @@
 
 | Campo | Valor |
 |---|---|
-| Última actualización | 2026-11-13 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 8/10** (T-40 a T-47 ✅; faltan T-48, T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
+| Última actualización | 2026-11-14 |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 9/10** (T-40 a T-48 ✅; falta T-49). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-47 (red IDEAM: 211 estaciones, verificación por red, selector de red, límites de Open-Meteo) |
-| Siguiente tarea | **T-48** (Pereira, Bucaramanga) y **T-49** (enlace «Red oficial de tu ciudad»). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Última tarea cerrada | T-48 (Pereira y Bucaramanga reconfirmadas: ambas **no verificadas** → sin enlace) |
+| Siguiente tarea | **T-49** (enlace «Red oficial de tu ciudad» + listado en Precisión; cierra el código de la fase 3). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · 205 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam) 94 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
@@ -130,10 +130,15 @@
   por red y selector en la web; región = todas las redes juntas, siempre con la opción de verlas por separado.
 - **2026-11-13 · Ritmo y presupuesto de Open-Meteo:** ≤ 500 llamadas ponderadas/min y ≤ 4 000 por corrida diaria.
 
+- **2026-11-14 · Pereira y Bucaramanga sin enlace (T-48):** RF-14 prohíbe enlazar redes no verificadas o caídas.
+  Ambas quedan en `cityNetworks` (T-49) como «no verificada» para listarlas con honestidad; se cubren con METAR
+  (SKPE, SKBG) e IDEAM (Potreros a 17 km de Pereira; Llano Grande a 11 km de Bucaramanga).
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
-- [ ] Pereira (redhidro.org) sin respuesta y Bucaramanga (CDMB) sin visor público → T-48
+- [x] ~~Pereira (redhidro.org) sin respuesta y Bucaramanga (CDMB) sin visor público → T-48~~ Resuelto (2026-11-14):
+  ambas no verificadas, sin enlace; se reintenta solo si aparece un sitio nuevo.
 - [ ] Términos actuales de RainViewer para radar → T-37
 - [ ] ¿Las texturas de viento caben en los límites de Pages (25 MiB/archivo, 20 000 archivos) o hace falta R2? → T-32/T-33
 - [ ] Hosting definitivo: Cloudflare Pages vs. GitHub Pages (preferido Cloudflare) → T-04
@@ -279,6 +284,15 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-48 Reconfirmar Pereira y Bucaramanga
+- **Hecho:** comprobación HTTP/DNS y búsqueda web de ambas redes; spec 04 actualizado con el estado y la fecha.
+- **Pereira (UTP/CARDER):** `redhidro.org` sigue registrado (whois ACTIVE) pero sin registros DNS; las rutas de UTP dan
+  404 y no apareció un sitio sucesor. → **No verificada.**
+- **Bucaramanga (CDMB):** la web (SPA Angular) no enlaza visor ni datos de sus 19 estaciones; el propio plan de acción
+  2024–2027 de la CDMB cita la falta de información en tiempo real. → **No verificada.**
+- **Consecuencia:** sin enlace en el panel de punto (RF-14); en Precisión se listarán como «sin red local verificada».
+- **Siguiente:** T-49.
 
 ### 2026-11-13 · T-47 Red IDEAM y verificación por red
 - **Tareas:** T-47 ✅

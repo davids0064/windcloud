@@ -59,7 +59,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: solo IDEAM (datos.gov.co, CC BY-SA, ~500 estaciones, diario) es integrable; SAB en vivo sin histórico (CC BY-NC); SIATA, CDIAC y CVC → solo enlace. T-47 empieza por IDEAM._
 - [x] **T-47** Adaptadores `pipeline/sources/<red>.py` para las redes con acceso permitido + control de calidad + métricas por red. → RF-9
   _Hecho: `sources/ideam.py` + `data/stations-ideam.json` (211 estaciones) + verificación por red, selector de red en Precisión, ritmo y presupuesto de Open-Meteo. SAB no (sin histórico)._
-- [ ] **T-48** Reconfirmar Pereira (redhidro.org) y Bucaramanga (CDMB); actualizar estado. → RF-14
+- [x] **T-48** Reconfirmar Pereira (redhidro.org) y Bucaramanga (CDMB); actualizar estado. → RF-14
+  _Hecho (2026-11-14): ambas **no verificadas** → sin enlace. redhidro.org no resuelve DNS; CDMB no publica visor. Detalle en spec 04._
 - [ ] **T-49** `cityNetworks.json` + enlace "Red oficial de tu ciudad" en el panel de punto y listado en Precisión. → RF-14
 - [x] **T-42** Métricas MAE/sesgo/RMSE y POD/FAR/CSI, ventanas 7 y 30 días; pruebas con fixtures. → RF-9
   _Hecho: `metrics.py` → `precision.json` (schema 1). Lluvia en bloques de 6 h (por hora no discrimina: FAR ≈ 0,9 en todos)._

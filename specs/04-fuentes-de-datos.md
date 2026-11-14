@@ -34,7 +34,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 ## Redes locales de ciudad (Colombia) — máxima precisión urbana
 Más densas y precisas que METAR (decenas de estaciones dentro de la ciudad vs. 1 aeropuerto).
 Uso doble: **(a) verificación de modelos** (RF-9) y **(b) enlace "Red oficial de tu ciudad"** (RF-14).
-Estado comprobado el 2026-11-12 (código HTTP). **Antes de usar datos: confirmar acceso programático y términos de uso**;
+Estado comprobado el 2026-11-12 (código HTTP); Pereira y Bucaramanga reconfirmadas el 2026-11-14 (T-48). **Antes de usar datos: confirmar acceso programático y términos de uso**;
 si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer datos raspando la página contra sus términos).
 
 | Ciudad | Red / sitio | Operador | Contenido | Estado | Uso previsto |
@@ -43,8 +43,8 @@ si solo se pueden ver en pantalla, usar únicamente como enlace (nunca extraer d
 | Medellín / Valle de Aburrá | `https://siata.gov.co/siata_nuevo/` | SIATA (AMVA, Alcaldía de Medellín, EAFIT) | Radar propio (~5 min), >140 estaciones, pluviómetros, niveles de quebradas, pronóstico | ✅ 200 | Solo enlace (sin API ni licencia; datos por solicitud) → ver T-46 |
 | Manizales / Caldas | `https://cdiac.manizales.unal.edu.co/` (Geoportal SIMAC, "Listado de Estaciones") | IDEA–CDIAC, Universidad Nacional sede Manizales | Estaciones urbanas cada 5 min (lluvia, T, HR, radiación…) | ✅ 200 (el enlace antiguo `idea…/estado-tiempo-manizales` da 404) | Solo enlace (consulta con login, sin licencia abierta) → ver T-46 |
 | Cali / Valle del Cauca | `https://portal-hidroclimatologico.cvc.gov.co/` | CVC | Red regional (~280 estaciones según prensa; estaciones en cuenca del río Cali) | ✅ 200 | Solo enlace (dataset abierto detenido en mayo de 2025) → ver T-46 |
-| Pereira / Risaralda | `redhidro.org` (UTP) | Universidad Tecnológica de Pereira | ~75 puntos de monitoreo | ⚠️ Sin respuesta; `utp.edu.co/hidroclimatologica` 404 | Pendiente de confirmar |
-| Bucaramanga | `https://www.cdmb.gov.co/` | CDMB | 19 estaciones automáticas, alerta > 60 mm/h | ⚠️ Sin visor público en vivo encontrado | Pendiente de confirmar |
+| Pereira / Risaralda | `redhidro.org` (UTP, Red Hidroclimatológica de Risaralda) | Universidad Tecnológica de Pereira (con CARDER) | ~75 puntos de monitoreo (folleto UTP sin fecha) | ❌ **No verificada** (T-48, 2026-11-14): el dominio sigue registrado pero **no resuelve DNS** (www y raíz); `utp.edu.co/hidroclimatologica` y `/red-hidroclimatologica` dan 404; sin visor alterno encontrado | Sin enlace (RF-14). Pereira usa METAR SKPE + IDEAM. Reintentar si aparece un sitio nuevo |
+| Bucaramanga | `https://www.cdmb.gov.co/` | CDMB | 19 estaciones automáticas en 13 municipios (prensa 2023; 9 modernizadas, transmisión en tiempo real interna) | ❌ **No verificada** (T-48, 2026-11-14): el sitio (200, SPA Angular) no enlaza ningún visor de estaciones; sin subdominios de visor/SIG; su propio plan de acción 2024–2027 señala la **falta de información en tiempo real** como problema a resolver | Sin enlace (RF-14). Bucaramanga usa METAR SKBG + IDEAM. Reintentar cuando la CDMB publique su visor |
 | Barranquilla, Cartagena, Cúcuta, Ibagué, Armenia, Popayán, Pasto | — | — | Sin red pública urbana en vivo encontrada | — | Usar IDEAM + METAR |
 
 **Respaldo nacional:** IDEAM (2.854 estaciones, 310 automáticas con transmisión) vía datos.gov.co.
