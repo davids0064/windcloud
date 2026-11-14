@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 1/6** (T-50 ✅) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 2/6** (T-50, T-51 ✅) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-50 (riesgo: Fosberg, viento, lluvia 3 h y calor → `gfs/<run>/risk.json`) |
-| Siguiente tarea | **T-51** (pestaña Riesgo). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · 214 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk) 105 pruebas · CI |
+| Última tarea cerrada | T-51 (pestaña Riesgo: celdas en el mapa, peor de 72 h o por hora, resumen por departamento) |
+| Siguiente tarea | **T-52** (focos NASA FIRMS: requiere que el usuario saque una MAP_KEY gratuita) o **T-53** (alertas con la página abierta). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · 227 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk) 106 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -295,6 +295,16 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-51 Pestaña Riesgo
+- **Hecho:** `risk/data.ts` (niveles por vista y momento, GeoJSON de celdas, resumen, rótulo), `useRisk`,
+  `RiskTab` (diferida), `map/risk.ts` (capa `fill` bajo departamentos; rótulo al pasar el cursor en `MapView`).
+  `Segmented` pasó a `ui/` (lo usan Precisión y Riesgo). El pipeline añade el departamento de cada celda.
+- **Con el run real 14/11 12Z:** peor de 72 h → 98 celdas con incendio moderado (Vichada 52, La Guajira 21, Meta
+  20…), ninguna alta; calor > 35 °C sobre todo en Amazonas y Caquetá (GFS; tomarlo como orientación).
+- **Verificado:** 227 pruebas web, tsc, lint, build (inicial 90,2 KB gzip; Riesgo 2,1 KB aparte); 106 del pipeline.
+  En Chrome: celdas, rótulo («Vichada · máx. 72 h · Fosberg 26 (moderado)…»), vistas y deslizador; consola limpia.
+- **Siguiente:** T-52 (FIRMS, requiere MAP_KEY del usuario) o T-53.
 
 ### 2026-11-14 · T-50 Riesgo meteorológico (pipeline) → **Fase 4 iniciada**
 - **Hecho:** `risk.py` (Fosberg/Simard, lluvia en 3 h desde PRATE promedio, peligros por umbral, celdas sobre

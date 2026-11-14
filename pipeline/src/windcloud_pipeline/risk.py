@@ -29,6 +29,7 @@ from pathlib import Path
 
 import numpy as np
 import shapely
+import shapely.geometry
 
 from . import grids
 
@@ -127,7 +128,7 @@ def _tenths(values: np.ndarray) -> list[float | None]:
     return [None if not np.isfinite(v) else round(float(v), 1) for v in values]
 
 
-def compute(steps: list[grids.GridStep], colombia) -> dict:
+def compute(steps: list[grids.GridStep], colombia, departments: dict | None = None) -> dict:
     """Riesgo por celda y paso. Requiere t2m, rh2m, u10, v10 y gust (prate_avg para la lluvia)."""
     first = steps[0]
     rows, cols = colombia_cells(first.lats, first.lons, colombia)
@@ -186,9 +187,30 @@ def compute(steps: list[grids.GridStep], colombia) -> dict:
             [round(float(first.lats[r]), 3), round(float(first.lons[c]), 3)]
             for r, c in zip(rows, cols, strict=True)
         ],
+        **_departments(first, rows, cols, departments),
         "max_celdas": counts,
         "pasos": frames,
     }
+
+
+def _departments(first: grids.GridStep, rows, cols, fc: dict | None) -> dict:
+    """`departamentos` (nombres) y `celda_depto` (índice por celda; en costa, el más cercano)."""
+    if not fc:
+        return {}
+    names = [f["properties"]["nombre"] for f in fc["features"]]
+    shapes = [shapely.geometry.shape(f["geometry"]) for f in fc["features"]]
+    for g in shapes:
+        shapely.prepare(g)
+    lons, lats = first.lons[cols], first.lats[rows]
+    idx = np.full(len(rows), -1)
+    for k, g in enumerate(shapes):
+        hit = (idx < 0) & shapely.contains_xy(g, lons, lats)
+        idx[hit] = k
+    if (idx < 0).any():  # costa o frontera: el departamento más cercano
+        for i in np.flatnonzero(idx < 0):
+            pt = shapely.Point(lons[i], lats[i])
+            idx[i] = int(np.argmin([g.distance(pt) for g in shapes]))
+    return {"departamentos": names, "celda_depto": idx.tolist()}
 
 
 def iso(dt: datetime) -> str:
@@ -200,8 +222,10 @@ def can_compute(steps: list[grids.GridStep]) -> bool:
     return all(need <= st.fields.keys() for st in steps)
 
 
-def write(steps: list[grids.GridStep], out_dir: Path, colombia) -> Path:
+def write(
+    steps: list[grids.GridStep], out_dir: Path, colombia, departments: dict | None = None
+) -> Path:
     path = out_dir / "risk.json"
-    data = compute(steps, colombia)
+    data = compute(steps, colombia, departments)
     path.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     return path

@@ -35,6 +35,8 @@ export interface GridMeta {
     levels: Record<WindLevel, { label: string; frames: WindFrame[] }>
   }
   isobars?: { units: 'hPa'; every: number; file: string; steps: number[]; note: string }
+  /** Riesgo (T-50); null si el run no lo trae. Falta en metas anteriores. */
+  risk?: { file: string; label: string } | null
   scalars: Record<
     string,
     {

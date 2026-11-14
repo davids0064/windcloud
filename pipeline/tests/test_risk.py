@@ -149,6 +149,21 @@ def test_riesgo_con_rejillas_reales_de_gfs(real_steps):
         assert all(v >= 0 for v in p["lluvia3h"])
         assert all(-10 < v < 45 for v in p["t"])
     assert data["umbrales"]["rafaga_kmh"] == 60 and data["oficial"].startswith("https://")
+    assert "departamentos" not in data  # sin departamentos, no se inventan
+
+
+def test_departamento_de_cada_celda_y_el_mas_cercano_en_la_costa(real_steps):
+    fc = {
+        "features": [
+            {"properties": {"nombre": "Oeste"}, "geometry": box(-75, 4, -74, 6).__geo_interface__},
+            {"properties": {"nombre": "Este"}, "geometry": box(-74, 4, -73.2, 6).__geo_interface__},
+        ]
+    }
+    data = risk.compute(real_steps, box(-75.0, 4.0, -73.0, 6.0), fc)
+    assert data["departamentos"] == ["Oeste", "Este"]
+    cells = dict(zip(map(tuple, data["celdas"]), data["celda_depto"], strict=True))
+    assert cells[(5.0, -74.5)] == 0 and cells[(5.0, -73.5)] == 1
+    assert cells[(5.0, -73.0)] == 1  # fuera de ambos: el más cercano
 
 
 def test_encode_publica_risk_json_solo_si_hay_humedad(tmp_path):

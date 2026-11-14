@@ -100,6 +100,6 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Ver pronóstico de este punto' }))
     expect(await screen.findByRole('heading', { name: 'Punto en Antioquia' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: 'Riesgo' }))
-    expect(screen.getByText(/no el pronóstico oficial del IDEAM/)).toBeInTheDocument()
+    expect(await screen.findByText(/no una alerta oficial/)).toBeInTheDocument()
   })
 })

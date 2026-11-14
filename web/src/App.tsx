@@ -9,12 +9,14 @@ import type { MapStation } from './map/stations'
 import { bestByStation, modelColorOf, modelLabel } from './precision/data'
 import type { PrecisionSelection } from './precision/PrecisionTab'
 import { usePrecision } from './precision/usePrecision'
+import { describeCell, levelsFor, riskGeoJSON } from './risk/data'
+import type { RiskSelection } from './risk/RiskTab'
+import { useRisk } from './risk/useRisk'
 import { PlaceSearch } from './search/PlaceSearch'
 import type { Located } from './shell/geolocation'
 import { LocateButton } from './shell/LocateButton'
 import { SideMenu } from './shell/SideMenu'
 import type { TabId } from './shell/menuTabs'
-import { ComingSoon } from './shell/tabs/ComingSoon'
 import { MapTab } from './shell/tabs/MapTab'
 import { MethodologyTab } from './shell/tabs/MethodologyTab'
 import { PointTab } from './shell/tabs/PointTab'
@@ -31,6 +33,8 @@ const MapView = lazy(() => import('./map/MapView'))
 const PointPanel = lazy(() => import('./point/PointPanel'))
 // La pestaña Precisión (tablas y lista de estaciones) solo se carga al abrirla.
 const PrecisionTab = lazy(() => import('./precision/PrecisionTab'))
+// Igual la pestaña Riesgo (T-51).
+const RiskTab = lazy(() => import('./risk/RiskTab'))
 
 interface SelectedPoint extends LatLon {
   /** Nombre si viene del buscador o de la ubicación; vacío si fue un clic sin departamento. */
@@ -82,6 +86,23 @@ export default function App() {
       }
     })
   }, [precisionData, precisionSel.win, precisionSel.variable, precisionSel.red])
+  const [riskSel, setRiskSel] = useState<RiskSelection>({ view: 'incendio', when: 'max' })
+  const risk = useRisk(tab === 'riesgo')
+  const riskData = risk.status === 'ready' ? risk.data : null
+  const riskLevels = useMemo(
+    () => (riskData ? levelsFor(riskData, riskSel.view, riskSel.when) : null),
+    [riskData, riskSel.view, riskSel.when],
+  )
+  const riskLayer = useMemo(
+    () =>
+      riskData && riskLevels
+        ? {
+            cells: riskGeoJSON(riskData, riskSel.view, riskLevels),
+            describe: (i: number) => describeCell(riskData, i, riskSel.when),
+          }
+        : null,
+    [riskData, riskLevels, riskSel.view, riskSel.when],
+  )
   const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn, gridModel)
   const gridReady = grid.status === 'ready' ? grid : null
   const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null
@@ -177,6 +198,7 @@ export default function App() {
           stations={tab === 'precision' ? mapStations : null}
           selectedStation={station}
           onSelectStation={onMapStation}
+          risk={tab === 'riesgo' ? riskLayer : null}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -251,20 +273,14 @@ export default function App() {
           </Suspense>
         )}
         {tab === 'riesgo' && (
-          <ComingSoon title="Riesgo meteorológico" phase="fase 4 (T-50 a T-53)">
-            <p>
-              Indicador propio de riesgo por viento fuerte, lluvia intensa, calor y condiciones de
-              incendio, más focos de calor de NASA FIRMS. Será un{' '}
-              <strong>indicador propio, no el pronóstico oficial del IDEAM</strong>.
-            </p>
-            <p>
-              Para alertas oficiales consulta el{' '}
-              <a href="https://www.ideam.gov.co" target="_blank" rel="noopener noreferrer">
-                IDEAM
-              </a>
-              .
-            </p>
-          </ComingSoon>
+          <Suspense fallback={<p className="tab-section">Cargando…</p>}>
+            <RiskTab
+              state={risk}
+              selection={riskSel}
+              onSelection={setRiskSel}
+              levels={riskLevels}
+            />
+          </Suspense>
         )}
         {tab === 'metodologia' && <MethodologyTab />}
       </SideMenu>

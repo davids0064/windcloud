@@ -403,6 +403,19 @@ estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red
   igual y `status.json` lo avisa); `validate_run` exige el archivo y todos los pasos si `meta` lo declara.
 - **Sin H3** (cambio de diseño, T-50): pasar 0,25° (~770 km²) a hexágonos res 5 (~250 km²) aparentaría una
   resolución que GFS no tiene y sumaría `h3`/`h3-js`. La web dibuja las celdas de la rejilla (T-51).
+- Cada celda trae su departamento (`departamentos` + `celda_depto`; en costa o frontera, el más cercano).
+
+### 7.1 Pestaña Riesgo (T-51) — `web/src/risk/`, `web/src/map/risk.ts`
+- Pestaña diferida. Arriba: chip «Estimado» y aviso «Indicador propio de WindCloud, no una alerta oficial» con
+  enlace al IDEAM (RF-10, P3), visible también cargando o sin datos.
+- «Qué ver»: Incendio (clases de Fosberg moderado/alto/muy alto) · Viento · Lluvia · Calor. «Cuándo»: **peor de
+  72 h** (por defecto; máximo de todos los pasos) o **una hora** con deslizador (empieza en la hora más cercana a
+  ahora; hora de Colombia).
+- Mapa: solo celdas con nivel ≥ 1, cuadrados de 0,25° en una capa `fill` nativa (opacidad 0,55) bajo los
+  departamentos; al pasar el cursor, departamento y valores de la celda (Fosberg, T, HR, ráfaga, lluvia 3 h).
+- Resumen: número de celdas, reparto por clase (incendio) y departamentos con más celdas; «¿Cómo se calcula?» con
+  umbrales y limitaciones (un solo modelo, 0,25°, Fosberg sin memoria de sequía). Fuente + run en UTC.
+- Sin `risk` en `meta.json` o error → «Sin datos de riesgo (motivo)», sin dibujar nada (P4).
 
 ## 8. Alertas (RF-12)
 - v1: alertas **con la página abierta** (Notification API + revisión cada 15 min en el cliente). Costo 0.

@@ -229,6 +229,7 @@ def encode_run(
     update_latest: bool = True,
     reader: Callable[[Path], grids.GridStep] = grids.read_step,
     colombia=None,
+    departments: dict | None = None,
 ) -> Path:
     """Codifica los fHHH.grib2 de `run_dir` en `out_root/<model>/<run>/` (escritura atómica)."""
     paths = sorted(run_dir.glob("f*.grib2"), key=lambda p: int(p.stem[1:]))
@@ -274,8 +275,8 @@ def encode_run(
         if colombia is None:
             from .stations import colombia_shape
 
-            colombia, _ = colombia_shape()
-        risk_path = risk.write(steps, tmp, colombia)
+            colombia, departments = colombia_shape()
+        risk_path = risk.write(steps, tmp, colombia, departments)
         total += risk_path.stat().st_size
         risk_meta = {"file": risk_path.name, "label": "Riesgo meteorológico (indicador propio)"}
 

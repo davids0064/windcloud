@@ -1,5 +1,6 @@
 import { CITY_NETWORKS_CHECKED, STATUS_LABEL, citiesByStatus } from '../data/cityNetworks'
 import { DataChip } from '../ui/DataChip'
+import { Segmented } from '../ui/Segmented'
 import { SourceLine } from '../ui/SourceLine'
 import {
   PRELIMINARY_DAYS,
@@ -364,37 +365,6 @@ function Legend({ models }: { models: string[] }) {
         </li>
       ))}
     </ul>
-  )
-}
-
-function Segmented<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string
-  value: T
-  options: { id: T; label: string }[]
-  onChange: (v: T) => void
-}) {
-  return (
-    <div className="precision__seg">
-      <span className="precision__seg-label">{label}</span>
-      <div className="segmented segmented--small" role="radiogroup" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={o.id}
-            type="button"
-            role="radio"
-            aria-checked={value === o.id}
-            onClick={() => onChange(o.id)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
   )
 }
 

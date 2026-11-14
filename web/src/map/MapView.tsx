@@ -38,6 +38,7 @@ import {
   installDepartments,
 } from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
+import { riskCellAt, setRiskCells } from './risk'
 import { setStations, stationAt, type MapStation } from './stations'
 import { applyDarkPalette, applySpanishLabels } from './palette'
 import './MapView.css'
@@ -88,6 +89,8 @@ interface MapViewProps {
   stations?: MapStation[] | null
   selectedStation?: string | null
   onSelectStation?: (icao: string) => void
+  /** Celdas de riesgo (T-51) y texto de cada una para el rótulo; null = ocultas. */
+  risk?: { cells: GeoJSON.FeatureCollection; describe: (i: number) => string } | null
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
@@ -103,12 +106,14 @@ export default function MapView({
   stations = null,
   selectedStation = null,
   onSelectStation,
+  risk = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
   const markerRef = useRef<Marker | null>(null)
   const onSelectRef = useRef(onSelectPoint)
   const onStationRef = useRef(onSelectStation)
+  const describeRiskRef = useRef<((i: number) => string) | null>(null)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [hover, setHover] = useState<{ x: number; y: number; nombre: string } | null>(null)
@@ -116,7 +121,8 @@ export default function MapView({
   useEffect(() => {
     onSelectRef.current = onSelectPoint
     onStationRef.current = onSelectStation
-  }, [onSelectPoint, onSelectStation])
+    describeRiskRef.current = risk?.describe ?? null
+  }, [onSelectPoint, onSelectStation, risk])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -176,7 +182,11 @@ export default function MapView({
       const dep = st ? null : departmentAt(map, e.point)
       setHovered(dep?.id ?? null)
       map.getCanvas().style.cursor = st ? 'pointer' : ''
-      const nombre = st ? `${st.icao} · ${st.nombre} — mejor: ${st.best}` : dep?.nombre
+      const cell = st ? null : riskCellAt(map, e.point)
+      const riskText = cell !== null ? describeRiskRef.current?.(cell) : undefined
+      const nombre = st
+        ? `${st.icao} · ${st.nombre} — mejor: ${st.best}`
+        : (riskText ?? dep?.nombre)
       setHover(nombre ? { x: e.point.x, y: e.point.y, nombre } : null)
     })
     map.on('mouseout', () => {
@@ -277,6 +287,12 @@ export default function MapView({
     const map = mapRef.current
     if (ready && map) setStations(map, stations, selectedStation)
   }, [ready, stations, selectedStation])
+
+  const riskCells = risk?.cells ?? null
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map) setRiskCells(map, riskCells, DEPARTMENTS_FILL)
+  }, [ready, riskCells])
 
   useEffect(() => {
     const map = mapRef.current

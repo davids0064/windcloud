@@ -1,0 +1,95 @@
+.risk {
+  display: grid;
+  gap: 10px;
+}
+
+.risk__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.risk__head h2 {
+  margin: 0;
+}
+
+.risk__notice {
+  margin: 0;
+  padding: 6px 8px;
+  border-left: 3px solid var(--estimated);
+  border-radius: 4px;
+  background: var(--surface-2);
+  font-size: 0.78rem;
+}
+
+.risk__notice a,
+.risk__help a {
+  color: var(--accent);
+}
+
+.risk__controls {
+  display: grid;
+  gap: 8px;
+}
+
+.risk__slider {
+  display: grid;
+  gap: 4px;
+}
+
+.risk__slider input {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.risk__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.74rem;
+}
+
+.risk__legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.risk__swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+
+.risk__summary {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+
+.risk__summary p {
+  margin: 0;
+}
+
+.risk__muted {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.risk__help {
+  font-size: 0.78rem;
+}
+
+.risk__help summary {
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.risk__help ul {
+  padding-left: 18px;
+}
