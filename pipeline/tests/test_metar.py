@@ -107,3 +107,22 @@ def test_tras_429_espera_a_que_se_reponga_el_limite():
 
     assert metar.fetch_json("u", get=get, sleep=waits.append) == []
     assert waits == [metar.RATE_LIMIT_WAIT_S]
+
+
+def test_429_seguidos_esperan_mas_y_el_error_dice_la_causa():
+    waits = []
+
+    def get(url):
+        raise urllib.error.HTTPError(url, 429, "Too Many Requests", {}, None)
+
+    with pytest.raises(RuntimeError, match=r"HTTP 429"):
+        metar.fetch_json("u", get=get, sleep=waits.append)
+    assert waits == list(metar.RATE_LIMIT_WAITS_S)
+
+
+def test_un_error_comun_dice_su_causa():
+    def get(url):
+        raise urllib.error.HTTPError(url, 503, "Unavailable", {}, None)
+
+    with pytest.raises(RuntimeError, match=r"\(HTTP 503\)"):
+        metar.fetch_json("u", get=get, sleep=lambda s: None)

@@ -1,7 +1,8 @@
 name: Rayos (GOES GLM)
 
 # Rayos de los últimos 15 min sobre Colombia desde GOES-19 GLM (T-55, RF-5).
-# - Corre cada 10 min (GitHub puede atrasar los cron unos minutos; la web muestra la hora de los datos).
+# - Corre cada 10 min, en los minutos 5, 15, 25… (los minutos redondos son los más congestionados en GitHub;
+#   aun así puede atrasarse unos minutos y la web muestra la hora de los datos).
 # - Repositorio público: los minutos de Actions en runners estándar no tienen costo. Cada corrida ≈ 1 min.
 # - Publica `rayos.json` en la rama `rayos` con UN solo commit que se reemplaza (sin historial que crezca).
 # - La web lo lee de raw.githubusercontent.com (CORS abierto, caché ~5 min): no hace falta redesplegar el sitio.
@@ -10,7 +11,7 @@ name: Rayos (GOES GLM)
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '5-59/10 * * * *'
   workflow_dispatch:
 
 permissions:

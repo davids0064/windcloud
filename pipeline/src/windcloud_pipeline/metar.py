@@ -37,21 +37,37 @@ Getter = Callable[[str], bytes]
 
 #: espera tras un HTTP 429: los límites por minuto se reponen en ese plazo
 RATE_LIMIT_WAIT_S = 65.0
+#: esperas tras 429 seguidos. En GitHub Actions la IP del runner se comparte con otros usuarios de
+#: Open-Meteo y el límite puede estar ya gastado (14/11: un día de IDEAM falló con 3 intentos).
+RATE_LIMIT_WAITS_S = (RATE_LIMIT_WAIT_S, 120.0, 240.0)
+ERROR_WAITS_S = (3.0, 10.0)
+
+
+def _cause(e: Exception) -> str:
+    if isinstance(e, urllib.error.HTTPError):
+        return f"HTTP {e.code}"
+    return type(e).__name__
 
 
 def fetch_json(url: str, get: Getter = grids.http_get, sleep=time.sleep) -> object:
-    """GET JSON con 3 intentos (504 ocasionales); tras un 429 espera a que se reponga el límite."""
-    last: Exception | None = None
-    limited = False
-    for wait in (0.0, 3.0, 10.0):
-        if wait or limited:
-            sleep(max(wait, RATE_LIMIT_WAIT_S) if limited else wait)
+    """GET JSON: 2 reintentos ante errores (504) y hasta 3 esperas largas ante HTTP 429."""
+    errors = rate_limited = 0
+    while True:
         try:
             return json.loads(get(url))
         except (urllib.error.URLError, TimeoutError, ConnectionError, json.JSONDecodeError) as e:
-            last = e
-            limited = isinstance(e, urllib.error.HTTPError) and e.code == 429
-    raise RuntimeError(f"Falló tras reintentos: {url}") from last
+            if isinstance(e, urllib.error.HTTPError) and e.code == 429:
+                if rate_limited >= len(RATE_LIMIT_WAITS_S):
+                    raise RuntimeError(
+                        f"Falló tras reintentos (HTTP 429, límite de peticiones): {url}"
+                    ) from e
+                sleep(RATE_LIMIT_WAITS_S[rate_limited])
+                rate_limited += 1
+            else:
+                if errors >= len(ERROR_WAITS_S):
+                    raise RuntimeError(f"Falló tras reintentos ({_cause(e)}): {url}") from e
+                sleep(ERROR_WAITS_S[errors])
+                errors += 1
 
 
 def batched(items: list[str], size: int) -> Iterable[list[str]]:

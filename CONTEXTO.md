@@ -175,6 +175,11 @@
 
 ## 5. Aprendizajes y trampas conocidas
 
+- **Open-Meteo desde GitHub Actions:** la IP del runner es compartida y el 429 llega antes que en local (14/11: IDEAM del
+  12/11 falló con 3 intentos). `fetch_json` espera 65 s, 2 min y 4 min ante 429 seguidos y el error dice la causa.
+- **Cron de GitHub:** tras el primer push, ningún workflow programado corrió en ~2 h. Se movió `rayos.yml` a
+  `5-59/10` (evita los minutos redondos) para forzar el registro. Comprobar con `gh run list --event schedule`.
+
 - **El build conectado a Git de Cloudflare** detecta `web/` como «sitio estático» y sube el código sin compilar
   (incluido `package.json`). Desplegar desde Actions con `wrangler deploy` y `assets.directory: ./dist`.
 - **El subdominio `*.workers.dev`** sale del nombre de la cuenta (puede incluir el correo): cambiarlo antes de publicar.
