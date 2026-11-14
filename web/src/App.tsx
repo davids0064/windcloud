@@ -12,6 +12,9 @@ import { usePrecision } from './precision/usePrecision'
 import { AlertBanner } from './alerts/AlertsSection'
 import { useAlerts } from './alerts/useAlerts'
 import { ago, arrowGeoJSON, firesGeoJSON } from './fires/data'
+import { lightningGeoJSON } from './lightning/data'
+import { LightningPanel } from './lightning/LightningPanel'
+import { useLightning } from './lightning/useLightning'
 import { useFireWind, useFires } from './fires/useFires'
 import { describeCell, levelsFor, riskGeoJSON } from './risk/data'
 import type { RiskSelection } from './risk/RiskTab'
@@ -107,6 +110,15 @@ export default function App() {
           }
         : null,
     [riskData, riskLevels, riskSel.view, riskSel.when],
+  )
+  const [lightningOn, setLightningOn] = useState(false)
+  const lightning = useLightning(lightningOn)
+  const lightningLayer = useMemo(
+    () =>
+      lightning.status === 'ready'
+        ? lightningGeoJSON(lightning.data, new Date(lightning.data.receivedAt))
+        : null,
+    [lightning],
   )
   const [firesOn, setFiresOn] = useState(true)
   const [fireIndex, setFireIndex] = useState<number | null>(null)
@@ -228,6 +240,7 @@ export default function App() {
           risk={tab === 'riesgo' ? riskLayer : null}
           fires={tab === 'riesgo' ? firesLayer : null}
           onSelectFire={setFireIndex}
+          lightning={lightningOn ? lightningLayer : null}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -269,6 +282,9 @@ export default function App() {
                 isobarsOn={isobarsOn}
                 onIsobarsOn={setIsobarsOn}
               />
+            }
+            lightning={
+              <LightningPanel on={lightningOn} onToggle={setLightningOn} state={lightning} />
             }
             clouds={
               <CloudPanel

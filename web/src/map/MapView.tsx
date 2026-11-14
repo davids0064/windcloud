@@ -39,6 +39,7 @@ import {
 } from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
 import { fireAt, setFires } from './fires'
+import { setLightning } from './lightning'
 import { riskCellAt, setRiskCells } from './risk'
 import { setStations, stationAt, type MapStation } from './stations'
 import { applyDarkPalette, applySpanishLabels } from './palette'
@@ -99,6 +100,8 @@ interface MapViewProps {
     describe: (i: number) => string
   } | null
   onSelectFire?: (i: number) => void
+  /** Rayos de los últimos 15 min (T-55); null = ocultos. */
+  lightning?: GeoJSON.FeatureCollection | null
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
@@ -117,6 +120,7 @@ export default function MapView({
   risk = null,
   fires = null,
   onSelectFire,
+  lightning = null,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
@@ -312,6 +316,11 @@ export default function MapView({
     const map = mapRef.current
     if (ready && map) setFires(map, firePoints, fireArrow)
   }, [ready, firePoints, fireArrow])
+
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map) setLightning(map, lightning)
+  }, [ready, lightning])
 
   const riskCells = risk?.cells ?? null
   useEffect(() => {

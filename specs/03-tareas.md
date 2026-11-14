@@ -83,7 +83,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-53** Alertas con página abierta (Notification API). → RF-12
   _Hecho: `core/alerts.ts` + `alerts/` (sección en «Mi punto» y aviso en la página); consenso de 24 h cada 15 min, un aviso por regla y día; configuración solo en el navegador._
 - [ ] **T-54** (Opcional) Push con página cerrada vía Cloudflare Worker + Cron + KV. → RF-12
-- [ ] **T-55** Rayos GOES GLM (si cabe en minutos de Actions). → RF-5
+- [x] **T-55** Rayos GOES GLM (si cabe en minutos de Actions). → RF-5
+  _Hecho: `lightning.py` (GOES-19 GLM, 15 min, Colombia ampliada) + `rayos.yml` cada 10 min → rama `rayos` (commit único), leída por la web desde raw.githubusercontent.com; capa «Rayos» en Mapa. Repo público: minutos sin costo._
 
 ## Fase 5 · Calidad y lanzamiento
 - [ ] **T-60** Página **Metodología** completa con fórmulas y referencias. → RF-13, P3

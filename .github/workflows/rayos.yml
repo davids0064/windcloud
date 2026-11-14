@@ -1,0 +1,53 @@
+name: Rayos (GOES GLM)
+
+# Rayos de los últimos 15 min sobre Colombia desde GOES-19 GLM (T-55, RF-5).
+# - Corre cada 10 min (GitHub puede atrasar los cron unos minutos; la web muestra la hora de los datos).
+# - Repositorio público: los minutos de Actions en runners estándar no tienen costo. Cada corrida ≈ 1 min.
+# - Publica `rayos.json` en la rama `rayos` con UN solo commit que se reemplaza (sin historial que crezca).
+# - La web lo lee de raw.githubusercontent.com (CORS abierto, caché ~5 min): no hace falta redesplegar el sitio.
+# - Si NOAA no publicó archivos en la ventana o falla, la rama conserva lo anterior y la web muestra su edad.
+# - GitHub desactiva los cron tras 60 días sin actividad en el repositorio: reactivarlo en Actions si pasa.
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rayos
+  cancel-in-progress: true
+
+jobs:
+  rayos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: pipeline/uv.lock
+
+      - name: Instalar pipeline
+        working-directory: pipeline
+        run: uv sync --locked
+
+      - name: Rayos de los últimos 15 min
+        working-directory: pipeline
+        run: uv run python -m windcloud_pipeline.lightning --salida ../publish
+
+      - name: Publicar en la rama rayos (commit único)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd publish
+          git init --quiet -b rayos
+          git add rayos.json
+          git -c user.name="windcloud-bot" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit --quiet -m "Rayos $(jq -r .hasta rayos.json) ($(jq '.rayos | length' rayos.json))"
+          git push --quiet --force \
+            "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" rayos

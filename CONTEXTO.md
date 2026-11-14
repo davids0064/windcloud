@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 4/6** (T-50 a T-53 ✅; T-54 y T-55 opcionales) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-52 (focos de calor NASA FIRMS con dirección de propagación por viento) |
-| Siguiente tarea | T-55 (rayos GLM, opcional) o T-54 (push, opcional), o fase 5. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · 252 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires) 113 pruebas · CI |
+| Última tarea cerrada | T-55 (rayos GOES-19 GLM cada 10 min, rama `rayos`) |
+| Siguiente tarea | T-54 (push con página cerrada, opcional) o **fase 5**. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · 260 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 118 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -23,6 +23,7 @@
 | Verificación diaria (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.daily` (completa días faltantes → `out/verify/pares/*.csv.gz` y `out/web/data/precision*.json`) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
 | Focos de calor FIRMS | `cd pipeline && set -a && . ./.env && set +a && uv run python -m windcloud_pipeline.fires` (→ `out/web/data/fires.json`) |
+| Rayos GLM (15 min) | `cd pipeline && uv run python -m windcloud_pipeline.lightning` (→ `out/web/data/rayos.json`, ~30 s) |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
 | Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (GFS y ECMWF; no hace nada si el run ya está publicado; ECMWF tarda ~10 min) |
@@ -142,11 +143,16 @@
   navegador ni en el repo público; la web lee `fires.json` ya filtrado. El usuario la compartió en el chat: puede
   pedir otra gratis en FIRMS cuando quiera.
 
+- **2026-11-14 · Rayos fuera del deploy (T-55):** rama `rayos` leída desde raw.githubusercontent.com, porque el
+  sitio solo se redespliega a mano y los rayos caducan en minutos. Dependencia nueva: `h5py` (BSD, gratis).
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
 - [x] ~~Pereira (redhidro.org) sin respuesta y Bucaramanga (CDMB) sin visor público → T-48~~ Resuelto (2026-11-14):
   ambas no verificadas, sin enlace; se reintenta solo si aparece un sitio nuevo.
+- [ ] GitHub desactiva los cron de un repo sin actividad en 60 días (`rayos.yml`, `grids.yml`, `verify.yml`):
+  reactivar en Actions si pasa.
 - [ ] Términos actuales de RainViewer para radar → T-37
 - [ ] ¿Las texturas de viento caben en los límites de Pages (25 MiB/archivo, 20 000 archivos) o hace falta R2? → T-32/T-33
 - [ ] Hosting definitivo: Cloudflare Pages vs. GitHub Pages (preferido Cloudflare) → T-04
@@ -303,6 +309,15 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-55 Rayos GOES-19 GLM
+- **Hecho:** `lightning.py` (+ `h5py`), `rayos.yml` (cada 10 min, rama `rayos`), `web/src/lightning/` (datos,
+  `useLightning` con refresco y conservación ante fallos, `LightningPanel` en Mapa), `map/lightning.ts`.
+- **Con datos reales:** 43–44 archivos por ventana de 15 min, 0 fallidos, 1 270–1 400 descargas a mediodía, ~30 KB,
+  ~28 s. En Chrome los rayos caen sobre los topes fríos del infrarrojo (Caribe, Pacífico, Vichada); consola limpia.
+- **Verificado:** 118 pruebas del pipeline, 260 web, tsc, lint, build (inicial 94,2 KB). raw.githubusercontent:
+  `access-control-allow-origin: *`, `max-age=300`.
+- **Siguiente:** T-54 (opcional) o fase 5.
 
 ### 2026-11-14 · T-52 Focos de calor NASA FIRMS
 - **Hecho:** `fires.py` (3 sensores, 48 h, recorte a Colombia, departamento, confianza, clave oculta en errores),

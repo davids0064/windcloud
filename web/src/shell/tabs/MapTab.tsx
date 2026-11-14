@@ -9,11 +9,13 @@ export function MapTab({
   onBasemapChange,
   clouds,
   wind,
+  lightning,
 }: {
   basemap: BasemapId
   onBasemapChange: (b: BasemapId) => void
   clouds: ReactNode
   wind: ReactNode
+  lightning?: ReactNode
 }) {
   return (
     <>
@@ -23,6 +25,7 @@ export function MapTab({
       </section>
       {wind}
       {clouds}
+      {lightning}
       <RadarNotice />
       <p>
         Haz clic en cualquier punto del mapa, busca un lugar o usa tu ubicación para ver qué dicen

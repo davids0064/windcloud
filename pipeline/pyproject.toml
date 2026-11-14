@@ -10,6 +10,7 @@ dependencies = [
     "contourpy>=1.3",
     "eccodes>=2.41",
     "eccodeslib>=2.50.0.34",
+    "h5py>=3.16.0",
     "numpy>=2.1",
     "pillow>=11",
     "shapely>=2.1",

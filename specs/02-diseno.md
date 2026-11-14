@@ -212,7 +212,16 @@ Un solo estilo vectorial (OpenFreeMap `dark`) y los modos se alternan con visibi
 - Precipitación pronosticada: textura escalar `PRATE`/`APCP` de GFS.
 
 ### 4.4 Otras (RF-5)
-- Rayos: GOES **GLM** (NOAA Open Data en AWS, `noaa-goes19` / `noaa-goes18`) → puntos últimos 15 min (job opcional cada 10 min; si excede minutos, omitir).
+- Rayos: GOES **GLM** (NOAA Open Data en AWS, `noaa-goes19`) → puntos últimos 15 min. **Hecho en T-55:**
+  - `pipeline/…/lightning.py`: lista las horas que cubre la ventana, baja los archivos que empiezan en
+    (ahora − 15 min, ahora], lee `flash_lat/lon/energy/quality_flag` con `h5py` (escala, sin signo, relleno), se queda
+    con calidad 0 dentro de (−80, −5, −66, 14). Salida `rayos.json`: `[lat, lon, edad_s, energía fJ]` (~30 KB).
+  - `rayos.yml` cada 10 min (repo público: minutos sin costo, ~1 min por corrida) → rama `rayos` con commit único.
+    La web la lee de `raw.githubusercontent.com/…/rayos/rayos.json` (CORS `*`, caché 5 min): no requiere redesplegar
+    Pages. En desarrollo, `/data/rayos.json`; `VITE_RAYOS_URL` lo cambia.
+  - Web, pestaña Mapa, sección «Rayos» (chip Observado, **apagada por defecto**): círculos por antigüedad respecto de
+    ahora (< 5, 5–10, > 10 min), conteo, ventana en hora de Colombia, «hace X min», fuente. Refresco cada 5 min; si
+    un refresco falla se conserva lo anterior; con datos de > 45 min, «Sin datos recientes» y no se dibuja (P4).
 - Calidad del aire: Open-Meteo Air Quality API por punto (solo en panel de punto en v1).
 
 ## 5. Motor de consenso y acuerdo (RF-6, RF-7, RF-8) — `web/src/core/`
