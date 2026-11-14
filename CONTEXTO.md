@@ -170,6 +170,10 @@
 
 ## 5. Aprendizajes y trampas conocidas
 
+- **`npm install` en macOS borra del lock `@emnapi/core` y `@emnapi/runtime`** (opcionales que solo pide Linux) y
+  `npm ci` falla en CI. Tras instalar cualquier paquete, comprobar que siguen en `web/package-lock.json`; si no,
+  reinsertar esas dos entradas (versión 2.0.0-beta.2). No usar `--package-lock-only`: quita `resolved`/`integrity`.
+
 - **Chrome en macOS no baja de ~500 px de ancho:** `resize_window` a 360 deja el viewport ancho. Para probar
   360 px, cargar la app en un `<iframe>` de 360 × 780 en la misma página (mismo origen) e inspeccionarla (T-61).
 - **Verde/rojo-naranja con luminancia parecida** se confunden con deuteranopía (ΔE 6–7): medirlo con la simulación
