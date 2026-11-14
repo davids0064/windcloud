@@ -91,7 +91,7 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: 13 secciones con índice (tipos de dato, consenso, acuerdo, probabilidad, verificación, riesgo, focos, rayos, capas, alertas, limitaciones, fuentes, referencias con DOI verificados). Umbrales del pipeline en `core/methodology.ts`, sincronía comprobada por `test_methodology_sync.py`. Pestaña diferida (6,3 KB gzip)._
 - [x] **T-61** Accesibilidad AA, paletas aptas para daltonismo, prueba en móvil 360 px. → RNF-4, RNF-7
   _Hecho: `a11y.test.tsx` (axe-core en cada vista, 0 violaciones), `ui/contrast.test.ts` (contraste WCAG desde el CSS real + simulación de daltonismo Machado 2009, ΔE ≥ 12 entre tonos vecinos). Insignias de acuerdo recoloreadas (alto/bajo se confundían con deuteranopía). 360 px sin desbordes en las 5 pestañas. Selector de focos por teclado._
-- [ ] **T-62** Presupuesto de rendimiento (bundle, fps) y de llamadas a APIs (≤ 10 000/día). → RNF-2, RNF-3, RNF-6
-      🟡 Adelantado: JS inicial ≤ 150 KB gzip en CI (`npm run check:bundle`); faltan fps y llamadas.
+- [x] **T-62** Presupuesto de rendimiento (bundle, fps) y de llamadas a APIs (≤ 10 000/día). → RNF-2, RNF-3, RNF-6
+  _Hecho: bundle inicial 90,5 KB gzip (CI ≤ 150 KB). Viento: 40 000 partículas a 60 fps medidos en Chrome (adaptación a la mitad bajo 30 fps, T-34). Llamadas: `core/apiBudget.ts` calcula el peso de las URL reales (punto 5,8; alertas ≤ 230/día; trabajos ≤ 4 000/día) con prueba; sincronía con `daily.CALL_BUDGET`._
 - [ ] **T-63** E2E Playwright y verificación manual SKBO 14 días. → Diseño §11
 - [ ] **T-64** Atribuciones y licencias de todas las fuentes en el pie de página. → P1, P7

@@ -3,11 +3,10 @@
 import re
 from pathlib import Path
 
-from windcloud_pipeline import fires, lightning, metrics, risk, verify
+from windcloud_pipeline import daily, fires, lightning, metrics, risk, verify
 
-TS = (Path(__file__).resolve().parents[2] / "web/src/core/methodology.ts").read_text(
-    encoding="utf-8"
-)
+TS_ROOT = Path(__file__).resolve().parents[2]
+TS = (TS_ROOT / "web/src/core/methodology.ts").read_text(encoding="utf-8")
 
 
 def ts_value(name: str) -> str:
@@ -39,3 +38,14 @@ def test_riesgo_focos_y_rayos():
     assert nums(ts_value("ffwiClasses")) == [lo for lo, _ in risk.FFWI_CLASSES]
     assert nums(ts_value("FIRES_HOURS")) == [fires.DAYS * 24]
     assert nums(ts_value("LIGHTNING_MINUTES")) == [lightning.MINUTES]
+
+
+def test_presupuesto_de_llamadas():
+    ts = (TS_ROOT / "web/src/core/apiBudget.ts").read_text(encoding="utf-8")
+    m = re.search(r"JOBS_DAILY_BUDGET = ([\d_]+)", ts)
+    assert m and int(m.group(1).replace("_", "")) == daily.CALL_BUDGET
+    weight = re.search(r"variables × modelos / 10", ts)
+    assert weight  # misma regla que verify.call_weight
+    assert (
+        verify.call_weight(1) == len(verify.VARIABLES) * len(verify.LEADS) * len(verify.MODELS) / 10
+    )
