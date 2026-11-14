@@ -78,7 +78,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: `risk.json` por run de GFS (1 622 celdas 0,25° sobre Colombia × 25 pasos); **sin H3** (ver diseño §7). Se añadió RH a 2 m a la descarga._
 - [x] **T-51** Página **Riesgo** con H3HexagonLayer y aviso "indicador propio" + enlace IDEAM. → RF-10, P3
   _Hecho: `web/src/risk/` (pestaña diferida, 2,1 KB gzip) + `map/risk.ts`: celdas de la rejilla (sin H3) como capa nativa de MapLibre; incendio/viento/lluvia/calor, peor de 72 h o por hora, resumen por departamento._
-- [ ] **T-52** Focos NASA FIRMS (clave gratuita MAP_KEY) con vector de viento por foco. → RF-11
+- [x] **T-52** Focos NASA FIRMS (clave gratuita MAP_KEY) con vector de viento por foco. → RF-11
+  _Hecho: `fires.py` (NOAA-20, NOAA-21, MODIS; 48 h; solo Colombia) en `grids.yml` con el secreto `FIRMS_MAP_KEY`; capa en Riesgo; al tocar un foco, viento del consenso ahora/+6/+12/+24 h y flecha hacia donde lo empujaría._
 - [x] **T-53** Alertas con página abierta (Notification API). → RF-12
   _Hecho: `core/alerts.ts` + `alerts/` (sección en «Mi punto» y aviso en la página); consenso de 24 h cada 15 min, un aviso por regla y día; configuración solo en el navegador._
 - [ ] **T-54** (Opcional) Push con página cerrada vía Cloudflare Worker + Cron + KV. → RF-12

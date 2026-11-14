@@ -93,3 +93,76 @@
 .risk__help ul {
   padding-left: 18px;
 }
+
+.risk__fires {
+  display: grid;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+}
+
+.risk__fires h3,
+.risk__fires p {
+  margin: 0;
+}
+
+.risk__toggle {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.risk__dot {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #1a0a00;
+  border-radius: 50%;
+}
+
+.risk__fire {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+
+.risk__fire-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.risk__close {
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.risk__wind {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.76rem;
+}
+
+.risk__wind caption {
+  text-align: left;
+}
+
+.risk__wind th,
+.risk__wind td {
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.risk__arrow {
+  display: inline-block;
+  font-weight: 700;
+}

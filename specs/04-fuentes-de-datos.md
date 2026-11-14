@@ -29,7 +29,7 @@ implementar cada una** (columna "Verificar"), porque cambian con el tiempo.
 | **IDEAM / datos.gov.co (Socrata)** | Estaciones automáticas de Colombia: precipitación `s54a-sgyg`, temperatura `sbwg-7ju4`, viento `sgfv-3yp8` | No (token gratuito opcional, sube el límite) | **CC BY-SA 4.0** | Verificación (2.º nivel de RF-9) | Ver §«Acceso a datos de redes locales» (T-46): hora **local**, datos preliminares, publicación diaria |
 | **RainViewer** | Tiles de radar mundial | No | Gratis solo uso personal/educativo, atribución con enlace | ❌ **No se usa** (T-37) | ✅ 2026-11-13: zoom máx. 7, 2 h, sin nowcast/satélite, 100 pet./min/IP; **sin cobertura en ciudades colombianas** (máscara: solo Leticia). Reevaluar |
 | **NOAA GOES GLM (AWS Open Data)** | Rayos | No | Dominio público | Capa de rayos | Volumen de datos |
-| **NASA FIRMS** | Focos de calor VIIRS/MODIS | Sí, MAP_KEY gratuita | Abierta | Integración incendios (fase 4) | Límite de transacciones por 10 min |
+| **NASA FIRMS** | Focos de calor VIIRS/MODIS | Sí, MAP_KEY gratuita (secreto `FIRMS_MAP_KEY`; nunca en el repo ni en el navegador) | Abierta, con atribución | ✅ Integrado (T-52): `api/area/csv`, NOAA-20 + NOAA-21 + MODIS, 48 h, 3 consultas por corrida | ✅ 2026-11-14: 5 000 transacciones/10 min; `VIIRS_SNPP_NRT` sin datos desde el 02/11 (`data_availability`); clave inválida → texto plano, no CSV; `acq_time` HHMM UTC; confianza VIIRS l/n/h, MODIS 0–100 |
 
 ## Redes locales de ciudad (Colombia) — máxima precisión urbana
 Más densas y precisas que METAR (decenas de estaciones dentro de la ciudad vs. 1 aeropuerto).

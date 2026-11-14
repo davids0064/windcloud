@@ -11,6 +11,8 @@ import type { PrecisionSelection } from './precision/PrecisionTab'
 import { usePrecision } from './precision/usePrecision'
 import { AlertBanner } from './alerts/AlertsSection'
 import { useAlerts } from './alerts/useAlerts'
+import { ago, arrowGeoJSON, firesGeoJSON } from './fires/data'
+import { useFireWind, useFires } from './fires/useFires'
 import { describeCell, levelsFor, riskGeoJSON } from './risk/data'
 import type { RiskSelection } from './risk/RiskTab'
 import { useRisk } from './risk/useRisk'
@@ -106,6 +108,28 @@ export default function App() {
         : null,
     [riskData, riskLevels, riskSel.view, riskSel.when],
   )
+  const [firesOn, setFiresOn] = useState(true)
+  const [fireIndex, setFireIndex] = useState<number | null>(null)
+  const fires = useFires(tab === 'riesgo' && firesOn)
+  const firesData = fires.status === 'ready' ? fires.data : null
+  const selectedFire = firesData && fireIndex !== null ? (firesData.focos[fireIndex] ?? null) : null
+  const fireWind = useFireWind(tab === 'riesgo' && firesOn ? selectedFire : null)
+  const fireToward = fireWind.status === 'ready' ? fireWind.data[0] : null
+  const firesLayer = useMemo(() => {
+    if (!firesData) return null
+    const arrow =
+      selectedFire && fireToward?.toward != null && (fireToward.speed ?? 0) >= 2
+        ? arrowGeoJSON(selectedFire, fireToward.toward)
+        : null
+    return {
+      points: firesGeoJSON(firesData, fireIndex),
+      arrow,
+      describe: (i: number) => {
+        const f = firesData.focos[i]
+        return `Foco de calor · ${f.departamento ?? ''} · ${f.sensor} · ${ago(f.hora, new Date())} · confianza ${f.confianza}`
+      },
+    }
+  }, [firesData, fireIndex, selectedFire, fireToward])
   const grid = useForecastGrid(windOn || scalar !== null || isobarsOn, windOn, gridModel)
   const gridReady = grid.status === 'ready' ? grid : null
   const step = gridReady ? gridReady.loaded.meta.steps[gridReady.stepIndex] : null
@@ -202,6 +226,8 @@ export default function App() {
           selectedStation={station}
           onSelectStation={onMapStation}
           risk={tab === 'riesgo' ? riskLayer : null}
+          fires={tab === 'riesgo' ? firesLayer : null}
+          onSelectFire={setFireIndex}
           clouds={
             cloudKind && cloud.status === 'ready'
               ? {
@@ -287,6 +313,17 @@ export default function App() {
               selection={riskSel}
               onSelection={setRiskSel}
               levels={riskLevels}
+              fires={{
+                state: fires,
+                on: firesOn,
+                onToggle: (on) => {
+                  setFiresOn(on)
+                  if (!on) setFireIndex(null)
+                },
+                selected: fireIndex,
+                onSelect: setFireIndex,
+                wind: fireWind,
+              }}
             />
           </Suspense>
         )}

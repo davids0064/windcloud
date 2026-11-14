@@ -11,17 +11,18 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 3/6** (T-50, T-51, T-53 ✅; T-52 espera la MAP_KEY de FIRMS; T-54 y T-55 opcionales) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 4/6** (T-50 a T-53 ✅; T-54 y T-55 opcionales) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-53 (alertas por punto con la página abierta) |
-| Siguiente tarea | **T-52** (focos NASA FIRMS: requiere que el usuario saque una MAP_KEY gratuita), **T-55** (rayos GLM) o T-54 (push, opcional). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · 240 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk) 106 pruebas · CI |
+| Última tarea cerrada | T-52 (focos de calor NASA FIRMS con dirección de propagación por viento) |
+| Siguiente tarea | T-55 (rayos GLM, opcional) o T-54 (push, opcional), o fase 5. **Antes de subir el código:** el usuario guarda la clave con `! gh secret set FIRMS_MAP_KEY` (en local está en `pipeline/.env`, ignorado por git). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · 252 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires) 113 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
 | Verificar un día | `cd pipeline && uv run python -m windcloud_pipeline.verify [--fecha AAAA-MM-DD] [--red METAR|IDEAM|todas]` (METAR ~1 min, IDEAM ~3 min; ojo con el límite de Open-Meteo) |
 | Verificación diaria (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.daily` (completa días faltantes → `out/verify/pares/*.csv.gz` y `out/web/data/precision*.json`) |
 | Regenerar departamentos | `cd pipeline && uv run python -m windcloud_pipeline.geo` |
+| Focos de calor FIRMS | `cd pipeline && set -a && . ./.env && set +a && uv run python -m windcloud_pipeline.fires` (→ `out/web/data/fires.json`) |
 | Bajar rejillas GFS | `cd pipeline && uv run python -m windcloud_pipeline.grids` (→ `pipeline/out/gfs/<run>/`, ignorado en git) |
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
 | Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (GFS y ECMWF; no hace nada si el run ya está publicado; ECMWF tarda ~10 min) |
@@ -136,6 +137,10 @@
 
 - **2026-11-14 · Riesgo sin H3 (T-50):** celdas de la rejilla GFS 0,25° en vez de hexágonos H3 res 5 (no inventar
   resolución, sin `h3`/`h3-js`). El riesgo no bloquea la publicación de las capas si falla.
+
+- **2026-11-14 · Clave de FIRMS:** solo en el pipeline (secreto de Actions / `pipeline/.env` local), nunca en el
+  navegador ni en el repo público; la web lee `fires.json` ya filtrado. El usuario la compartió en el chat: puede
+  pedir otra gratis en FIRMS cuando quiera.
 
 ## 4. Preguntas abiertas / riesgos
 
@@ -298,6 +303,17 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-52 Focos de calor NASA FIRMS
+- **Hecho:** `fires.py` (3 sensores, 48 h, recorte a Colombia, departamento, confianza, clave oculta en errores),
+  paso en `grids.yml` (sin secreto: aviso y se omite), `web/src/fires/` (datos, `useFires`, `useFireWind` con
+  `loadPointForecast` diferido, `FiresSection`), `map/fires.ts` (círculos + flecha de líneas), clic y rótulo en
+  `MapView`.
+- **Con datos reales (14/11):** 291 focos en Colombia en 48 h (Vichada 78, Antioquia 44, Meta 42…); 278 de confianza
+  nominal. `fires.json` 45 KB; comprobado que no contiene la clave. SNPP sin datos desde el 02/11.
+- **Verificado:** 113 pruebas del pipeline, 252 web, tsc, lint, build (inicial 93,2 KB; Riesgo 3,5 KB). En Chrome:
+  foco en Meta → «tendería a avanzar hacia el este», tabla +6/+12/+24 h y flecha; consola limpia.
+- **Pendiente del usuario:** `! gh secret set FIRMS_MAP_KEY` antes de subir el código.
 
 ### 2026-11-14 · T-53 Alertas por punto (página abierta)
 - **Hecho:** `core/alerts.ts` (reglas, `checkAlerts` 24 h, clave por día local, texto), `alerts/useAlerts.ts`

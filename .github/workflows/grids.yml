@@ -7,6 +7,7 @@ name: Rejillas de pronóstico
 # - La rama `grids` tiene UN solo commit que se reemplaza (sin historial que crezca) con los 2 últimos runs.
 # - Si algo falla, el workflow queda en rojo y la rama conserva la versión anterior (nunca se publica a medias).
 # - El deploy (deploy.yml) copia esta rama a /data del sitio.
+# - Focos de calor NASA FIRMS (T-52) en cada corrida, con el secreto FIRMS_MAP_KEY (gratuito; sin él se omiten).
 
 on:
   schedule:
@@ -49,6 +50,20 @@ jobs:
         continue-on-error: true
         run: uv run python -m windcloud_pipeline.update --modelo todos --salida ../publish/data --trabajo ../work
 
+      - name: Focos de calor (NASA FIRMS)
+        id: fires
+        working-directory: pipeline
+        continue-on-error: true
+        env:
+          FIRMS_MAP_KEY: ${{ secrets.FIRMS_MAP_KEY }}
+        run: |
+          if [ -z "$FIRMS_MAP_KEY" ]; then
+            echo "::warning::Sin secreto FIRMS_MAP_KEY: no se actualizan los focos de calor."
+            exit 0
+          fi
+          uv run python -m windcloud_pipeline.fires --salida ../publish/data
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+
       - name: Publicar en la rama grids (commit único)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,6 +73,7 @@ jobs:
             f="publish/data/$m/status.json"
             [ -f "$f" ] && [ "$(jq -r .result "$f")" = "actualizado" ] && changed="$changed $m"
           done
+          [ "${{ steps.fires.outputs.updated }}" = "true" ] && changed="$changed focos"
           if [ -z "$changed" ]; then
             echo "Sin cambios que publicar."
             exit 0
@@ -74,7 +90,7 @@ jobs:
           echo "Publicado run ${run} ($(du -sh data | cut -f1))."
 
       - name: Resultado
-        if: steps.update.outcome == 'failure'
+        if: steps.update.outcome == 'failure' || steps.fires.outcome == 'failure'
         run: |
-          echo "::error::Al menos un modelo falló (ver el paso de actualización y data/*/status.json)."
+          echo "::error::Falló la actualización de un modelo o de los focos de calor (ver los pasos)."
           exit 1

@@ -1,3 +1,5 @@
+import type { ComponentProps } from 'react'
+import { FiresSection } from '../fires/FiresSection'
 import type { Loadable } from '../precision/usePrecision'
 import { DataChip } from '../ui/DataChip'
 import { Segmented } from '../ui/Segmented'
@@ -26,12 +28,14 @@ interface Props {
   onSelection: (s: RiskSelection) => void
   /** Niveles ya calculados por App para el mapa (se reutilizan para el resumen). */
   levels: number[] | null
+  /** Focos de calor (T-52); sin esta prop la sección no aparece. */
+  fires?: ComponentProps<typeof FiresSection>
 }
 
 const IDEAM_ALERTS = 'https://www.ideam.gov.co/'
 
 /** Pestaña Riesgo (T-51, RF-10): indicador propio por celda, con aviso y enlace a las alertas oficiales. */
-export default function RiskTab({ state, selection, onSelection, levels }: Props) {
+export default function RiskTab({ state, selection, onSelection, levels, fires }: Props) {
   const official = state.status === 'ready' ? state.data.oficial : IDEAM_ALERTS
   const header = (
     <>
@@ -62,6 +66,7 @@ export default function RiskTab({ state, selection, onSelection, levels }: Props
       <section className="tab-section risk">
         {header}
         <p role="alert">Sin datos de riesgo ({state.message}).</p>
+        {fires && <FiresSection {...fires} />}
       </section>
     )
   }
@@ -176,6 +181,8 @@ export default function RiskTab({ state, selection, onSelection, levels }: Props
         time={{ label: `run ${utcLabel(data.run)}`, dateTime: data.run }}
         extra="pasos cada 3 h hasta 72 h"
       />
+
+      {fires && <FiresSection {...fires} />}
     </section>
   )
 }

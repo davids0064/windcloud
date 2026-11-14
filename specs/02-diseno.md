@@ -405,6 +405,19 @@ estado: verificada|no_verificada|caida, nota?}`; ciudades sin red local con `red
   resolución que GFS no tiene y sumaría `h3`/`h3-js`. La web dibuja las celdas de la rejilla (T-51).
 - Cada celda trae su departamento (`departamentos` + `celda_depto`; en costa o frontera, el más cercano).
 
+### 7.2 Focos de calor NASA FIRMS (T-52, RF-11) — `pipeline/…/fires.py`, `web/src/fires/`, `web/src/map/fires.ts`
+- Pipeline: API de área (CSV) de FIRMS para `VIIRS_NOAA20_NRT`, `VIIRS_NOAA21_NRT` y `MODIS_NRT`, últimas 48 h, caja
+  de Colombia; recorte con el polígono del país + 0,1° y departamento más cercano. Confianza unificada (baja,
+  nominal, alta). Un sensor caído no tumba los demás (`fallidos`). Salida `data/fires.json` (~45 KB, ~300 focos),
+  escritura atómica. La clave sale de `FIRMS_MAP_KEY` (secreto de Actions; en local `pipeline/.env`, ignorado) y
+  se oculta en todo mensaje. Sin clave: se omite sin error. Corre en `grids.yml` (8 veces al día).
+- Web, pestaña Riesgo: casilla «Ver focos» (activa por defecto), círculos por confianza encima de todo, resumen por
+  departamento, aviso «un foco no es un incendio confirmado», fuente y hora. Clic en un foco (prioridad sobre
+  estaciones y punto): fecha (hora de Colombia y «hace X h»), sensor, confianza, FRP, y **viento del consenso** de
+  Open-Meteo sobre el foco ahora, +6, +12 y +24 h con «empuja hacia» (= procedencia + 180°); flecha blanca de 25 km
+  (dirección, no distancia ni velocidad del fuego); con < 2 km/h, «sin dirección marcada». Aviso de que es
+  orientativo y línea 123.
+
 ### 7.1 Pestaña Riesgo (T-51) — `web/src/risk/`, `web/src/map/risk.ts`
 - Pestaña diferida. Arriba: chip «Estimado» y aviso «Indicador propio de WindCloud, no una alerta oficial» con
   enlace al IDEAM (RF-10, P3), visible también cargando o sin datos.

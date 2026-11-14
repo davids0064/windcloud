@@ -38,6 +38,7 @@ import {
   installDepartments,
 } from './departments'
 import { MAPLIBRE_LOCALE_ES } from './locale'
+import { fireAt, setFires } from './fires'
 import { riskCellAt, setRiskCells } from './risk'
 import { setStations, stationAt, type MapStation } from './stations'
 import { applyDarkPalette, applySpanishLabels } from './palette'
@@ -91,6 +92,13 @@ interface MapViewProps {
   onSelectStation?: (icao: string) => void
   /** Celdas de riesgo (T-51) y texto de cada una para el rótulo; null = ocultas. */
   risk?: { cells: GeoJSON.FeatureCollection; describe: (i: number) => string } | null
+  /** Focos de calor (T-52), flecha del elegido y rótulo; null = ocultos. */
+  fires?: {
+    points: GeoJSON.FeatureCollection
+    arrow: GeoJSON.FeatureCollection | null
+    describe: (i: number) => string
+  } | null
+  onSelectFire?: (i: number) => void
 }
 
 /** Mapa principal: MapLibre + overlay de deck.gl (diseño §2). */
@@ -107,6 +115,8 @@ export default function MapView({
   selectedStation = null,
   onSelectStation,
   risk = null,
+  fires = null,
+  onSelectFire,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<MapLibreMap | null>(null)
@@ -114,6 +124,8 @@ export default function MapView({
   const onSelectRef = useRef(onSelectPoint)
   const onStationRef = useRef(onSelectStation)
   const describeRiskRef = useRef<((i: number) => string) | null>(null)
+  const describeFireRef = useRef<((i: number) => string) | null>(null)
+  const onFireRef = useRef(onSelectFire)
   const [ready, setReady] = useState(false)
   const [failed, setFailed] = useState(false)
   const [hover, setHover] = useState<{ x: number; y: number; nombre: string } | null>(null)
@@ -122,7 +134,9 @@ export default function MapView({
     onSelectRef.current = onSelectPoint
     onStationRef.current = onSelectStation
     describeRiskRef.current = risk?.describe ?? null
-  }, [onSelectPoint, onSelectStation, risk])
+    describeFireRef.current = fires?.describe ?? null
+    onFireRef.current = onSelectFire
+  }, [onSelectPoint, onSelectStation, risk, fires, onSelectFire])
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -161,7 +175,9 @@ export default function MapView({
       setReady(true)
     })
     map.on('click', (e) => {
-      // Una estación de verificación tiene prioridad sobre el clic de pronóstico (T-44).
+      // Un foco de calor (T-52) o una estación (T-44) tienen prioridad sobre el clic de pronóstico.
+      const fire = fireAt(map, e.point)
+      if (fire !== null && onFireRef.current) return onFireRef.current(fire)
       const st = stationAt(map, e.point)
       if (st && onStationRef.current) return onStationRef.current(st.icao)
       const dep = departmentAt(map, e.point)
@@ -178,15 +194,17 @@ export default function MapView({
       hoveredId = id
     }
     map.on('mousemove', (e) => {
-      const st = stationAt(map, e.point)
-      const dep = st ? null : departmentAt(map, e.point)
+      const fire = fireAt(map, e.point)
+      const fireText = fire !== null ? describeFireRef.current?.(fire) : undefined
+      const st = fireText ? null : stationAt(map, e.point)
+      const dep = st || fireText ? null : departmentAt(map, e.point)
       setHovered(dep?.id ?? null)
-      map.getCanvas().style.cursor = st ? 'pointer' : ''
-      const cell = st ? null : riskCellAt(map, e.point)
+      map.getCanvas().style.cursor = st || fireText ? 'pointer' : ''
+      const cell = st || fireText ? null : riskCellAt(map, e.point)
       const riskText = cell !== null ? describeRiskRef.current?.(cell) : undefined
-      const nombre = st
-        ? `${st.icao} · ${st.nombre} — mejor: ${st.best}`
-        : (riskText ?? dep?.nombre)
+      const nombre =
+        fireText ??
+        (st ? `${st.icao} · ${st.nombre} — mejor: ${st.best}` : (riskText ?? dep?.nombre))
       setHover(nombre ? { x: e.point.x, y: e.point.y, nombre } : null)
     })
     map.on('mouseout', () => {
@@ -287,6 +305,13 @@ export default function MapView({
     const map = mapRef.current
     if (ready && map) setStations(map, stations, selectedStation)
   }, [ready, stations, selectedStation])
+
+  const firePoints = fires?.points ?? null
+  const fireArrow = fires?.arrow ?? null
+  useEffect(() => {
+    const map = mapRef.current
+    if (ready && map) setFires(map, firePoints, fireArrow)
+  }, [ready, firePoints, fireArrow])
 
   const riskCells = risk?.cells ?? null
   useEffect(() => {
