@@ -25,7 +25,6 @@ import { LocateButton } from './shell/LocateButton'
 import { SideMenu } from './shell/SideMenu'
 import type { TabId } from './shell/menuTabs'
 import { MapTab } from './shell/tabs/MapTab'
-import { MethodologyTab } from './shell/tabs/MethodologyTab'
 import { PointTab } from './shell/tabs/PointTab'
 import { scalarFileUrl } from './layers/forecastLayers'
 import { scalarUrl } from './layers/scalarUrl'
@@ -42,6 +41,8 @@ const PointPanel = lazy(() => import('./point/PointPanel'))
 const PrecisionTab = lazy(() => import('./precision/PrecisionTab'))
 // Igual la pestaña Riesgo (T-51).
 const RiskTab = lazy(() => import('./risk/RiskTab'))
+// Metodología (texto largo) también.
+const MethodologyTab = lazy(() => import('./shell/tabs/MethodologyTab'))
 
 interface SelectedPoint extends LatLon {
   /** Nombre si viene del buscador o de la ubicación; vacío si fue un clic sin departamento. */
@@ -343,7 +344,11 @@ export default function App() {
             />
           </Suspense>
         )}
-        {tab === 'metodologia' && <MethodologyTab />}
+        {tab === 'metodologia' && (
+          <Suspense fallback={<p className="tab-section">Cargando…</p>}>
+            <MethodologyTab />
+          </Suspense>
+        )}
       </SideMenu>
 
       <AlertBanner

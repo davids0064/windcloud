@@ -87,7 +87,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
   _Hecho: `lightning.py` (GOES-19 GLM, 15 min, Colombia ampliada) + `rayos.yml` cada 10 min → rama `rayos` (commit único), leída por la web desde raw.githubusercontent.com; capa «Rayos» en Mapa. Repo público: minutos sin costo._
 
 ## Fase 5 · Calidad y lanzamiento
-- [ ] **T-60** Página **Metodología** completa con fórmulas y referencias. → RF-13, P3
+- [x] **T-60** Página **Metodología** completa con fórmulas y referencias. → RF-13, P3
+  _Hecho: 13 secciones con índice (tipos de dato, consenso, acuerdo, probabilidad, verificación, riesgo, focos, rayos, capas, alertas, limitaciones, fuentes, referencias con DOI verificados). Umbrales del pipeline en `core/methodology.ts`, sincronía comprobada por `test_methodology_sync.py`. Pestaña diferida (6,3 KB gzip)._
 - [ ] **T-61** Accesibilidad AA, paletas aptas para daltonismo, prueba en móvil 360 px. → RNF-4, RNF-7
 - [ ] **T-62** Presupuesto de rendimiento (bundle, fps) y de llamadas a APIs (≤ 10 000/día). → RNF-2, RNF-3, RNF-6
       🟡 Adelantado: JS inicial ≤ 150 KB gzip en CI (`npm run check:bundle`); faltan fps y llamadas.

@@ -1,0 +1,64 @@
+.method section {
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.method h3 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 0 0 6px;
+  font-size: 0.92rem;
+  scroll-margin-top: 8px;
+}
+
+.method p {
+  margin: 0 0 6px;
+}
+
+.method ul {
+  margin: 0 0 6px;
+  padding-left: 18px;
+}
+
+.method li {
+  margin-bottom: 4px;
+}
+
+.method code {
+  padding: 0 3px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.method__toc {
+  columns: 2;
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.78rem;
+}
+
+.method__toc a,
+.method__refs a {
+  color: var(--accent);
+}
+
+.method__kinds {
+  padding-left: 0 !important;
+  list-style: none;
+}
+
+.method__caption {
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  text-align: left;
+}
+
+.method__refs li {
+  overflow-wrap: anywhere;
+}

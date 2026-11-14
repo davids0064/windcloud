@@ -5,7 +5,7 @@ import { geoErrorMessage, locate } from './geolocation'
 import { LocateButton } from './LocateButton'
 import { TABS } from './menuTabs'
 import { SideMenu } from './SideMenu'
-import { MethodologyTab } from './tabs/MethodologyTab'
+import MethodologyTab from './tabs/MethodologyTab'
 
 describe('reloj', () => {
   it('UTC en 24 h y hora local en la zona pedida', () => {
@@ -150,13 +150,38 @@ describe('SideMenu (RF-13, diseño §9)', () => {
   })
 })
 
-describe('Metodología preliminar', () => {
-  it('muestra los umbrales reales del código y explica la transparencia de nubes', () => {
+describe('Metodología (T-60)', () => {
+  it('muestra los umbrales reales del código, las fórmulas y la transparencia de nubes', () => {
     render(<MethodologyTab />)
     expect(screen.getByText('≤ 1 °C')).toBeInTheDocument()
     expect(screen.getByText('> 8 km/h')).toBeInTheDocument()
     expect(screen.getByText(/ECMWF ENS: 51 · GFS ENS \(GEFS\): 31/)).toBeInTheDocument()
     expect(screen.getByText(/el brillo de cada píxel se convierte en opacidad/)).toBeInTheDocument()
     expect(screen.getByText(/solo para uso no comercial/)).toBeInTheDocument()
+    expect(screen.getByText('wᵢ = 1 / (MAEᵢ + 0,1)')).toBeInTheDocument()
+    expect(screen.getByText('CSI = a/(a+b+c)')).toBeInTheDocument()
+    expect(screen.getByText('FFWI = η·√(1 + U²) / 0,3002')).toBeInTheDocument()
+  })
+
+  it('cubre verificación, riesgo, focos, rayos, alertas, limitaciones y referencias con DOI', () => {
+    render(<MethodologyTab />)
+    const toc = screen.getByRole('navigation', { name: 'Secciones de la metodología' })
+    expect(toc.querySelectorAll('a')).toHaveLength(13)
+    for (const h of [
+      'Precisión verificada',
+      'Riesgo meteorológico',
+      'Focos de calor',
+      'Rayos',
+      'Limitaciones',
+    ]) {
+      expect(screen.getByRole('heading', { level: 3, name: new RegExp(h) })).toBeInTheDocument()
+    }
+    expect(screen.getByText(/ráfaga > 60 km\/h/)).toBeInTheDocument()
+    expect(screen.getByText(/en bloques de 6 h/)).toBeInTheDocument()
+    expect(screen.getByText(/menos de 24 pares/)).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: 'doi:10.1016/j.atmosres.2013.01.006' }),
+    ).toHaveAttribute('href', 'https://doi.org/10.1016/j.atmosres.2013.01.006')
+    expect(screen.getByText(/línea de emergencias es el 123/)).toBeInTheDocument()
   })
 })
