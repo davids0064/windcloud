@@ -11,11 +11,11 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 3/5** (T-60 a T-62 ✅) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 4/5** (T-60 a T-62 y T-64 ✅; T-63 pendiente) |
 | Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-62 (presupuestos: bundle, fps y llamadas a Open-Meteo) |
-| Siguiente tarea | **T-64** (atribuciones en el pie) y **T-63** (E2E Playwright; la verificación manual de SKBO 14 días requiere el código subido). T-54 (push) opcional. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
-| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · `core/methodology.ts` · `a11y.test.tsx` + `ui/contrast.test.ts` · `core/apiBudget.ts` · 273 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 121 pruebas · CI |
+| Última tarea cerrada | T-64 (atribuciones y licencias en el pie) |
+| Siguiente tarea | **T-63** (E2E Playwright; la verificación manual de SKBO 14 días requiere el código subido y 14 días de `verify.yml`). T-54 (push) opcional. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · `core/methodology.ts` · `a11y.test.tsx` + `ui/contrast.test.ts` · `core/apiBudget.ts` · `ui/sources.ts` + `ui/Attributions` · 275 pruebas web (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 121 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Regenerar estaciones METAR | `cd pipeline && uv run python -m windcloud_pipeline.stations` (→ `pipeline/data/stations.json`, sí va en git) |
 | Regenerar estaciones IDEAM | `cd pipeline && uv run python -m windcloud_pipeline.sources.ideam --estaciones` (→ `data/stations-ideam.json`) |
@@ -318,6 +318,13 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · T-64 Atribuciones y licencias
+- **Hecho:** `ui/sources.ts` (Open-Meteo, GFS, ECMWF, GIBS/GOES, GLM, FIRMS, AWC, IDEAM, OpenFreeMap/OSM,
+  geoBoundaries, EOX, AWS Terrain, GeoNames: uso, licencia, enlace), pie plegable `Attributions` en el menú y la
+  sección «Fuentes y licencias» de Metodología generada de la misma lista. Los 13 enlaces respondieron 200.
+- **Verificado:** 275 pruebas web, tsc, lint; en Chrome el pie se despliega con desplazamiento propio.
+- **Siguiente:** T-63.
 
 ### 2026-11-14 · T-62 Presupuestos de rendimiento y de llamadas
 - **Bundle:** inicial 90,5 KB gzip (límite de CI 150; RNF-2 pide ≤ 600).

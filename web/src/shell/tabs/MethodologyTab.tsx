@@ -11,6 +11,7 @@ import { ARROW_KM } from '../../fires/data'
 import { MAX_DATA_AGE_MIN } from '../../lightning/data'
 import { PRELIMINARY_DAYS } from '../../precision/data'
 import { DataChip } from '../../ui/DataChip'
+import { SOURCES } from '../../ui/sources'
 import './MethodologyTab.css'
 
 const SECTIONS = [
@@ -354,13 +355,16 @@ export default function MethodologyTab() {
 
       <section id="m-fuentes" aria-labelledby="h-fuentes">
         <h3 id="h-fuentes">Fuentes y licencias</h3>
-        <p>
-          Open-Meteo (datos CC BY 4.0; API gratuita solo para uso no comercial) · NOAA GFS y GOES
-          (dominio público) · ECMWF Open Data (CC BY 4.0) · NASA GIBS y FIRMS (uso libre con
-          atribución) · aviationweather.gov (dominio público) · IDEAM en datos.gov.co (CC BY-SA 4.0)
-          · OpenFreeMap y OpenStreetMap (ODbL) · geoBoundaries (ODbL para Colombia) · EOX Sentinel-2
-          cloudless (CC BY-NC-SA 4.0) · AWS Terrain Tiles · GeoNames vía Open-Meteo Geocoding.
-        </p>
+        <ul>
+          {SOURCES.map((src) => (
+            <li key={src.name}>
+              <a href={src.url} target="_blank" rel="noopener noreferrer">
+                {src.name}
+              </a>
+              : {src.use} ({src.license}).
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section id="m-referencias" aria-labelledby="h-referencias">

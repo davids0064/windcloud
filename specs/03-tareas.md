@@ -94,4 +94,5 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-62** Presupuesto de rendimiento (bundle, fps) y de llamadas a APIs (≤ 10 000/día). → RNF-2, RNF-3, RNF-6
   _Hecho: bundle inicial 90,5 KB gzip (CI ≤ 150 KB). Viento: 40 000 partículas a 60 fps medidos en Chrome (adaptación a la mitad bajo 30 fps, T-34). Llamadas: `core/apiBudget.ts` calcula el peso de las URL reales (punto 5,8; alertas ≤ 230/día; trabajos ≤ 4 000/día) con prueba; sincronía con `daily.CALL_BUDGET`._
 - [ ] **T-63** E2E Playwright y verificación manual SKBO 14 días. → Diseño §11
-- [ ] **T-64** Atribuciones y licencias de todas las fuentes en el pie de página. → P1, P7
+- [x] **T-64** Atribuciones y licencias de todas las fuentes en el pie de página. → P1, P7
+  _Hecho: `ui/sources.ts` (13 fuentes con uso, licencia y enlace, todos con 200 el 14/11) → pie plegable del menú (`ui/Attributions`) y sección de Metodología._

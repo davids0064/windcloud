@@ -1,3 +1,4 @@
+import { Attributions } from '../ui/Attributions'
 import { useId, useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { Clock } from './Clock'
 import { useOnline } from './useOnline'
@@ -99,6 +100,8 @@ export function SideMenu({ open, onToggle, tab, onTabChange, tools, children }: 
         >
           {children}
         </div>
+
+        <Attributions />
       </nav>
     </>
   )

@@ -411,3 +411,39 @@
 .radar-notice__status {
   color: var(--estimated);
 }
+
+/* Pie de atribuciones (T-64) */
+.attributions {
+  padding: 8px var(--gutter) 10px;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.attributions summary {
+  color: var(--text);
+  cursor: pointer;
+}
+
+.attributions ul {
+  max-height: 40vh;
+  margin: 6px 0;
+  padding-left: 16px;
+  overflow-y: auto;
+}
+
+.attributions li {
+  margin-bottom: 3px;
+}
+
+.attributions a {
+  color: var(--accent);
+}
+
+.attributions p {
+  margin: 0;
+}
+
+.attributions__license {
+  color: var(--text);
+}
