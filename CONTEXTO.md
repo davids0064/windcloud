@@ -11,10 +11,10 @@
 | Campo | Valor |
 |---|---|
 | Última actualización | 2026-11-14 |
-| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días pendiente de subir el código). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 3/4 (T-04 pospuesta). **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 4/5** (T-60 a T-62 y T-64 ✅; T-63: E2E ✅, falta SKBO 14 días) |
-| Modo de trabajo | **Todo en local** hasta decidir publicar. Commits locales; no hacer push sin pedirlo. Deploy solo manual |
-| Última tarea cerrada | T-63 parcial (E2E Playwright; falta la verificación SKBO de 14 días) |
-| Siguiente tarea | **Subir el código** (decisión del usuario): activa `grids.yml`, `verify.yml`, `rayos.yml` y CI con E2E; desde ahí cuentan los 14 días que cierran la fase 3 y la T-63 (SKBO). Luego T-04 (deploy; falta `CLOUDFLARE_API_TOKEN`). T-54 opcional. T-54 (push) opcional. Secreto `FIRMS_MAP_KEY` ya guardado en GitHub (14/11); en local está en `pipeline/.env`, ignorado por git. `CLOUDFLARE_API_TOKEN` aún no existe (hará falta para el deploy, T-04). Pendiente aparte: **subir el código** (activa `grids.yml` y `verify.yml`; los 14 días de verificación solo cuentan desde ahí). **Subir el código** activa `grids.yml` y `verify.yml` (los 14 días solo cuentan desde ahí) |
+| Fase | Fase 1 ✅. Fase 2 ✅ (8/8; T-33 aún sin 1.ª corrida en GitHub). **Fase 3: 10/10 ✅ en código** (T-40 a T-49; criterio de los 14 días corre desde el 14/11). El consenso ponderado se activa solo con 14 días de verificación. Fase 0: 4/4 ✅. **Fase 4: 5/6** (T-50 a T-53 y T-55 ✅; T-54 opcional). **Fase 5: 4/5** (T-60 a T-62 y T-64 ✅; T-63: E2E ✅, falta SKBO 14 días) |
+| Modo de trabajo | Código en GitHub (`main`) y sitio publicado. Commits con correo noreply. Secretos en GitHub: `FIRMS_MAP_KEY`, `CLOUDFLARE_API_TOKEN` (el ID de cuenta lo deduce wrangler) |
+| Última tarea cerrada | T-04 (despliegue en Cloudflare Workers desde Actions) |
+| Siguiente tarea | Esperar 14 días de `verify.yml` (desde el 14/11): cierran la fase 3 y la T-63 (comparar consenso vs. SKBO). Opcional: T-54 (push con página cerrada). |
 | Código existente | `web/src/map/` (MapView, basemaps, palette, departments, BasemapSwitcher, deckCompat, locale) · `web/src/map/` (+ clouds, cloudAlpha) · `web/src/api/` (http, geocoding, gibs) · `web/src/clouds/` (CloudPanel, useCloudAnimation, time) · `web/src/core/` (models, variables, consensus, agreement) · `web/src/api/openMeteo.ts` · `web/src/point/` (PointPanel, ModelChart, AgreementBadge, summary, usePointForecast, colors) · `web/src/search/PlaceSearch` · `web/public/geo/` · `web/src/api/ensemble.ts` · `web/src/core/` (+ probability, runs) · `web/src/ui/` (DataChip, SourceLine) · `web/src/shell/` (SideMenu, Clock, LocateButton, tabs/) · `web/src/precision/` (data, usePrecision, PrecisionTab) · `web/src/map/stations.ts` · `web/src/data/cityNetworks` · `web/src/risk/` + `map/risk.ts` · `ui/Segmented` · `core/alerts` + `web/src/alerts/` · `web/src/fires/` + `map/fires.ts` · `web/src/lightning/` + `map/lightning.ts` · `core/methodology.ts` · `a11y.test.tsx` + `ui/contrast.test.ts` · `core/apiBudget.ts` · `ui/sources.ts` + `ui/Attributions` · 275 pruebas web + 7 E2E (`web/e2e/`, `npm run e2e`) (core 98,7 % cobertura) · `pipeline/` (geo, grids, encode, ecmwf, update, stations, metar, verify, metrics, daily, sources/ideam, risk, fires, lightning) 121 pruebas · CI |
 | Cómo ver | `cd web && npm run dev` → http://localhost:5173 |
 | Pruebas de punta a punta | `cd web && npm run e2e` (compila y sirve en :4173; usa el Chrome instalado) |
@@ -29,7 +29,7 @@
 | Codificar a PNG | `uv run python -m windcloud_pipeline.encode --entrada out/gfs/<run>` (→ `pipeline/out/web/data/gfs/<run>/`) |
 | Actualizar todo (lo que hará Actions) | `cd pipeline && uv run python -m windcloud_pipeline.update` (GFS y ECMWF; no hace nada si el run ya está publicado; ECMWF tarda ~10 min) |
 | Repositorio git | Público: https://github.com/davids0064/windcloud (rama `main`). Commits firmados con correo noreply de GitHub. Local va por delante del remoto |
-| URL pública | — (T-04 pospuesta) |
+| URL pública | https://windcloud.windcloudcol.workers.dev (Cloudflare Workers, se redespliega tras CI, rejillas y verificación) |
 | Bloqueos | Ninguno para trabajo local |
 
 ## 2. Resumen del proyecto (cambia poco)
@@ -147,6 +147,11 @@
 - **2026-11-14 · Rayos fuera del deploy (T-55):** rama `rayos` leída desde raw.githubusercontent.com, porque el
   sitio solo se redespliega a mano y los rayos caducan en minutos. Dependencia nueva: `h5py` (BSD, gratis).
 
+- **2026-11-14 · Despliegue (T-04):** Workers con archivos estáticos desplegado por Actions (no el build Git de
+  Cloudflare): el sitio necesita los datos de las ramas `grids` y `data`, que cambian 8 y 1 veces al día. Subdominio
+  `windcloudcol` (el anterior mostraba parte del correo del usuario). Los tokens nunca en el chat: el usuario los
+  guarda desde la web de GitHub (el `!` no permite pegar en preguntas interactivas).
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -156,7 +161,7 @@
   reactivar en Actions si pasa.
 - [ ] Términos actuales de RainViewer para radar → T-37
 - [ ] ¿Las texturas de viento caben en los límites de Pages (25 MiB/archivo, 20 000 archivos) o hace falta R2? → T-32/T-33
-- [ ] Hosting definitivo: Cloudflare Pages vs. GitHub Pages (preferido Cloudflare) → T-04
+- [x] ~~Hosting definitivo~~ Resuelto (14/11): Cloudflare Workers, archivos estáticos (T-04).
 
 - ~~¿Partir `precision.json`?~~ Resuelto en T-43: resumen 64 KB + detalle por estación ~12 KB.
 - La rama `data` crece ~40 MB/año (pares + JSON reescritos a diario). Si algún día molesta: sacar `web/` del
@@ -169,6 +174,11 @@
   recortar a las estaciones con mejor cobertura.
 
 ## 5. Aprendizajes y trampas conocidas
+
+- **El build conectado a Git de Cloudflare** detecta `web/` como «sitio estático» y sube el código sin compilar
+  (incluido `package.json`). Desplegar desde Actions con `wrangler deploy` y `assets.directory: ./dist`.
+- **El subdominio `*.workers.dev`** sale del nombre de la cuenta (puede incluir el correo): cambiarlo antes de publicar.
+- **`! gh secret set X` sin valor** crea el secreto vacío (no hay TTY para la pregunta): guardarlo desde la web de GitHub.
 
 - **`npm install` en macOS borra del lock `@emnapi/core` y `@emnapi/runtime`** (opcionales que solo pide Linux) y
   `npm ci` falla en CI. Tras instalar cualquier paquete, comprobar que siguen en `web/package-lock.json`; si no,
@@ -323,6 +333,15 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-14 · Código en GitHub y T-04 → **sitio publicado**
+- **Push** de 49 commits (correo noreply comprobado, sin claves). El 1.er CI falló en `npm ci`: el lock generado
+  en macOS había perdido `@emnapi/core` y `@emnapi/runtime` → reinsertadas (25 líneas, integridad verificada).
+- **T-04:** el usuario conectó el repo en Cloudflare (build Git) y publicó `web/` sin compilar; se cambió el
+  subdominio a `windcloudcol` y se reescribió `deploy.yml` para Workers (`wrangler deploy`, tras CI/rejillas/
+  verificación). Primer despliegue OK; `/package.json` y `/src/*` ya dan 404.
+- **Primeras corridas en GitHub:** `rayos.yml` OK (21 s, 2 872 descargas); `grids.yml` y `verify.yml` lanzados a mano.
+- **Seguridad:** el token de Cloudflare se pegó en el chat → no se usó; el usuario lo rotó y lo guardó en GitHub.
 
 ### 2026-11-14 · T-63 E2E con Playwright (parcial)
 - **Hecho:** `@playwright/test` (Apache-2.0, devDependency) con `channel: 'chrome'` (sin descargar navegadores),

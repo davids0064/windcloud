@@ -7,8 +7,8 @@ Orden recomendado de ejecución: por fases. Marcar `[x]` al terminar.
 - [x] **T-01** Crear monorepo (`web/`, `pipeline/`, `.github/`), licencia MIT, README con atribuciones. → P7
 - [x] **T-02** `web/`: Vite + React + TS, oxlint, Prettier, Vitest; tema oscuro con variables CSS. → RNF-4
 - [x] **T-03** `pipeline/`: Python 3.12, `uv`/pip, pytest, eccodes instalado en CI (`ci.yml`). → —
-- [ ] **T-04** Workflow `deploy.yml`: build de `web/` y publicación en Cloudflare Pages en cada push a `main`. → RNF-1
-  *Hecho:* URL pública con "Hola WindCloud". 🟡 Workflow listo y en modo manual; **pospuesta** hasta decidir publicar (falta secretos de Cloudflare).
+- [x] **T-04** Workflow `deploy.yml`: build de `web/` y publicación en Cloudflare Pages en cada push a `main`. → RNF-1
+  *Hecho (14/11):* **Cloudflare Workers** (solo archivos estáticos, `web/wrangler.jsonc`) en vez de Pages: https://windcloud.windcloudcol.workers.dev. `deploy.yml` corre tras CI exitoso en `main` y tras cada corrida de rejillas y verificación (los datos viven en ramas); se descartó el build conectado a Git de Cloudflare (subía `web/` sin compilar).
 
 ## Fase 1 · MVP: mapa + panel de precisión por punto
 - [x] **T-10** MapView con MapLibre + overlay deck.gl, centrado en Colombia, bases oscuro/satélite/relieve. → RF-1
