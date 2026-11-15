@@ -152,6 +152,12 @@
   `windcloudcol` (el anterior mostraba parte del correo del usuario). Los tokens nunca en el chat: el usuario los
   guarda desde la web de GitHub (el `!` no permite pegar en preguntas interactivas).
 
+- **2026-11-15 · Cron de Cloudflare en vez de GitHub (T-55):** GitHub atrasó 8 h la verificación y corrió `rayos.yml`
+  3 veces en 18 h. El Worker del sitio lleva un script `scheduled` (`web/worker/index.ts`) con 4 Cron Triggers
+  que lanzan `rayos.yml` (cada 10 min), `grids.yml` y `verify.yml` por la API de GitHub. Requiere el secreto
+  `GITHUB_TOKEN` en el Worker (token fine-grained, solo este repo, «Actions: Read and write»). Los cron de
+  GitHub quedan de respaldo.
+
 ## 4. Preguntas abiertas / riesgos
 
 - [ ] ¿Las redes urbanas (SAB, SIATA, CDIAC, CVC) tienen API o descarga abierta con licencia? → T-46
@@ -338,6 +344,13 @@ Plantilla — copiar al inicio de esta sección en cada iteración:
 - **Decisiones:** (también copiarlas a §3)
 - **Pendiente / siguiente paso:** …
 -->
+
+### 2026-11-15 · Primer día en producción y disparador de Cloudflare
+- **Corridas automáticas (14–15/11):** rejillas 4 de 8 (todas OK), verificación OK pero con 8 h de atraso
+  (11:25 en vez de 03:30), rayos 3 de ~100. Verificación: 0 fallidos, IDEAM del 12/11 recuperado con los nuevos
+  reintentos, 11 días en la ventana de 30 (14 hacia el 18/11), 6 días de IDEAM aún aplazados.
+- **Hecho:** `web/worker/index.ts` (+ pruebas) y `wrangler.jsonc` con `main`, binding `ASSETS` y 4 crons.
+- **Pendiente del usuario:** crear el token de GitHub y guardarlo como secreto `GITHUB_TOKEN` del Worker.
 
 ### 2026-11-14 · Código en GitHub y T-04 → **sitio publicado**
 - **Push** de 49 commits (correo noreply comprobado, sin claves). El 1.er CI falló en `npm ci`: el lock generado

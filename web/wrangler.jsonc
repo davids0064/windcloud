@@ -1,11 +1,18 @@
-// Sitio de WindCloud en Cloudflare Workers (solo archivos estáticos, plan gratuito). → T-04, RNF-1
+// Sitio de WindCloud en Cloudflare Workers (plan gratuito). → T-04, RNF-1
 // Lo despliega .github/workflows/deploy.yml con `wrangler deploy` tras compilar y juntar los datos en dist/.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "windcloud",
   "compatibility_date": "2026-11-13",
+  // Script mínimo: los archivos estáticos se sirven sin invocarlo; su trabajo es el disparador programado.
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
+  },
+  // Cron Triggers (UTC): lanzan los workflows de GitHub a su hora (worker/index.ts, SCHEDULE).
+  "triggers": {
+    "crons": ["*/10 * * * *", "45 4,10,16,22 * * *", "15 0,6,12,18 * * *", "30 3 * * *"],
   },
   // https://windcloud.windcloudcol.workers.dev ; sin URL de vista previa por versión.
   "workers_dev": true,

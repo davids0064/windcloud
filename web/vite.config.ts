@@ -8,7 +8,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     // Las pruebas de punta a punta (e2e/, Playwright) no corren con Vitest.
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', 'worker/**/*.test.ts'],
     setupFiles: ['./src/test-setup.ts'],
     // jsdom + carga diferida (mapa, gráfica) hacen lenta la 1.ª prueba de cada archivo cuando corren en
     // paralelo con el servidor y el navegador abiertos: 5 s (por defecto) fallaba a veces sin error real.
