@@ -1,62 +1,28 @@
 {
- "checkedAt": "2026-11-14T19:11:09Z",
- "hasta": "2026-11-13",
+ "checkedAt": "2026-11-15T12:06:59Z",
+ "hasta": "2026-11-14",
  "verificados": [
   {
    "red": "METAR",
+   "dia": "2026-11-14"
+  },
+  {
+   "red": "IDEAM",
    "dia": "2026-11-13"
   },
   {
-   "red": "METAR",
+   "red": "IDEAM",
    "dia": "2026-11-12"
   },
   {
-   "red": "METAR",
-   "dia": "2026-11-11"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-10"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-09"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-08"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-07"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-06"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-05"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-04"
-  }
- ],
- "fallidos": [
-  {
    "red": "IDEAM",
-   "dia": "2026-11-12",
-   "error": "RuntimeError: Falló tras reintentos: https://previous-runs-api.open-meteo.com/v1/forecast?latitude=4.3562,4.785,4.7119,5.0,4.7579,4.8706,3.2841,3.0451,3.2082,3.7224&longitude=-74.1592,-73.8701,-75.0945,-74.9,-74.8309,-75.1733,-75.8024,-75.7618,-75.6466,-75.5034&elevation=3553,3140,2254,281,244,3002,1725,1745,1320,891&hourly=temperature_2m_previous_day1,temperature_2m_previous_day2,wind_speed_10m_previous_day1,wind_speed_10m_previous_day2,precipitation_previous_day1,precipitation_previous_day2&models=ecmwf_ifs,ecmwf_aifs025_single,gfs_seamless,icon_seamless,gem_seamless,jma_seamless,meteofrance_seamless,ukmo_seamless&start_date=2026-11-12&end_date=2026-11-12&timezone=GMT"
+   "dia": "2026-11-11"
   }
  ],
+ "fallidos": [],
  "aplazados": [
   {
    "red": "IDEAM",
-   "dia": "2026-11-11"
-  },
-  {
-   "red": "IDEAM",
    "dia": "2026-11-10"
   },
   {
@@ -78,15 +44,11 @@
   {
    "red": "IDEAM",
    "dia": "2026-11-05"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-04"
   }
  ],
- "llamadas_open_meteo": 3077,
+ "llamadas_open_meteo": 3245,
  "dias_ventana": {
   "7": 7,
-  "30": 10
+  "30": 11
  }
 }
