@@ -1,42 +1,37 @@
 {
- "checkedAt": "2026-11-16T12:22:24Z",
- "hasta": "2026-11-15",
+ "checkedAt": "2026-11-19T12:28:30Z",
+ "hasta": "2026-11-18",
  "verificados": [
   {
    "red": "METAR",
+   "dia": "2026-11-18"
+  },
+  {
+   "red": "METAR",
+   "dia": "2026-11-17"
+  },
+  {
+   "red": "METAR",
+   "dia": "2026-11-16"
+  },
+  {
+   "red": "IDEAM",
+   "dia": "2026-11-17"
+  },
+  {
+   "red": "IDEAM",
+   "dia": "2026-11-16"
+  },
+  {
+   "red": "IDEAM",
    "dia": "2026-11-15"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-14"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-10"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-09"
   }
  ],
  "fallidos": [],
- "aplazados": [
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-08"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-07"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-06"
-  }
- ],
- "llamadas_open_meteo": 3245,
+ "aplazados": [],
+ "llamadas_open_meteo": 3658,
  "dias_ventana": {
   "7": 7,
-  "30": 12
+  "30": 15
  }
 }
