@@ -1,37 +1,21 @@
 {
- "checkedAt": "2026-11-19T12:28:30Z",
- "hasta": "2026-11-18",
+ "checkedAt": "2026-11-20T12:15:52Z",
+ "hasta": "2026-11-19",
  "verificados": [
   {
    "red": "METAR",
+   "dia": "2026-11-19"
+  },
+  {
+   "red": "IDEAM",
    "dia": "2026-11-18"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-17"
-  },
-  {
-   "red": "METAR",
-   "dia": "2026-11-16"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-17"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-16"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-15"
   }
  ],
  "fallidos": [],
  "aplazados": [],
- "llamadas_open_meteo": 3658,
+ "llamadas_open_meteo": 1219,
  "dias_ventana": {
   "7": 7,
-  "30": 15
+  "30": 16
  }
 }
