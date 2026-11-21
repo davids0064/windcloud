@@ -1,21 +1,23 @@
 {
- "checkedAt": "2026-11-20T12:15:52Z",
- "hasta": "2026-11-19",
+ "checkedAt": "2026-11-21T11:55:39Z",
+ "hasta": "2026-11-20",
  "verificados": [
   {
    "red": "METAR",
-   "dia": "2026-11-19"
-  },
-  {
-   "red": "IDEAM",
-   "dia": "2026-11-18"
+   "dia": "2026-11-20"
   }
  ],
- "fallidos": [],
+ "fallidos": [
+  {
+   "red": "IDEAM",
+   "dia": "2026-11-19",
+   "error": "RuntimeError: Falló tras reintentos (JSONDecodeError): https://previous-runs-api.open-meteo.com/v1/forecast?latitude=3.4558,3.9212,4.1246,5.2651,5.3011,5.4942,5.4812,5.1379,5.0169,6.4836&longitude=-75.5364,-75.4677,-75.4995,-75.1431,-74.9146,-74.6581,-74.3512,-74.1366,-74.471,-74.8367&elevation=677,1558,2578,1974,760,171,1355,2007,877,825&hourly=temperature_2m_previous_day1,temperature_2m_previous_day2,wind_speed_10m_previous_day1,wind_speed_10m_previous_day2,precipitation_previous_day1,precipitation_previous_day2&models=ecmwf_ifs,ecmwf_aifs025_single,gfs_seamless,icon_seamless,gem_seamless,jma_seamless,meteofrance_seamless,ukmo_seamless&start_date=2026-11-19&end_date=2026-11-19&timezone=GMT"
+  }
+ ],
  "aplazados": [],
  "llamadas_open_meteo": 1219,
  "dias_ventana": {
   "7": 7,
-  "30": 16
+  "30": 17
  }
 }
