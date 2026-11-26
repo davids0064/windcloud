@@ -1,14 +1,14 @@
 {
- "checkedAt": "2026-11-25T13:39:54Z",
- "hasta": "2026-11-24",
+ "checkedAt": "2026-11-26T13:18:33Z",
+ "hasta": "2026-11-25",
  "verificados": [
   {
    "red": "METAR",
-   "dia": "2026-11-24"
+   "dia": "2026-11-25"
   },
   {
    "red": "IDEAM",
-   "dia": "2026-11-23"
+   "dia": "2026-11-24"
   }
  ],
  "fallidos": [],
@@ -16,6 +16,6 @@
  "llamadas_open_meteo": 1219,
  "dias_ventana": {
   "7": 7,
-  "30": 21
+  "30": 22
  }
 }
