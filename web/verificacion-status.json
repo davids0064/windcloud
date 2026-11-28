@@ -1,21 +1,23 @@
 {
- "checkedAt": "2026-11-27T13:08:07Z",
- "hasta": "2026-11-26",
- "verificados": [
+ "checkedAt": "2026-11-28T12:34:02Z",
+ "hasta": "2026-11-27",
+ "verificados": [],
+ "fallidos": [
   {
    "red": "METAR",
-   "dia": "2026-11-26"
+   "dia": "2026-11-27",
+   "error": "RuntimeError: Falló tras reintentos (TimeoutError): https://previous-runs-api.open-meteo.com/v1/forecast?latitude=-4.254,-0.461,0.092,0.979,0.809,4.455,0.505,7.127,4.706,10.883&longitude=-69.939,-76.988,-76.869,-79.627,-77.708,-75.766,-76.501,-73.185,-74.151,-74.78&elevation=79,256,293,10,2936,1214,251,1187,2547,23&hourly=temperature_2m_previous_day1,temperature_2m_previous_day2,wind_speed_10m_previous_day1,wind_speed_10m_previous_day2,precipitation_previous_day1,precipitation_previous_day2&models=ecmwf_ifs,ecmwf_aifs025_single,gfs_seamless,icon_seamless,gem_seamless,jma_seamless,meteofrance_seamless,ukmo_seamless&start_date=2026-11-27&end_date=2026-11-27&timezone=GMT"
   },
   {
    "red": "IDEAM",
-   "dia": "2026-11-25"
+   "dia": "2026-11-26",
+   "error": "RuntimeError: Falló tras reintentos (URLError): https://previous-runs-api.open-meteo.com/v1/forecast?latitude=11.2102,7.3609,7.9132,7.6463,8.2277,1.8248,1.8885,2.0792,1.87,2.2816&longitude=-73.8444,-72.6661,-72.803,-72.799,-73.3975,-76.1303,-76.295,-75.7362,-75.83,-75.7051&elevation=230,2590,1277,979,1660,1310,1754,1346,1046,777&hourly=temperature_2m_previous_day1,temperature_2m_previous_day2,wind_speed_10m_previous_day1,wind_speed_10m_previous_day2,precipitation_previous_day1,precipitation_previous_day2&models=ecmwf_ifs,ecmwf_aifs025_single,gfs_seamless,icon_seamless,gem_seamless,jma_seamless,meteofrance_seamless,ukmo_seamless&start_date=2026-11-26&end_date=2026-11-26&timezone=GMT"
   }
  ],
- "fallidos": [],
  "aplazados": [],
  "llamadas_open_meteo": 1219,
  "dias_ventana": {
-  "7": 7,
+  "7": 6,
   "30": 23
  }
 }
